@@ -20,11 +20,11 @@ body {
 }
 
 .option.left {
-    background-image: url('airplane-7359232.jpg');
+    background-image: url('images/airplane-7359232.jpg');
 }
 
 .option.right {
-    background-image: url('cruise-ship-4440339.jpg');
+    background-image: url('images/cruise-ship-4440339.jpg');
 }
 
 .option .label {
