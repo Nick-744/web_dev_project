@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flight Booking Globe</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/globe.gl"></script>
+</head>
+<body>
+
+  <!-- ✅ Top Blue Bar -->
+  <header class="top-bar">
+    <span class="logo">✈ airtickets</span>
+  </header>
+
+  <!-- ✅ Form Box Floating Left -->
+<div class="form-box">
+    <label>From:</label>
+    <select id="fromInput"><option value="">Select</option></select>
+
+    <label>To:</label>
+    <select id="toInput"><option value="">Select</option></select>
+
+    <label>Check In:</label>
+    <input type="text" placeholder="mm/dd/yyyy" />
+
+    <label>Check Out:</label>
+    <input type="text" placeholder="mm/dd/yyyy" />
+
+    <label>Class:</label>
+    <select>
+      <option>Economy</option>
+      <option>Business</option>
+      <option>First</option>
+    </select>
+
+    <label>Adult:</label>
+    <input type="number" value="1" min="1" />
+
+    <label>Children:</label>
+    <input type="number" value="1" min="0" />
+
+    <button id="checkBtn">Check</button> <!-- ✅ new button -->
+  </div>
+
+  <!-- ✅ Globe Background -->
+  <div id="globeViz"></div>
+
+  <!-- ✅ Footer at bottom -->
+  <footer class="footer">
+    © 2025 airtickets. All rights reserved.
+  </footer>
+
+  <!-- Scripts -->
+  <script src="cities.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
