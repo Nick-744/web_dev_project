@@ -1,7 +1,47 @@
+// Date Picker
+
+const checkIn = flatpickr("#checkIn", {
+  dateFormat: "m/d/Y",
+  minDate: "today",
+  onChange: function(selectedDates) {
+    // When a date is picked, update check-out's minDate
+    if (selectedDates.length > 0) {
+      checkOut.set("minDate", selectedDates[0]);
+    }
+  }
+});
+
+const checkOut = flatpickr("#checkOut", {
+  dateFormat: "m/d/Y",
+  minDate: "today"
+});
+
+document.getElementById("flightForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  if (!this.checkValidity()) {
+    this.reportValidity(); // shows browser's native error messages
+    return;
+  }
+
+  // Extra manual check in case of odd Flatpickr behavior
+  const checkInVal = document.getElementById('checkIn').value;
+  if (!checkInVal) {
+    alert("Please select a Check In date!");
+    return;
+  }
+});
+
+// Globe Animation
+
 const globe = Globe()
   (document.getElementById('globeViz'))
   .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
   .arcsData([])
+  .pointsData([]) // <- add this
+  .pointAltitude(0.015)
+  .pointColor(() => '#f97316') // orange points
+  .pointRadius(0.3)
   .arcColor(() => ['#ffffff', '#f97316'])
   .arcDashLength(0.3)
   .arcDashGap(1)
@@ -73,6 +113,7 @@ function startAirplaneFlight(start, end) {
 function clearFlights() {
   arcs = [];
   globe.arcsData([]);
+  globe.pointsData([]); // Clear previous pins
   if (airplane) {
     globe.scene().remove(airplane);
     airplane = null;
@@ -109,6 +150,12 @@ function updateGlobe() {
   const midLat = (from.lat + to.lat) / 2;
   const midLng = (from.lng + to.lng) / 2;
   globe.pointOfView({ lat: midLat, lng: midLng, altitude: 2 }, 2000);
+
+  // Add pins at the two cities
+  globe.pointsData([
+    { lat: from.lat, lng: from.lng },
+    { lat: to.lat, lng: to.lng }
+  ]);
 
   startAirplaneFlight(from, to);
 }
@@ -151,3 +198,9 @@ startRandomFlights();
 document.getElementById('checkBtn').addEventListener('click', updateGlobe);
 fromSelect.addEventListener('change', updateGlobe);
 toSelect.addEventListener('change', updateGlobe);
+
+window.addEventListener('resize', () => {
+  globe.width([window.innerWidth]);
+  globe.height([window.innerHeight]);
+});
+

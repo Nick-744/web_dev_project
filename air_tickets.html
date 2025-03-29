@@ -1,59 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flight Booking Globe</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://unpkg.com/globe.gl"></script>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✈🎫</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/air_tickets.css" />
+    <script src="https://unpkg.com/globe.gl"></script>
+    <!-- Flatpickr CSS | Better Calendar UI -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  </head>
 
-  <!-- ✅ Top Blue Bar -->
-  <header class="top-bar">
-    <span class="logo">✈ airtickets</span>
-  </header>
+  <body>
+    <!--  Top Blue Bar -->
+    <header class="top-bar">
+      <a href="air_tickets.html" class="logo">✈ FlyExpress</a>
+      <nav>
+        <ul>
+          <li><a href="#">Tickets </a></li>
+          <li ><a href="top-destinations.html">Top Destinations </a></li>
+          <li><a href="#">About us </a></li>
+        </ul>
+      </nav>
+    </header>
+    <!--  Form Box Floating Left -->
+    <div class="floating-form-box">
+      <form id="flightForm">
+        <label>From:</label><br/>
+        <select id="fromInput" required>
+          <option value="">Select</option>
+        </select>
 
-  <!-- ✅ Form Box Floating Left -->
-<div class="form-box">
-    <label>From:</label>
-    <select id="fromInput"><option value="">Select</option></select>
+        <br/>
 
-    <label>To:</label>
-    <select id="toInput"><option value="">Select</option></select>
+        <label>To:</label><br/>
+        <select id="toInput" required>
+          <option value="">Select</option>
+        </select>
 
-    <label>Check In:</label>
-    <input type="text" placeholder="mm/dd/yyyy" />
+        <br/>
 
-    <label>Check Out:</label>
-    <input type="text" placeholder="mm/dd/yyyy" />
+        <label>Check In:</label><br/>
+        <input id="checkIn" type="text" placeholder="mm/dd/yyyy" required data-input/>
 
-    <label>Class:</label>
-    <select>
-      <option>Economy</option>
-      <option>Business</option>
-      <option>First</option>
-    </select>
+        <br/>
 
-    <label>Adult:</label>
-    <input type="number" value="1" min="1" />
+        <label>Check Out:</label><br/>
+        <input id="checkOut" type="text" placeholder="mm/dd/yyyy"/>
 
-    <label>Children:</label>
-    <input type="number" value="1" min="0" />
+        <br/>
 
-    <button id="checkBtn">Check</button> <!-- ✅ new button -->
-  </div>
+        <label>Class:</label><br/>
+        <select required>
+          <option>Economy</option>
+          <option>Business</option>
+          <option>First</option>
+        </select>
 
-  <!-- ✅ Globe Background -->
-  <div id="globeViz"></div>
+        <br/>
 
-  <!-- ✅ Footer at bottom -->
-  <footer class="footer">
-    © 2025 airtickets. All rights reserved.
-  </footer>
+        <label>Adult:</label><br/>
+        <input type="number" value="1" min="1" required/>
 
-  <!-- Scripts -->
-  <script src="cities.js"></script>
-  <script src="script.js"></script>
-</body>
+        <br/>
+
+        <label>Children:</label><br/>
+        <input type="number" value="1" min="0" required/>
+
+        <br/>
+
+        <button id="checkBtn">Check</button> <!--  new button -->
+      </form>
+    </div>
+
+    <!--  Globe Background -->
+    <div id="globeViz"></div>
+
+    <!--  Footer at bottom -->
+    <footer class="footer">
+      © 2025 airtickets. All rights reserved.
+    </footer>
+
+    <!-- Scripts -->
+     <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="js/cities.js"></script>
+    <script src="js/script.js"></script>
+  </body>
 </html>
