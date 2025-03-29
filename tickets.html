@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book Tickets ✈️</title>
+  <link rel="stylesheet" href="css/tickets.css" />
+  <link rel="stylesheet" href="css/common.css" />
+</head>
+
+<body>
+  <header class="top-bar">
+    <a href="air_tickets.html" class="logo">✈ FlyExpress</a>
+    <nav>
+      <ul>
+        <li class="selected"><a href="#">Tickets</a></li>
+        <li><a href="top-destinations.html">Top Destinations</a></li>
+        <li><a href="#">About us</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="ticket-form-container">
+    <h1>Book Your Next Adventure ✈️</h1>
+    <form class="ticket-form">
+      <div class="form-row">
+        <label>From:</label>
+        <select>
+          <option>Paris</option>
+          <option>Tokyo</option>
+          <option>New York</option>
+        </select>
+
+        <label>To:</label>
+        <select>
+          <option>Tokyo</option>
+          <option>Paris</option>
+          <option>New York</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label>Date:</label>
+        <input type="date" />
+
+        <label>Passengers:</label>
+        <input type="number" min="1" value="1" />
+      </div>
+
+      <button type="submit">Search Flights</button>
+    </form>
+  </main>
+
+  <footer class="footer">
+    © 2025 airtickets. All rights reserved.
+  </footer>
+</body>
+</html>
