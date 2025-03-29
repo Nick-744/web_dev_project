@@ -23,6 +23,126 @@
   <main class="ticket-form-container">
     <h1>Book Your Next Adventure ✈️</h1>
     <form class="ticket-form">
+
+      <!-- From / To -->
+      <div class="form-row">
+        <label>From:</label>
+        <select required>
+          <option value="">Select</option>
+          <option>Paris</option>
+          <option>Tokyo</option>
+          <option>New York</option>
+        </select>
+
+        <label>To:</label>
+        <select required>
+          <option value="">Select</option>
+          <option>Paris</option>
+          <option>Tokyo</option>
+          <option>New York</option>
+        </select>
+      </div>
+      <!-- Trip Type -->
+      <div class="form-row">
+        <label>Trip Type:</label>
+        <select id="tripType" required>
+          <option value="oneway">One-way</option>
+          <option value="roundtrip">Round-trip</option>
+        </select>
+      </div>
+      <!-- Dates -->
+      <div class="form-row">
+        <label>Departure Date:</label>
+        <input type="date" required />
+
+        <div id="returnDateContainer" style="display: none;">
+          <label>Return Date:</label>
+          <input type="date" />
+        </div>
+      </div>
+
+      <!-- Class & Airline -->
+      <div class="form-row">
+        <label>Class:</label>
+        <select required>
+          <option>Economy</option>
+          <option>Business</option>
+          <option>First</option>
+        </select>
+
+        <label>Airline:</label>
+        <select>
+          <option value="">Any</option>
+          <option>FlyExpress</option>
+          <option>SkyHigh</option>
+          <option>AirNova</option>
+        </select>
+      </div>
+
+      <!-- Passengers -->
+      <div class="form-row">
+        <label>Adults:</label>
+        <input type="number" min="1" value="1" required />
+
+        <label>Children:</label>
+        <input type="number" min="0" value="0" required />
+      </div>
+
+      <!-- Submit -->
+      <button type="submit">Search Flights</button>
+    </form>
+  </main>
+
+  <footer class="footer">
+    © 2025 airtickets. All rights reserved.
+  </footer>
+
+  <!-- JS to toggle return date -->
+  <script>
+    const tripType = document.getElementById("tripType");
+    const returnDateContainer = document.getElementById("returnDateContainer");
+
+    tripType.addEventListener("change", () => {
+      if (tripType.value === "roundtrip") {
+        returnDateContainer.style.display = "block";
+      } else {
+        returnDateContainer.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
+
+<!--
+  This HTML document is a simple ticket booking form for an airline website.
+  It includes a header with navigation links, a form for booking tickets,
+  and a footer with copyright information.
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book Tickets ✈️</title>
+  <link rel="stylesheet" href="css/tickets.css" />
+  <link rel="stylesheet" href="css/common.css" />
+</head>
+
+<body>
+  <header class="top-bar">
+    <a href="air_tickets.html" class="logo">✈ FlyExpress</a>
+    <nav>
+      <ul>
+        <li class="selected"><a href="#">Tickets</a></li>
+        <li><a href="top-destinations.html">Top Destinations</a></li>
+        <li><a href="#">About us</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="ticket-form-container">
+    <h1>Book Your Next Adventure ✈️</h1>
+    <form class="ticket-form">
       <div class="form-row">
         <label>From:</label>
         <select>
@@ -55,4 +175,4 @@
     © 2025 airtickets. All rights reserved.
   </footer>
 </body>
-</html>
+</html>-->
