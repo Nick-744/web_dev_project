@@ -3,7 +3,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 15px 20px 15px 20px;
+  padding: 80px 20px;
   min-height: 80vh;
   background: linear-gradient(to right, #1a1a1a, #333333);
   color: white;
@@ -12,7 +12,7 @@
 
 .ticket-form-container h1 {
   font-size: 2.5rem;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 }
 
 .ticket-form {
@@ -27,37 +27,24 @@
   max-width: 700px;
   color: #111;
 }
-
-/* Base form row layout */
-.form-row {
+.form-field {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  flex: 1;
+  min-width: 0;
 }
 
-/* Grid layout for two-column rows */
-.form-row.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.form-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   gap: 20px;
-}
-/* Allow elements to span both columns */
-.colspan-2 {
-  grid-column: span 2;
+  flex-wrap: wrap;
 }
 
-
-/* Responsive stacking */
-@media (max-width: 600px) {
-  .form-row.grid-2 {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Inputs and selects */
 .form-row label {
   font-weight: bold;
-  margin-bottom: 4px;
+  margin-right: 8px;
 }
 
 .form-row input,
@@ -65,12 +52,10 @@
   padding: 8px;
   border-radius: 6px;
   border: 1px solid #ccc;
-  font-size: 0.95rem;
-  width: 100%;
-  box-sizing: border-box;
+  flex: 1;
+  min-width: 120px;
 }
 
-/* Submit button */
 .ticket-form button {
   padding: 12px;
   font-size: 1rem;
@@ -86,11 +71,3 @@
 .ticket-form button:hover {
   background-color: #fb923c;
 }
-
-.error-msg {
-  color: red;
-  font-size: 0.85rem;
-  margin-top: 4px;
-  display: block;
-}
-
