@@ -29,6 +29,7 @@
   width: 300px;
   height: 350px;
   perspective: 1000px;
+  margin: 10px;
 }
 
 .card-inner {
@@ -69,6 +70,7 @@
 
 .card-front h2 {
   margin-top: 10px;
+  margin-bottom: 5px;
   font-size: 1.3rem;
   color: #111;
 }
