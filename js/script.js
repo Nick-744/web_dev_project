@@ -36,7 +36,7 @@ document.getElementById("flightForm").addEventListener("submit", function (e) {
 
 const globe = Globe()
   (document.getElementById('globeViz'))
-  .globeImageUrl('https://i.imgur.com/vMuR2bI.jpg')
+  .globeImageUrl('https://i.imgur.com/ZyNPC40.jpg')
   .arcsData([])
   .pointsData([]) // <- add this
   .pointAltitude(0.015)
