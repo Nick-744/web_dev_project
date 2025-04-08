@@ -1,3 +1,7 @@
+* {
+  cursor: url(https://cdn.custom-cursor.com/db/cursor/32/Paper_Airplane.png), default !important;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -93,6 +97,3 @@ html, body {
   z-index: 100;
   flex-shrink: 0;
 }
-
-
-

@@ -55,7 +55,7 @@
 .floating-form-box input:hover,
 .floating-form-box select:hover {
   border-bottom: 2px solid #fb923c;
-  cursor: pointer
+  cursor: url(https://cdn.custom-cursor.com/db/pointer/32/Bow_Arrow.png), pointer !important;
 }
 
 #checkBtn {
@@ -68,7 +68,7 @@
   border: none;
   border-radius: 6px;
   font-size: 1rem;
-  cursor: pointer;
+  cursor: url(https://cdn.custom-cursor.com/db/pointer/32/Bow_Arrow.png), pointer !important;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   transition: background-color 0.3s ease, transform 0.2s ease;
 }

@@ -78,7 +78,7 @@
   color: white;
   border: none;
   border-radius: 6px;
-  cursor: pointer;
+  cursor: url(https://cdn.custom-cursor.com/db/pointer/32/Bow_Arrow.png), pointer !important;
   font-weight: bold;
   transition: background 0.3s ease;
 }
