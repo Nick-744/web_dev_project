@@ -1,7 +1,12 @@
 // controllers/airTicketsController.mjs
 
-// Example in-memory data; replace later with DB queries
 const cities = ['Athens', 'Paris', 'London', 'New York', 'Tokyo'];
+const topDestinations = ['Santorini', 'Bali', 'Maldives', 'Dubai'];
+
+// In-memory flight storage (simulate database)
+let flights = [];
+
+/* ----------- Page Rendering Controllers ----------- */
 
 function showHomePage(req, res) {
     res.render('air_tickets', { 
@@ -13,14 +18,14 @@ function showHomePage(req, res) {
 function showTicketsPage(req, res) {
     res.render('tickets', { 
         title: 'Tickets - FlyExpress', 
-        tickets: [] // Populate when you implement DB logic
+        tickets: flights 
     });
 }
 
 function showTopDestinations(req, res) {
     res.render('top_destinations', { 
         title: 'Top Destinations - FlyExpress', 
-        destinations: ['Santorini', 'Bali', 'Maldives', 'Dubai']
+        destinations: topDestinations 
     });
 }
 
@@ -30,25 +35,44 @@ function showAboutPage(req, res) {
     });
 }
 
-// Handle form submission (dummy logic for now)
+/* ----------- Form and API Handlers ----------- */
+
+// Handle form submission (renders tickets view)
 function handleFlightSearch(req, res) {
     const { fromInput, toInput, tripType, class: flightClass, adults, children } = req.body;
 
-    // You can add validation here
+    // Basic validation
+    if (!fromInput || !toInput || fromInput === toInput) {
+        return res.status(400).send('Invalid flight search inputs.');
+    }
 
-    // Simulate search result
-    const availableFlights = [{
+    // Simulate search result and store it in memory
+    const newFlight = {
         from: fromInput,
         to: toInput,
-        price: 199,
+        price: 199, // Example static price
         flightClass,
-        tripType
-    }];
+        tripType,
+        adults,
+        children
+    };
+
+    flights.push(newFlight);
 
     res.render('tickets', { 
         title: 'Available Flights - FlyExpress', 
-        tickets: availableFlights 
+        tickets: flights 
     });
+}
+
+// API: Get all available cities
+function apiGetCities(req, res) {
+    res.json(cities);
+}
+
+// API: Get all booked flights
+function apiGetFlights(req, res) {
+    res.json(flights);
 }
 
 export { 
@@ -56,5 +80,7 @@ export {
     showTicketsPage, 
     showTopDestinations, 
     showAboutPage, 
-    handleFlightSearch 
+    handleFlightSearch,
+    apiGetCities,
+    apiGetFlights
 };

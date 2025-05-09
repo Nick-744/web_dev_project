@@ -1,52 +1,53 @@
 <div class="floating-form-box">
-  <form id="flightForm">
-    <label>From:</label><br/>
-    <select id="fromInput" required>
-      <option value="">Select</option>
-      {{#each cities}}
-        <option value="{{this}}">{{this}}</option>
-      {{/each}}
-    </select>
+    <form id="flightForm" method="POST" action="/search">
+        <label>From:</label><br/>
+        <select name="fromInput" required>
+            <option value="">Select</option>
+            {{#each cities}}
+                <option value="{{this}}">{{this}}</option>
+            {{/each}}
+        </select>
 
-    <br/>
+        <br/>
 
-    <label>To:</label><br/>
-    <select id="toInput" required>
-      <option value="">Select</option>
-      {{#each cities}}
-        <option value="{{this}}">{{this}}</option>
-      {{/each}}
-    </select>
+        <label>To:</label><br/>
+        <select name="toInput" required>
+            <option value="">Select</option>
+            {{#each cities}}
+                <option value="{{this}}">{{this}}</option>
+            {{/each}}
+        </select>
 
-    <br/>
+        <br/>
 
-    <label>Class:</label><br/>
-    <select required>
-      <option>Economy</option>
-      <option>Business</option>
-      <option>First</option>
-    </select>
+        <label>Class:</label><br/>
+        <select name="class" required>
+            <option>Economy</option>
+            <option>Business</option>
+            <option>First</option>
+        </select>
 
-    <br/>
+        <br/>
 
-    <label>Adult:</label><br/>
-    <input type="number" value="1" min="1" required/>
+        <label>Adults:</label><br/>
+        <input type="number" name="adults" value="1" min="1" required/>
 
-    <br/>
+        <br/>
 
-    <label>Children:</label><br/>
-    <input type="number" value="1" min="0" required/>
+        <label>Children:</label><br/>
+        <input type="number" name="children" value="0" min="0" required/>
 
-    <br/>
+        <br/>
 
-    <label>Trip Type:</label><br/>
-    <select id="tripType">
-      <option value="oneway">One-way</option>
-      <option value="roundtrip">Round-trip</option>
-    </select>
-    <br>
-    <button id="checkBtn">Check</button>
-  </form>
+        <label>Trip Type:</label><br/>
+        <select name="tripType" required>
+            <option value="oneway">One-way</option>
+            <option value="roundtrip">Round-trip</option>
+        </select>
+
+        <br/>
+        <button id="checkBtn" type="submit">Check</button>
+    </form>
 </div>
 
 <div id="globeViz"></div>

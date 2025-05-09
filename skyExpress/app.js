@@ -1,19 +1,23 @@
 import express from 'express';
 import path from 'path';
+import { engine } from 'express-handlebars';
+import airTicketsRouter from './routes/airTicketsRouter.mjs';
 
 const app = express();
+const __dirname = path.resolve();
 
-app.use(express.static(path.join(process.cwd(), 'public'))); // Serve static files from /public
+// Middleware for form data
+app.use(express.urlencoded({ extended: true }));
 
-// Example route
-app.get('/', (req, res) => {
-    res.render('air_tickets', { title: '✈🎫', cities: ['Athens', 'Paris', 'London', 'New York'] });
-});
+// ✅ Serve Static Files from ./public
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Set Handlebars as the view engine
-import { engine } from 'express-handlebars';
+// Handlebars View Engine
 app.engine('hbs', engine({ extname: '.hbs' }));
 app.set('view engine', 'hbs');
-app.set('views', './views');
+app.set('views', path.join(__dirname, 'views'));
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+// Register Router
+app.use(airTicketsRouter);
+
+app.listen(3000, () => console.log('Server running on http://localhost:3000'));

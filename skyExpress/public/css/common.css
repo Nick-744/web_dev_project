@@ -97,3 +97,25 @@ html, body {
   z-index: 100;
   flex-shrink: 0;
 }
+.page-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  text-align: center;
+  color: white;  /* Ensure text is visible */
+  padding: 20px;
+}
+
+.page-container h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.page-container p {
+  max-width: 600px;
+  line-height: 1.5;
+  font-size: 1.1rem;
+}
+
