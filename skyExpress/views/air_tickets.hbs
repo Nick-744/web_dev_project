@@ -1,0 +1,52 @@
+<div class="floating-form-box">
+  <form id="flightForm">
+    <label>From:</label><br/>
+    <select id="fromInput" required>
+      <option value="">Select</option>
+      {{#each cities}}
+        <option value="{{this}}">{{this}}</option>
+      {{/each}}
+    </select>
+
+    <br/>
+
+    <label>To:</label><br/>
+    <select id="toInput" required>
+      <option value="">Select</option>
+      {{#each cities}}
+        <option value="{{this}}">{{this}}</option>
+      {{/each}}
+    </select>
+
+    <br/>
+
+    <label>Class:</label><br/>
+    <select required>
+      <option>Economy</option>
+      <option>Business</option>
+      <option>First</option>
+    </select>
+
+    <br/>
+
+    <label>Adult:</label><br/>
+    <input type="number" value="1" min="1" required/>
+
+    <br/>
+
+    <label>Children:</label><br/>
+    <input type="number" value="1" min="0" required/>
+
+    <br/>
+
+    <label>Trip Type:</label><br/>
+    <select id="tripType">
+      <option value="oneway">One-way</option>
+      <option value="roundtrip">Round-trip</option>
+    </select>
+    <br>
+    <button id="checkBtn">Check</button>
+  </form>
+</div>
+
+<div id="globeViz"></div>

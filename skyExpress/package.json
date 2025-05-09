@@ -5,11 +5,11 @@
     "name": "books",
     "version": "1.1.0",
     "description": "δημιουργήστε φάκελο mybooks αποσυμπιέστε το αρχείο στον φάκελο και στη συνέχεια τρέξτε  > npm install (θα δημιουργήσει τον φάκελο node_modules με τα εξαρτήματα του πρότζεκτ) θα πάρει κάποιο χρόνο για την ολοκλήρωση της εγατάστασης.",
-    "main": "index.js",
+    "main": "app.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "watch": "nodemon index.js",
-        "debug": "nodemon --inspect index.js"
+        "watch": "nodemon app.js",
+        "debug": "nodemon --inspect app.js"
     },
     "keywords": [],
     "author": "",
@@ -33,6 +33,6 @@
             "**/docs/**",
             "/data/**"
         ],
-        "exec": "node index.js"
+        "exec": "node app.js"
     }
 }
