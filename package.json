@@ -9,7 +9,11 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "watch": "nodemon app.js",
-        "debug": "nodemon --inspect app.js"
+        "debug": "nodemon --inspect app.js",
+        "seed": "node scripts/seed.mjs",
+        "seed-live": "node scripts/seed-live.mjs",
+        "seed-scale": "node scripts/seed-scale.mjs",
+        "sql": "node scripts/query.mjs"
     },
     "keywords": [],
     "author": "",
@@ -34,5 +38,9 @@
             "/data/**"
         ],
         "exec": "node app.js"
+    },
+    "devDependencies": {
+        "cli-table3": "^0.6.5",
+        "nodemon": "^3.1.10"
     }
 }
