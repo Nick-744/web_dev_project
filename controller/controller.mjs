@@ -84,6 +84,23 @@ function apiGetFlights(req, res) {
     res.json(flights);
 }
 
+import { db } from '../lib/db.js';
+export function searchTickets(req, res) {
+    const { fromInput, toInput, class: flightClass } = req.query;
+
+    try {
+        const stmt = db.prepare(`
+            SELECT * FROM flights 
+            WHERE departure_city = ? AND arrival_city = ? AND class = ?;
+        `);
+        const results = stmt.all(fromInput, toInput, flightClass);
+
+        res.render('tickets', { flights: results });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Database Error');
+    }
+}
 export { 
     showHomePage, 
     showTicketsPage, 
