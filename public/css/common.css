@@ -87,15 +87,14 @@ html, body {
 }
 /* Footer */
 .footer {
+  position: fixed;
   bottom: 0;
+  left: 0;
   width: 100%;
   background-color: royalblue;
-  color: white;
+  color: #fff;
   text-align: center;
-  padding: 10px 0;
-  font-size: 0.9rem;
-  z-index: 100;
-  flex-shrink: 0;
+  padding: 10px;
 }
 .page-container {
   display: flex;
