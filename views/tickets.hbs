@@ -1,52 +1,19 @@
-<!-- views/tickets.hbs  -->
 <div class="page-container">
+    <h2>Available Flights</h2>
 
-  <h2>
-    {{query.fromInput}} → {{query.toInput}}
-    {{#if query.tripType}} ({{capitalize query.tripType}}){{/if}}
-  </h2>
-
-  {{#if flights.length}}
-    <table class="tickets-table">
-      <thead>
-        <tr>
-          <th>Flight&nbsp;#</th>
-          <th>Airline</th>
-          <th>Depart&nbsp;(local)</th>
-          <th>Arrive&nbsp;(local)</th>
-          <th>Class</th>
-          <th>Seats&nbsp;Left</th>
-          <th>Price&nbsp;€</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each flights}}
-          <tr>
-            <td>{{flight_id}}</td>
-            <td>{{airline_name}}</td>
-            <td>{{time_departure}}</td>
-            <td>{{time_arrival}}</td>
-            <td>{{class}}</td>
-            <td>{{availability}}</td>
-            <td>{{price}}</td>
-            <td>
-              <form method="POST" action="/book">
-                <input type="hidden" name="ticketCode" value="{{code}}">
-                <input type="hidden" name="adults"     value="{{../query.adults}}">
-                <input type="hidden" name="children"   value="{{../query.children}}">
-                <button class="btn-book" type="submit">Book</button>
-              </form>
-            </td>
-          </tr>
-        {{/each}}
-      </tbody>
-    </table>
-  {{else}}
-    <p>No flights match your criteria. Please adjust your search.</p>
-  {{/if}}
-
+    {{#if tickets.length}}
+        <ul class="tickets-list">
+            {{#each tickets}}
+                <li class="ticket-card">
+                    <strong>{{departure_city}}</strong> → <strong>{{arrival_city}}</strong><br/>
+                    Airline: {{airline_name}}<br/>
+                    Class: {{class}}<br/>
+                    Departure: {{time_departure}} | Arrival: {{time_arrival}}<br/>
+                    Price: ${{price}}
+                </li>
+            {{/each}}
+        </ul>
+    {{else}}
+        <p>No flights found. Try searching again!</p>
+    {{/if}}
 </div>
-
-{{!-- Optional helper: capitalize first letter --}}
-{{!-- Register in app.js: hbs.handlebars.registerHelper('capitalize', s => s.charAt(0).toUpperCase()+s.slice(1)); --}}
