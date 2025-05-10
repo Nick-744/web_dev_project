@@ -1,20 +1,17 @@
-/* The full-screen globe background */
-#globeViz {
-    position: fixed;
-    top: 2%;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-  }
-  
-  #globeViz canvas { /* Smooth transition in globe size */
-    width: 100%;
-    height: 100%;
-    transition: width 0.3s, height 0.3s;
-  }
-  
+/* public/css/globe.css  — full-screen centred globe */
+#globeViz{
+  position:fixed;
+  inset:0;               /* top right bottom left = 0 */
+  width:100vw;
+  height:100vh;
+  z-index:0;             /* behind form */
+  pointer-events:none;   /* clicks pass through */
+}
+#globeViz canvas{
+  width:100%!important;
+  height:100%!important;
+}
+
   /* The floating form box */
   .floating-form-box {
     position: fixed;
