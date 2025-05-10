@@ -1,5 +1,7 @@
 {{!-- <link rel="stylesheet" href="/css/air_tickets.css"> --}}
-
+{{#if script}}
+  {{{script}}}
+{{/if}}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -9,13 +11,12 @@
     
     <link rel="stylesheet" href="/css/common.css">
     <link rel="stylesheet" href="/css/air_tickets.css">
-
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     {{#if styles}}
       {{{styles}}}  <!-- This allows injecting extra CSS links from views -->
     {{/if}}
-    <script src="https://unpkg.com/globe.gl"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  </head>
+    
+ </head>
   <body>
     <header class="top-bar">
       <a href="/" class="logo">✈ FlyExpress</a>
@@ -33,9 +34,9 @@
     <footer class="footer">
       © 2025 airtickets. All rights reserved.
     </footer>
+    <script src="https://unpkg.com/globe.gl"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="/js/cities.js"></script>
-    <script src="/js/script.js"></script>
+  
+    
   </body>
 </html>

@@ -8,13 +8,22 @@ let flights = [];
 
 /* ----------- Page Rendering Controllers ----------- */
 
+// function showHomePage(req, res) {
+//     res.render('air_tickets', { 
+//         title: '✈🎫 FlyExpress', 
+//         cities 
+//     });
+// }
 function showHomePage(req, res) {
     res.render('air_tickets', { 
         title: '✈🎫 FlyExpress', 
-        cities 
+        cities,
+        script: `
+            <script src="/js/cities.js"></script>
+            <script src="/js/globe.js"></script>
+        `
     });
 }
-
 function showTicketsPage(req, res) {
     res.render('tickets', { 
         title: 'Tickets - FlyExpress', 
