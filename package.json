@@ -10,6 +10,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "watch": "nodemon app.js",
         "debug": "nodemon --inspect app.js",
+        "init-db": "node scripts/init-db.mjs",
         "seed": "node scripts/seed.mjs",
         "seed-live": "node scripts/seed-live.mjs",
         "seed-scale": "node scripts/seed-scale.mjs",
