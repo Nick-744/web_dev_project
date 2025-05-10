@@ -5,9 +5,10 @@
         <ul class="tickets-list">
             {{#each tickets}}
                 <li class="ticket-card">
-                    <strong>{{from}}</strong> → <strong>{{to}}</strong><br/>
-                    Class: {{flightClass}} | Trip: {{tripType}}<br/>
-                    Adults: {{adults}} | Children: {{children}}<br/>
+                    <strong>{{departure_city}}</strong> → <strong>{{arrival_city}}</strong><br/>
+                    Airline: {{airline_name}}<br/>
+                    Class: {{class}}<br/>
+                    Departure: {{time_departure}} | Arrival: {{time_arrival}}<br/>
                     Price: ${{price}}
                 </li>
             {{/each}}
