@@ -19,6 +19,30 @@
             </div>
         </div>
 
+        <!-- Trip Type -->
+        <label for="tripType">Trip Type:</label>
+        <select id="tripType" name="tripType" required>
+            <option value="oneway">One-way</option>
+            <option value="roundtrip">Round-trip</option>
+        </select>
+
+        <!-- Date Range Picker -->
+        <div class="date-range-picker">
+            <div class="date-field">
+                <label for="departureDate">
+                    <span class="calendar-icon">📅</span> Departure
+                </label>
+                <input type="text" id="departureDate" name="departureDate" required />
+            </div>
+            <div class="divider"></div>
+            <div class="date-field return-field" id="returnDateContainer">
+                <label for="returnDate">
+                    <span class="calendar-icon">📅</span> Return
+                </label>
+                <input type="text" id="returnDate" name="returnDate" />
+            </div>
+        </div>
+
         <!-- Class -->
         <label for="class">Class:</label>
         <select id="class" name="class" required>
@@ -39,35 +63,49 @@
             </div>
         </div>
 
-        <!-- Trip Type -->
-        <label for="tripType">Trip Type:</label>
-        <select id="tripType" name="tripType" required>
-            <option value="oneway">One-way</option>
-            <option value="roundtrip">Round-trip</option>
-        </select>
-        <br/>
-        <label>Max Price (optional):</label><br/>
-        <input type="number" name="maxPrice" min="1"/>
-        <br/>
-        <!-- Submit Button in Its Own Row -->
+        <!-- Max Price -->
+        <label>Max Price (optional):</label>
+        <input type="number" name="maxPrice" min="1" />
+
+        <!-- Submit -->
         <div class="button-row">
             <button id="checkBtn" type="submit">Search Flights</button>
         </div>
     </form>
 </div>
 
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+
 <!-- Load Globe and Three.js Libraries -->
 <script src="https://unpkg.com/three"></script>
 <script src="https://unpkg.com/globe.gl"></script>
 <script src="/js/globe.js"></script>
 
-<!-- Dynamic City Loading Script -->
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<!-- Smooth Animation for Return Date -->
+<style>
+    #returnDateContainer {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: opacity 0.5s ease, max-height 0.5s ease;
+    }
+
+    #returnDateContainer.show {
+        opacity: 1;
+        max-height: 100px;
+    }
+</style>
+
 <script>
     async function loadCities() {
         try {
-            const response = await fetch('/api/cities'); // Ensure this API route is implemented
+            const response = await fetch('/api/cities');
             if (!response.ok) throw new Error('Failed to fetch cities');
-            
+
             const cities = await response.json();
             const fromSelect = document.getElementById('fromInput');
             const toSelect = document.getElementById('toInput');
@@ -82,11 +120,38 @@
                 fromSelect.appendChild(optionFrom);
                 toSelect.appendChild(optionTo);
             });
-
         } catch (error) {
             console.error('Error loading cities:', error);
         }
     }
 
-    window.addEventListener('DOMContentLoaded', loadCities);
+    window.addEventListener('DOMContentLoaded', () => {
+        loadCities();
+
+        const returnContainer = document.getElementById('returnDateContainer');
+        const tripTypeSelect = document.getElementById('tripType');
+        const returnDateInput = document.getElementById('returnDate');
+
+        const departurePicker = flatpickr("#departureDate", {
+            minDate: "today",
+            onChange: function(selectedDates) {
+                const minReturn = selectedDates[0] ? selectedDates[0].fp_incr(1) : "today";
+                returnPicker.set("minDate", minReturn);
+            }
+        });
+
+        const returnPicker = flatpickr("#returnDate", { minDate: "today" });
+
+        function updateReturnDateVisibility() {
+            if (tripTypeSelect.value === 'roundtrip') {
+                returnContainer.classList.add('show');
+            } else {
+                returnContainer.classList.remove('show');
+                returnDateInput.value = "";
+            }
+        }
+
+        tripTypeSelect.addEventListener('change', updateReturnDateVisibility);
+        updateReturnDateVisibility();
+    });
 </script>

@@ -1,24 +1,35 @@
-{{!-- Γεια σου Νίκο!
-    Backend provides:
-    - outboundFlights: Always an array (empty if no outbound flights).
-    - returnFlights: Always an array (empty for one-way trips).
---}}
-<div class="page-container">
+<div class="tickets-container">
     <h2>Available Flights</h2>
-
-    {{#if tickets.length}}
-        <ul class="tickets-list">
-            {{#each tickets}}
-                <li class="ticket-card">
-                    <strong>{{departure_city}}</strong> → <strong>{{arrival_city}}</strong><br/>
-                    Airline: {{airline_name}}<br/>
-                    Class: {{class}}<br/>
-                    Departure: {{time_departure}} | Arrival: {{time_arrival}}<br/>
-                    Price: ${{price}}
-                </li>
-            {{/each}}
-        </ul>
-    {{else}}
-        <p>No flights found. Try searching again!</p>
-    {{/if}}
+    <div class="tickets-list">
+        {{#each outboundFlights}}
+        <div class="ticket-card" style="animation-delay: {{multiply @index 100}}ms;">
+            <div class="ticket-header">
+                <span class="airline">{{airline_name}}</span>
+                <span class="class {{class}}">{{class}}</span>
+            </div>
+            <div class="ticket-body">
+                <div class="cities">
+                    <span class="city">{{departure_city}}</span>
+                    <span class="arrow">➔</span>
+                    <span class="city">{{arrival_city}}</span>
+                </div>
+                <div class="times">
+                    <span>{{time_departure}}</span>
+                    <span>-</span>
+                    <span>{{time_arrival}}</span>
+                </div>
+                <div class="price">
+                    ${{price}}
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
 </div>
+
+<script>
+// Smooth scroll to tickets on load
+window.addEventListener('DOMContentLoaded', () => {
+    document.querySelector('.tickets-container').scrollIntoView({ behavior: 'smooth' });
+});
+</script>

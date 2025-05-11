@@ -2,6 +2,7 @@ html, body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    overflow-y: auto;
     height: 100%;
 }
 
@@ -14,7 +15,7 @@ html, body {
     height: 100vh;
     z-index: 0;
     pointer-events: none;
-    overflow: hidden; /* Ensure no scrollbars from canvas */
+    overflow: hidden;
     opacity: 0;
     transform: scale(1.05);
     transition: opacity 1.5s ease-out, transform 1.5s ease-out;
@@ -26,11 +27,10 @@ html, body {
 }
 
 /* Floating Form Box */
-/* Default (Desktop) - Form on the Left */
 .floating-form-box {
     position: fixed;
-    top: 50%;
-    left: 18%; /* Not fully left, just offset for the globe */
+    top: 52%; /* Below header */
+    left: 18%;
     transform: translateY(-50%);
     background: rgba(255, 255, 255, 0.95);
     padding: 35px 40px;
@@ -42,6 +42,8 @@ html, body {
     gap: 20px;
     width: 320px;
     max-width: 90%;
+    max-height: calc(100vh - 130px); /* Accounts for header + footer */
+    overflow-y: auto;
     animation: slideInLeft 1s ease-out forwards;
 }
 
@@ -53,7 +55,7 @@ html, body {
     font-weight: bold;
 }
 
-/* Two-column grid layout for forms */
+/* Two-column grid layout */
 .form-grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -91,7 +93,75 @@ html, body {
     border-color: #fb923c;
 }
 
-/* Submit Button Row */
+/* Date Range Picker */
+.date-range-picker {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    margin: 16px 0;
+    width: 100%;
+    overflow: hidden;
+}
+
+.date-range-picker .date-field {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px;
+    width: 100%;
+}
+
+.date-range-picker .calendar-icon {
+    margin-right: 8px;
+    font-size: 1.2rem;
+    color: #f97316;
+}
+
+.date-range-picker .date-field label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    color: #555;
+    margin-bottom: 6px;
+    transition: font-weight 0.3s ease;
+}
+
+.date-range-picker .date-field label:hover {
+    font-weight: bold;
+}
+
+.date-range-picker .date-field input {
+    border: none;
+    outline: none;
+    text-align: center;
+    font-size: 1rem;
+    background: transparent;
+    color: #333;
+    cursor: pointer;
+    width: 100%;
+}
+
+.date-range-picker .divider {
+    width: 1px;
+    background-color: #ccc;
+    height: 50px;
+}
+
+#returnDateContainer {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.5s ease, max-height 0.5s ease;
+}
+
+#returnDateContainer.show {
+    opacity: 1;
+    max-height: 100px;
+}
+
+/* Submit Button */
 .button-row {
     margin-top: 16px;
     display: flex;
@@ -135,74 +205,37 @@ html, body {
     }
 }
 
-/* Responsive: Center on Small Screens */
+/* Responsive Adjustments */
 @media (max-width: 900px) {
     .floating-form-box {
-        top: 50%;
+        top: 52%; /* Leaves space for header */
         left: 50%;
-        transform: translate(-50%, -50%);
-        width: 70%; /* Smaller width for cleaner mobile layout */
-        padding: 20px;
-        gap: 14px;
+        transform: translateX(-50%);
+        width: 80%;
+        max-height: calc(100vh - 200px); /* Header + Footer */
+        overflow-y: auto;
     }
 
     .floating-form-box h2 {
         font-size: 1.4rem;
-        text-align: center;
-    }
-
-    .floating-form-box input,
-    .floating-form-box select {
-        font-size: 1rem;
-        padding: 10px;
-    }
-
-    #checkBtn {
-        font-size: 1rem;
-        padding: 12px;
-        width: 100%;
     }
 
     .form-grid-2 {
         grid-template-columns: 1fr;
         gap: 12px;
-    }
-
-    .button-row {
-        justify-content: stretch;
     }
 }
 
 @media (max-width: 480px) {
     .floating-form-box {
+        top: 52%; /* Pushes the form lower to leave space for header */
+        left: 50%;
+        transform: translateX(-50%);
         width: 90%;
         padding: 20px;
-        gap: 14px;
         border-radius: 12px;
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .floating-form-box h2 {
-        font-size: 1.4rem;
-    }
-
-    .floating-form-box input,
-    .floating-form-box select {
-        font-size: 1rem;
-        padding: 10px;
-    }
-
-    #checkBtn {
-        font-size: 1rem;
-        padding: 12px;
-    }
-
-    .form-grid-2 {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-
-    .button-row {
-        justify-content: stretch;
+        overflow-y: auto;
+        max-height: calc(100vh - 180px); /* Leaves room for header and footer */
     }
 }

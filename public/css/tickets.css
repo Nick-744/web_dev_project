@@ -1,96 +1,108 @@
-.ticket-form-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 15px 20px 15px 20px;
-  min-height: 80vh;
-  background: linear-gradient(to right, #1a1a1a, #333333);
-  color: white;
-  text-align: center;
+.tickets-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px;
+    color: white;
+    text-align: center;
 }
 
-.ticket-form-container h1 {
-  font-size: 2.5rem;
-  margin-bottom: 20px;
+.tickets-container h2 {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
 }
 
-.ticket-form {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 40px 30px;
-  border-radius: 10px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  width: 90%;
-  max-width: 700px;
-  color: #111;
+.tickets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 600px;
 }
 
-/* Base form row layout */
-.form-row {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+/* Ticket Card Style */
+.ticket-card {
+    background: rgba(255, 255, 255, 0.95);
+    color: #111;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transform: translateX(100%);
+    animation: slideInRight 0.6s forwards;
+    animation-timing-function: ease-out;
+    opacity: 0;
 }
 
-/* Grid layout for two-column rows */
-.form-row.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-/* Allow elements to span both columns */
-.colspan-2 {
-  grid-column: span 2;
+.ticket-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-weight: bold;
+    font-size: 1.1rem;
 }
 
+.ticket-body .cities {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+}
 
-/* Responsive stacking */
+.ticket-body .arrow {
+    margin: 0 10px;
+    color: #f97316;
+    font-size: 1.4rem;
+}
+
+.ticket-body .times, 
+.ticket-body .price {
+    font-size: 1rem;
+    color: #555;
+}
+
+.ticket-body .price {
+    font-weight: bold;
+    margin-top: 10px;
+    color: #f97316;
+    font-size: 1.3rem;
+}
+
+/* Flight Class Badge */
+.class {
+    padding: 4px 8px;
+    border-radius: 6px;
+    text-transform: capitalize;
+    font-size: 0.9rem;
+}
+
+.class.economy { background: #e0f7fa; color: #00796b; }
+.class.business { background: #ffe0b2; color: #e65100; }
+.class.first { background: #f8bbd0; color: #880e4f; }
+
+/* Slide In Animation */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive */
 @media (max-width: 600px) {
-  .form-row.grid-2 {
-    grid-template-columns: 1fr;
-  }
-}
+    .tickets-container h2 {
+        font-size: 2rem;
+    }
 
-/* Inputs and selects */
-.form-row label {
-  font-weight: bold;
-  margin-bottom: 4px;
-}
+    .ticket-body .cities {
+        font-size: 1rem;
+    }
 
-.form-row input,
-.form-row select {
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 0.95rem;
-  width: 100%;
-  box-sizing: border-box;
+    .ticket-card {
+        padding: 16px;
+    }
 }
-
-/* Submit button */
-.ticket-form button {
-  padding: 12px;
-  font-size: 1rem;
-  background-color: #f97316;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: url(https://cdn.custom-cursor.com/db/pointer/32/Bow_Arrow.png), pointer !important;
-  font-weight: bold;
-  transition: background 0.3s ease;
-}
-
-.ticket-form button:hover {
-  background-color: #fb923c;
-}
-
-.error-msg {
-  color: red;
-  font-size: 0.85rem;
-  margin-top: 4px;
-  display: block;
-}
-
