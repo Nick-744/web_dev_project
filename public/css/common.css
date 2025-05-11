@@ -202,3 +202,31 @@ nav li.selected a {
         font-size: 1.2rem;
     }
 }
+
+/* ----- Fade Transitions for Any Section ----- */
+.page-container,
+.tickets-container {
+    opacity: 0;
+    transition: opacity 0.5s ease; /* Normal fade timing */
+}
+
+/* Fade-In */
+.page-container.fade-in,
+.tickets-container.fade-in {
+    opacity: 1;
+}
+
+#globeViz.fade-in {
+    opacity: 1;
+}
+
+/* Fade-Out */
+.page-container.fade-out,
+.tickets-container.fade-out {
+    opacity: 0;
+}
+
+#globeViz.fade-out {
+    opacity: 0;
+    transition: opacity 0.2s ease; /* Fast fade-out for the globe */
+}

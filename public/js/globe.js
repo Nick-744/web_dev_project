@@ -65,34 +65,24 @@ window.addEventListener('load', () => {
 
     resizeGlobe();
 
-    // Smooth Rotation Start
-    globe.controls().autoRotate = true;
-    globe.controls().autoRotateSpeed = 0;
-    globe.pointOfView({ lat: 30, lng: 0, altitude: 2 }, 0);
+    // Start from left and far away
+    globe.pointOfView({ lat: 30, lng: -90, altitude: 5 }, 0);
+    globe.controls().autoRotate = false;
 
-    // Gradually Increase Rotation Speed for Smooth Start
-    let currentSpeed = 0;
-    const targetSpeed = 0.4;
-    const acceleration = 0.01;
+    // Trigger Fade-In Class and Animate to Center View
+    setTimeout(() => {
+        el.classList.add('fade-in'); // CSS handles opacity and zoom
 
-    const increaseRotationSpeed = () => {
-        if (currentSpeed < targetSpeed) {
-            currentSpeed += acceleration;
-            globe.controls().autoRotateSpeed = currentSpeed;
-            requestAnimationFrame(increaseRotationSpeed);
-        }
-    };
-    increaseRotationSpeed();
+        globe.pointOfView({ lat: 30, lng: 0, altitude: 3 }, 2000); // Smooth move over 2s
+        globe.controls().autoRotate = true;
+        globe.controls().autoRotateSpeed = 0.4;
+    }, 300); // Delay to ensure rendering starts before animation
+
+    setTimeout(() => {
+        document.getElementById('globeOverlay')?.classList.add('fade-out');
+    }, 500); // Adjust timing to match your globe animation
 
     generateRandomFlights();
-
-    // Smooth Reveal of Globe and Footer
-    setTimeout(() => {
-        requestAnimationFrame(() => {
-            el.classList.add('visible');
-            footer?.classList.add('visible');
-        });
-    }, 500);
 
     console.log('[globe.js] Globe initialized with smooth transitions.');
 });
