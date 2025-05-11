@@ -146,15 +146,22 @@ import { db } from '../lib/db.js';
 // }
 function searchTickets(req, res) {
     const { 
-        fromInput, 
-        toInput, 
-        class: flightClass, 
+        fromInput='', 
+        toInput='', 
+        class: flightClass='', 
         tripType, 
         maxPrice, 
         departureDate, 
         returnDate 
     } = req.query;
-
+    // If critical fields are missing, just render an empty result
+    if (!fromInput || !toInput || !flightClass) {
+        return res.render('tickets', { 
+            title: 'Available Flights - FlyExpress', 
+            outboundFlights: [],  
+            returnFlights: [] 
+        });
+    }
     //console.log('Search Params:', req.query);
 
     const baseSQL = `
