@@ -2,8 +2,32 @@
 //console.log('📢 controller/controller.mjs loaded!');
 
 const cities = ['Athens', 'Paris', 'London', 'New York', 'Tokyo'];
-const topDestinations = ['Santorini', 'Bali', 'Maldives', 'Dubai'];
 
+const topDestinations = [
+    { 
+        name: "Paris", 
+        image: "/images/paris.jpg", 
+        description: "The city of lights, love, and culture. 🗼" 
+    },
+    { 
+        name: "Tokyo", 
+        image: "/images/tokyo.jpg", 
+        description: "Futuristic vibes and timeless traditions. ⛩️" 
+    },
+    { 
+        name: "New York", 
+        image: "/images/new-york.jpg", 
+        description: "The city that never sleeps. 🗽" 
+    }
+];
+
+function showTopDestinations(req, res) {
+    res.render('top_destinations', { 
+        title: 'Top Destinations - FlyExpress', 
+        destinations: topDestinations,
+        styles: `<link rel="stylesheet" href="/css/top_destinations.css">`
+    });
+}
 // In-memory flight storage (simulate database)
 let flights = [];
 
@@ -29,13 +53,6 @@ function showTicketsPage(req, res) {
     res.render('tickets', { 
         title: 'Tickets - FlyExpress', 
         tickets: flights 
-    });
-}
-
-function showTopDestinations(req, res) {
-    res.render('top_destinations', { 
-        title: 'Top Destinations - FlyExpress', 
-        destinations: topDestinations 
     });
 }
 
