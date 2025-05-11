@@ -89,7 +89,10 @@ function searchTickets(req, res) {
             JOIN airport a2 ON f.airport_arrive_id = a2.id
             JOIN ticket t ON f.id = t.flight_id
             JOIN airline al ON f.airline_id = al.id
-            WHERE a1.city = ? AND a2.city = ? AND t.class = ? AND t.availability > 0;
+            WHERE LOWER(a1.city) = LOWER(?) 
+            AND LOWER(a2.city) = LOWER(?) 
+            AND LOWER(t.class) = LOWER(?) 
+            AND t.availability > 0;
         `);
 
         const results = stmt.all(fromInput, toInput, flightClass);
