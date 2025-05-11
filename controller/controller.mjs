@@ -138,7 +138,7 @@ function searchTickets(req, res) {
         returnDate 
     } = req.query;
 
-    console.log('Search Params:', req.query);
+    //console.log('Search Params:', req.query);
 
     const baseSQL = `
         SELECT 
@@ -171,8 +171,8 @@ function searchTickets(req, res) {
     try {
         const outboundFlights = db.prepare(baseSQL).all(...outboundParams);
     
-        console.log('Outbound Query Results:');
-        console.table(outboundFlights);
+        //console.log('Outbound Query Results:');
+        //console.table(outboundFlights);
     
         let returnFlights = [];
         if (tripType === 'roundtrip') {
@@ -181,14 +181,14 @@ function searchTickets(req, res) {
     
             returnFlights = db.prepare(baseSQL).all(...returnParams);
     
-            console.log('Return Query Results:');
-            console.table(returnFlights);
+            //console.log('Return Query Results:');
+            //console.table(returnFlights);
         }
     
         res.render('tickets', { 
             title: 'Available Flights - FlyExpress', 
-            outboundFlights, 
-            returnFlights 
+            outboundFlights: outboundFlights  || [],  
+            returnFlights: returnFlights || []
         });
     
     } catch (err) {
