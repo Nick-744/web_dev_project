@@ -27,8 +27,14 @@
         </div>
       </div>
     {{/each}}
-
+    </div>
+</div>
+    
     {{#if returnFlights}}
+
+    <div class="tickets-container">
+      <h2>Available Return Flights</h2>
+      <div class="tickets-list">
       {{#each returnFlights}}
         <div class="ticket-card">
           <div class="notification-header">
@@ -54,25 +60,31 @@
           </div>
         </div>
       {{/each}}
+      </div>
     {{/if}}
   </div>
-</div>
+
 
 <script>
 /* Title fades in from the left; cards fade-in from the right on scroll */
 window.addEventListener('DOMContentLoaded', () => {
-  const title   = document.querySelector('.tickets-container h2');
+  
   const tickets = document.querySelectorAll('.ticket-card');
 
   /* ---- Title animation (left-to-right) ---- */
-  title.style.opacity   = '0';
-  title.style.transform = 'translateX(-100px)';
-  title.style.transition = 'transform 1.2s ease, opacity 1.2s ease';
+  const titles = document.querySelectorAll('.tickets-container h2');
 
-  setTimeout(() => {
-    title.style.opacity   = '1';
-    title.style.transform = 'translateX(0)';
-  }, 200);
+titles.forEach((title, idx) => {
+    title.style.opacity = '0';
+    title.style.transform = 'translateX(-100px)';
+    title.style.transition = 'transform 1.2s ease, opacity 1.2s ease';
+
+    setTimeout(() => {
+        title.style.opacity = '1';
+        title.style.transform = 'translateX(0)';
+    }, 200 + idx * 200);
+});
+
 
   /* ---- Cards fade-in on scroll (right-to-left) ---- */
   const observer = new IntersectionObserver(

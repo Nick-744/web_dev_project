@@ -145,6 +145,7 @@ import { db } from '../lib/db.js';
 //     }
 // }
 function searchTickets(req, res) {
+    
     const { 
         fromInput='', 
         toInput='', 
@@ -184,11 +185,13 @@ function searchTickets(req, res) {
           AND LOWER(a2.city) = LOWER(?) 
           AND LOWER(t.class) = LOWER(?) 
           ${maxPrice ? 'AND t.price <= ?' : ''} 
+          ${departureDate ? 'AND DATE(f.time_departure) = DATE(?)' : ''} 
           AND t.availability > 0;
     `;
 
     const outboundParams = [fromInput.toLowerCase(), toInput.toLowerCase(), flightClass.toLowerCase()];
     if (maxPrice) outboundParams.push(parseFloat(maxPrice));
+    if (departureDate) outboundParams.push(departureDate);  // Assuming 'YYYY-MM-DD' format
     //console.log('Outbound SQL:', baseSQL);
     //console.log('Outbound Params:', outboundParams);
 
@@ -202,11 +205,14 @@ function searchTickets(req, res) {
         if (tripType === 'roundtrip') {
             const returnParams = [toInput.toLowerCase(), fromInput.toLowerCase(), flightClass.toLowerCase()];
             if (maxPrice) returnParams.push(parseFloat(maxPrice));
-    
+            if (returnDate) returnParams.push(returnDate);
             returnFlights = db.prepare(baseSQL).all(...returnParams);
-    
+            console.log('Return Flights Found:', returnFlights.length);
             //console.log('Return Query Results:');
             //console.table(returnFlights);
+            if  (returnFlights){
+                console.log('Return Flights:', returnFlights);
+            }
         }
     
         res.render('tickets', { 
