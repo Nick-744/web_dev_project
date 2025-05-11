@@ -1,26 +1,27 @@
-{{!-- <link rel="stylesheet" href="/css/air_tickets.css"> --}}
-{{#if script}}
-  {{{script}}}
-{{/if}}
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{title}}</title>
-    
-    <link rel="stylesheet" href="/css/common.css">
-    <link rel="stylesheet" href="/css/air_tickets.css">
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="/css/common.css" />
+    <link rel="stylesheet" href="/css/air_tickets.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+
+    <!-- Optional view-specific CSS -->
     {{#if styles}}
-      {{{styles}}}  <!-- This allows injecting extra CSS links from views -->
+      {{{styles}}}
     {{/if}}
-    
- </head>
+  </head>
+
   <body>
+    <!-- Header -->
     <header class="top-bar">
       <a href="/" class="logo">✈ FlyExpress</a>
-      <nav>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Toggle Menu">&#9776;</button>
+      <nav id="navMenu">
         <ul>
           <li><a href="/tickets">Tickets</a></li>
           <li><a href="/top-destinations">Top Destinations</a></li>
@@ -29,14 +30,54 @@
       </nav>
     </header>
 
-    {{{body}}} <!-- Content from views will be injected here -->
+    <!-- View Content -->
+    {{{body}}}
 
+    <!-- Footer -->
     <footer class="footer">
-      © 2025 airtickets. All rights reserved.
+      © 2025 FlyExpress. All rights reserved.
     </footer>
+
+    <!-- Global JS (Globe) -->
     <script src="https://unpkg.com/globe.gl"></script>
 
-  
-    
+    <!-- Optional view-specific JS -->
+    {{#if script}}
+      {{{script}}}
+    {{/if}}
+
+    <!-- Animation and Hamburger Logic -->
+    <script>
+      window.addEventListener('DOMContentLoaded', () => {
+          const hasAnimated = sessionStorage.getItem('headerFooterAnimated');
+          const header = document.querySelector('.top-bar');
+          const footer = document.querySelector('.footer');
+          const hamburgerBtn = document.getElementById('hamburgerBtn');
+          const navMenu = document.getElementById('navMenu');
+
+          if (!hasAnimated) {
+              header?.classList.add('fade-in-once');
+              footer?.classList.add('fade-in-once');
+              sessionStorage.setItem('headerFooterAnimated', 'true');
+          } else {
+              header?.classList.add('show-instant');
+              footer?.classList.add('show-instant');
+          }
+
+          hamburgerBtn?.addEventListener('click', () => {
+              navMenu.classList.toggle('show');
+              hamburgerBtn.classList.toggle('open');
+              document.body.style.overflow = navMenu.classList.contains('show') ? 'hidden' : 'auto';
+          });
+
+          document.addEventListener('click', (e) => {
+              if (!navMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+                  navMenu.classList.remove('show');
+                  hamburgerBtn.classList.remove('open');
+                  document.body.style.overflow = 'auto';
+              }
+          });
+      });
+    </script>
   </body>
 </html>

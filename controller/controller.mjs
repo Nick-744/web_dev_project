@@ -1,5 +1,5 @@
 // controllers/airTicketsController.mjs
-console.log('📢 controller/controller.mjs loaded!');
+//console.log('📢 controller/controller.mjs loaded!');
 
 const cities = ['Athens', 'Paris', 'London', 'New York', 'Tokyo'];
 const topDestinations = ['Santorini', 'Bali', 'Maldives', 'Dubai'];
@@ -48,8 +48,18 @@ function showAboutPage(req, res) {
 /* ----------- Form and API Handlers ----------- */
 
 // API: Get all available cities
+// function apiGetCities(req, res) {
+//     res.json(cities);
+// }
 function apiGetCities(req, res) {
-    res.json(cities);
+    try {
+        const stmt = db.prepare('SELECT DISTINCT city FROM airport ORDER BY city');
+        const result = stmt.all().map(row => row.city);
+        res.json(result);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error fetching cities');
+    }
 }
 
 // API: Get all booked flights
@@ -63,15 +73,14 @@ import { db } from '../lib/db.js';
 
 
 function searchTickets(req, res) {
-    console.log('Query Params Raw:', req.query);
     const { fromInput, toInput, class: flightClass, adults, children, tripType } = req.query;
-    console.log('Search Tickets:');
-    console.log('From:', fromInput);       // 'Athens'
-    console.log('To:', toInput);            // 'Paris'
-    console.log('Class:', flightClass);     // 'Economy'
-    console.log('Adults:', adults);         // '1'
-    console.log('Children:', children);     // '0'
-    console.log('Trip Type:', tripType);    // 'oneway'
+    // console.log('Search Tickets:');
+    // console.log('From:', fromInput);       // 'Athens'
+    // console.log('To:', toInput);            // 'Paris'
+    // console.log('Class:', flightClass);     // 'Economy'
+    // console.log('Adults:', adults);         // '1'
+    // console.log('Children:', children);     // '0'
+    // console.log('Trip Type:', tripType);    // 'oneway'
     try {
         const stmt = db.prepare(`
             SELECT 

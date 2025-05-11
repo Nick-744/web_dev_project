@@ -1,112 +1,112 @@
-.destinations-container {
-  background: linear-gradient(to right, #1a1a1a, #333333);
-  font-family: 'Arial', sans-serif;
-  color: white;
-  margin: 0;
-  padding: 0;
+.page-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    color: white;
+    text-align: center;
 }
 
-.destinations-container {
-  padding: 60px 40px;
-  color: white;
-  text-align: center;
-}
-
-.destinations-container h1 {
-  font-size: 2.5rem;
-  margin-bottom: 40px;
+.page-container h2 {
+    font-size: 2.5rem;
+    margin-bottom: 40px;
 }
 
 .destinations-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 30px;
-  justify-items: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    width: 100%;
+    max-width: 1200px;
 }
 
-/* Flip Card Styles */
 .destination-card {
-  width: 300px;
-  height: 350px;
-  perspective: 1000px;
-  margin: 10px;
+    perspective: 1000px;
 }
 
 .card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.7s ease;
-  transform-style: preserve-3d;
+    position: relative;
+    width: 100%;
+    height: 400px;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
 }
 
 .destination-card:hover .card-inner {
-  transform: rotateY(180deg);
+    transform: rotateY(180deg);
 }
 
 .card-front, .card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
-  overflow: hidden;
-  backface-visibility: hidden;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    backface-visibility: hidden;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
 .card-front {
-  background: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+    background: #fff;
+    color: #111;
 }
 
 .card-front img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
+    width: 100%;
+    height: 70%;
+    object-fit: cover;
+    border-radius: 16px 16px 0 0;
 }
 
-.card-front h2 {
-  margin-top: 10px;
-  margin-bottom: 5px;
-  font-size: 1.3rem;
-  color: #111;
+.card-front h3 {
+    margin: 15px 0;
+    font-size: 1.5rem;
 }
 
 .card-back {
-  background: white;
-  color: black;
-  transform: rotateY(180deg);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  gap: 10px;
-  text-align: center;
+    background: royalblue;
+    color: #fff;
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
 }
 
-.card-back h2 {
-  font-size: 1.4rem;
+.card-back h3 {
+    margin-bottom: 15px;
+    font-size: 1.8rem;
 }
 
 .card-back p {
-  font-size: 1rem;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    padding: 0 10px;
 }
 
 .card-back button {
-  padding: 8px 16px;
-  background-color: #f97316;
-  color: white;
-  font-weight: bold;
-  border: none;
-  border-radius: 6px;
-  cursor: url(https://cdn.custom-cursor.com/db/pointer/32/Bow_Arrow.png), pointer !important;
-  transition: transform 0.2s ease;
+    padding: 10px 20px;
+    background-color: #f97316;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .card-back button:hover {
-  transform: scale(1.05);
+    background-color: #fb923c;
+}
+
+/* Responsive for Mobile */
+@media (max-width: 600px) {
+    .card-inner {
+        height: 300px;
+    }
+
+    .page-container h2 {
+        font-size: 2rem;
+    }
 }
