@@ -42,11 +42,7 @@ let flights = [];
 function showHomePage(req, res) {
     res.render('air_tickets', { 
         title: '✈🎫 FlyExpress', 
-        cities,
-        script: `
-            <script src="/js/cities.js"></script>
-            <script src="/js/globe.js"></script>
-        `
+        cities
     });
 }
 function showTicketsPage(req, res) {
