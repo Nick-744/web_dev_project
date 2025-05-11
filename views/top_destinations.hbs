@@ -1,8 +1,27 @@
 <div class="page-container">
-    <h2>Top Destinations</h2>
-    <ul class="destinations-list">
+    <h2>🌍 Top Destinations</h2>
+    <div class="destinations-grid">
         {{#each destinations}}
-            <li>{{this}}</li>
+        <div class="destination-card">
+            <div class="card-inner">
+                <div class="card-front">
+                    <img src="{{this.image}}" alt="{{this.name}}" />
+                    <h3>{{this.name}}</h3>
+                </div>
+                <div class="card-back">
+                    <h3>{{this.name}}</h3>
+                    <p>{{this.description}}</p>
+                    <button onclick="viewDestination('{{this.name}}')">View More</button>
+                </div>
+            </div>
+        </div>
         {{/each}}
-    </ul>
+    </div>
 </div>
+
+<script>
+    function viewDestination(destination) {
+        alert(`Viewing more about ${destination}!`);
+        // You can replace this with a real navigation later.
+    }
+</script>

@@ -1,120 +1,208 @@
+/* Global Cursor */
 * {
-  cursor: url(https://cdn.custom-cursor.com/db/cursor/32/Paper_Airplane.png), default !important;
+    cursor: url(https://cdn.custom-cursor.com/db/cursor/32/Paper_Airplane.png), default !important;
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #0b0c1a;
-  overflow: hidden;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #0b0c1a;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
-/* Top blue bar */
+/* Top Bar (Header) */
 .top-bar {
-  position: sticky;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 55px;
-  background-color: royalblue;
-  color: white;
-  padding: 10px 20px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  z-index: 1000;
-  display: flex;
-  justify-content: space-between;
-  /*justify-content: center;  <- center content horizontally */
-  align-items: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 55px;
+    background-color: royalblue;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    overflow-x: hidden;
 }
 
 .top-bar .logo {
-  display: flex;
-  align-items: center;
-  /*justify-content: center;  <- center content horizontally */
-  gap: 10px;
-  white-space: nowrap;
-  padding: 2em;
-  margin: 1em;
-  color: white;
-  text-decoration: none; /* Remove underline from link */
-  font-weight: bold;
-  font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    padding: 2em;
+    margin: 1em;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.2rem;
 }
 
+/* Navigation */
 .top-bar nav {
-  flex: 1; /* <- takes all space after logo */
-  display: flex;
-  /* justify-content: center; <- centers nav items horizontally */
-  align-items: center;
+    flex: 1;
+    display: flex;
+    align-items: center;
 }
+
 nav ul {
-  display: flex;
-  gap: 1em;
-  /*center*/
-  align-items: center;
-  align-self: center;
-  list-style: none;
-  text-wrap: nowrap;
-  margin: 1em;
-  padding: 1em;
+    display: flex;
+    gap: 1em;
+    align-items: center;
+    list-style: none;
+    margin: 1em;
+    padding: 1em;
 }
 
 nav li a {
-  display: block;
-  padding: 1em;
-  color: white;
-  text-decoration: none;
-  border-radius: 10px;
-  transition: background 0.3s;
+    display: block;
+    padding: 1em;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: background 0.3s;
 }
 
 nav li a:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 nav li.selected a {
-  background-color: orange;
-  color: black;
+    background-color: orange;
+    color: black;
 }
-html, body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden; /* ✅ Hide sideways scroll only */
-  overflow-y: auto;   /* ✅ Keep vertical scroll working */
-}
+
 /* Footer */
 .footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: royalblue;
-  color: #fff;
-  text-align: center;
-  padding: 10px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: royalblue;
+    color: #fff;
+    text-align: center;
+    padding: 10px;
+    z-index: 100;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease-out, transform 1s ease-out;
 }
+
+.footer.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Page Container */
 .page-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 80vh;
-  text-align: center;
-  color: white;  /* Ensure text is visible */
-  padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    text-align: center;
+    color: white;
+    padding: 20px;
 }
 
 .page-container h2 {
-  font-size: 2rem;
-  margin-bottom: 20px;
+    font-size: 2rem;
+    margin-bottom: 20px;
 }
 
 .page-container p {
-  max-width: 600px;
-  line-height: 1.5;
-  font-size: 1.1rem;
+    max-width: 600px;
+    line-height: 1.5;
+    font-size: 1.1rem;
 }
 
+/* Fade-In Animation */
+.fade-in-once {
+    animation: fadeInOnce 1.5s ease-out forwards;
+}
+
+.show-instant {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    transition: none !important;
+}
+
+@keyframes fadeInOnce {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Hamburger Button */
+.hamburger {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: white;
+    cursor: pointer;
+    z-index: 1100;
+}
+
+/* Mobile Navigation Dropdown */
+@media (max-width: 680px) {
+    .top-bar {
+        flex-wrap: wrap;
+        justify-content: space-between;
+        height: auto;
+        padding: 10px 15px;
+    }
+
+    .top-bar .logo {
+        padding: 0.5em;
+        margin: 0.5em;
+        font-size: 1.4rem;
+    }
+
+    .hamburger {
+        display: block;
+        position: relative;
+        font-size: 2.2rem;
+    }
+
+    nav#navMenu {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background-color: royalblue;
+        padding: 10px 0;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    nav#navMenu.show {
+        display: flex;
+    }
+
+    nav#navMenu ul {
+        flex-direction: column;
+        gap: 12px;
+        padding: 0;
+        margin: 0;
+        text-align: center;
+        width: 100%;
+    }
+
+    nav#navMenu ul li a {
+        display: block;
+        padding: 10px 0;
+        color: white;
+        text-decoration: none;
+        font-size: 1.2rem;
+    }
+}

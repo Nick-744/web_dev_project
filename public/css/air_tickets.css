@@ -1,80 +1,208 @@
-/* public/css/globe.css  — full-screen centred globe */
-#globeViz{
-  position:fixed;
-  inset:0;               /* top right bottom left = 0 */
-  width:100vw;
-  height:100vh;
-  z-index:0;             /* behind form */
-  pointer-events:none;   /* clicks pass through */
-}
-#globeViz canvas{
-  width:100%!important;
-  height:100%!important;
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    height: 100%;
 }
 
-  /* The floating form box */
-  .floating-form-box {
+/* Globe Full-Screen */
+#globeViz {
     position: fixed;
-    top: 52%;
-    left: 10%;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden; /* Ensure no scrollbars from canvas */
+    opacity: 0;
+    transform: scale(1.05);
+    transition: opacity 1.5s ease-out, transform 1.5s ease-out;
+}
+
+#globeViz.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Floating Form Box */
+/* Default (Desktop) - Form on the Left */
+.floating-form-box {
+    position: fixed;
+    top: 50%;
+    left: 18%; /* Not fully left, just offset for the globe */
     transform: translateY(-50%);
     background: rgba(255, 255, 255, 0.95);
-    padding: 25px 30px;
-    border-radius: 10px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    padding: 35px 40px;
+    border-radius: 16px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
     z-index: 10;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-  }
-  
-  .floating-form-box input,
-  .floating-form-box select {
-    border: none;
-    border-bottom: 2px solid transparent;
+    gap: 20px;
+    width: 320px;
+    max-width: 90%;
+    animation: slideInLeft 1s ease-out forwards;
+}
+
+.floating-form-box h2 {
+    text-align: center;
+    color: #111;
+    margin-bottom: 10px;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+/* Two-column grid layout for forms */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.floating-form-box label {
+    font-weight: bold;
+    color: #333;
+}
+
+.floating-form-box input,
+.floating-form-box select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.floating-form-box input:focus,
+.floating-form-box select:focus {
+    border-color: #f97316;
+    box-shadow: 0 0 8px rgba(249, 115, 22, 0.5);
     outline: none;
-    transition: border-color 0.3s ease;
-    background-color: white;
-    margin-bottom: 12px;
-    padding: 5px;
+}
+
+.floating-form-box input:hover,
+.floating-form-box select:hover {
+    border-color: #fb923c;
+}
+
+/* Submit Button Row */
+.button-row {
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
     width: 100%;
-    border-radius: 5px;
-    font-size: 0.9rem;
-  }
-  
-  /* Show border on focus or when user interacts */
-  .floating-form-box input:focus,
-  .floating-form-box select:focus {
-    border-bottom: 2px solid #f97316; /* orange border */
-    background-color: #fefefe;
-  }
-  
-  .floating-form-box input:hover,
-  .floating-form-box select:hover {
-    border-bottom: 2px solid #fb923c;
-  }
-  
-  #checkBtn {
-    margin-top: 12px;
-    padding: 10px 20px;
-    width: 100%;
+}
+
+#checkBtn {
+    padding: 14px;
     background-color: #f97316;
-    color: white;
+    color: #fff;
     font-weight: bold;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 1rem;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-  
-  #checkBtn:hover {
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+#checkBtn:hover {
     background-color: #fb923c;
-    transform: translateY(-2px);
-  }
-  
-  #checkBtn:active {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+#checkBtn:active {
     background-color: #ea580c;
-    transform: scale(0.98);
-  }
-  
+    transform: scale(0.97);
+}
+
+/* Animations */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translate(-100%, -50%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Responsive: Center on Small Screens */
+@media (max-width: 900px) {
+    .floating-form-box {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 70%; /* Smaller width for cleaner mobile layout */
+        padding: 20px;
+        gap: 14px;
+    }
+
+    .floating-form-box h2 {
+        font-size: 1.4rem;
+        text-align: center;
+    }
+
+    .floating-form-box input,
+    .floating-form-box select {
+        font-size: 1rem;
+        padding: 10px;
+    }
+
+    #checkBtn {
+        font-size: 1rem;
+        padding: 12px;
+        width: 100%;
+    }
+
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .button-row {
+        justify-content: stretch;
+    }
+}
+
+@media (max-width: 480px) {
+    .floating-form-box {
+        width: 90%;
+        padding: 20px;
+        gap: 14px;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .floating-form-box h2 {
+        font-size: 1.4rem;
+    }
+
+    .floating-form-box input,
+    .floating-form-box select {
+        font-size: 1rem;
+        padding: 10px;
+    }
+
+    #checkBtn {
+        font-size: 1rem;
+        padding: 12px;
+    }
+
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .button-row {
+        justify-content: stretch;
+    }
+}

@@ -1,60 +1,89 @@
-<div id="globeViz" style="width: 100%; height: 600px;"></div>
+<div id="globeViz"></div>
 
 <div class="floating-form-box">
+    <h2>Your Flight</h2>
     <form id="flightForm" method="GET" action="/tickets">
-        <label>From:</label><br/>
-        <select id="fromInput" name="fromInput" required>
-            <option value="">Select</option>
-            {{#each cities}}
-                <option value="{{this}}">{{this}}</option>
-            {{/each}}
-        </select>
+        <!-- From / To -->
+        <div class="form-grid-2">
+            <div>
+                <label for="fromInput">From:</label>
+                <select id="fromInput" name="fromInput" required>
+                    <option value="">Select</option>
+                </select>
+            </div>
+            <div>
+                <label for="toInput">To:</label>
+                <select id="toInput" name="toInput" required>
+                    <option value="">Select</option>
+                </select>
+            </div>
+        </div>
 
-        <br/>
-
-        <label>To:</label><br/>
-        <select id="toInput" name="toInput" required>
-            <option value="">Select</option>
-            {{#each cities}}
-                <option value="{{this}}">{{this}}</option>
-            {{/each}}
-        </select>
-
-        <br/>
-
-        <label>Class:</label><br/>
-        <select name="class" required>
+        <!-- Class -->
+        <label for="class">Class:</label>
+        <select id="class" name="class" required>
             <option>Economy</option>
             <option>Business</option>
             <option>First</option>
         </select>
 
-        <br/>
+        <!-- Adults / Children -->
+        <div class="form-grid-2">
+            <div>
+                <label for="adults">Adults:</label>
+                <input type="number" id="adults" name="adults" value="1" min="1" required />
+            </div>
+            <div>
+                <label for="children">Children:</label>
+                <input type="number" id="children" name="children" value="0" min="0" required />
+            </div>
+        </div>
 
-        <label>Adults:</label><br/>
-        <input type="number" name="adults" value="1" min="1" required/>
-
-        <br/>
-
-        <label>Children:</label><br/>
-        <input type="number" name="children" value="0" min="0" required/>
-
-        <br/>
-
-        <label>Trip Type:</label><br/>
-        <select name="tripType" required>
+        <!-- Trip Type -->
+        <label for="tripType">Trip Type:</label>
+        <select id="tripType" name="tripType" required>
             <option value="oneway">One-way</option>
             <option value="roundtrip">Round-trip</option>
         </select>
 
-        <br/>
-        <button id="checkBtn" type="submit">Search</button>
+        <!-- Submit Button in Its Own Row -->
+        <div class="button-row">
+            <button id="checkBtn" type="submit">Search Flights</button>
+        </div>
     </form>
 </div>
 
-<!-- Load Libraries -->
+<!-- Load Globe and Three.js Libraries -->
 <script src="https://unpkg.com/three"></script>
 <script src="https://unpkg.com/globe.gl"></script>
-
-<!-- Load Globe Logic -->
 <script src="/js/globe.js"></script>
+
+<!-- Dynamic City Loading Script -->
+<script>
+    async function loadCities() {
+        try {
+            const response = await fetch('/api/cities'); // Ensure this API route is implemented
+            if (!response.ok) throw new Error('Failed to fetch cities');
+            
+            const cities = await response.json();
+            const fromSelect = document.getElementById('fromInput');
+            const toSelect = document.getElementById('toInput');
+
+            cities.forEach(city => {
+                const optionFrom = document.createElement('option');
+                optionFrom.value = city;
+                optionFrom.textContent = city;
+
+                const optionTo = optionFrom.cloneNode(true);
+
+                fromSelect.appendChild(optionFrom);
+                toSelect.appendChild(optionTo);
+            });
+
+        } catch (error) {
+            console.error('Error loading cities:', error);
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', loadCities);
+</script>
