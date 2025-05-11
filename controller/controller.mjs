@@ -150,8 +150,7 @@ function searchTickets(req, res) {
         fromInput='', 
         toInput='', 
         class: flightClass='', 
-        tripType, 
-        maxPrice, 
+        tripType,  
         departureDate, 
         returnDate 
     } = req.query;
@@ -184,13 +183,11 @@ function searchTickets(req, res) {
         WHERE LOWER(a1.city) = LOWER(?) 
           AND LOWER(a2.city) = LOWER(?) 
           AND LOWER(t.class) = LOWER(?) 
-          ${maxPrice ? 'AND t.price <= ?' : ''} 
           ${departureDate ? 'AND DATE(f.time_departure) = DATE(?)' : ''} 
           AND t.availability > 0;
     `;
 
     const outboundParams = [fromInput.toLowerCase(), toInput.toLowerCase(), flightClass.toLowerCase()];
-    if (maxPrice) outboundParams.push(parseFloat(maxPrice));
     if (departureDate) outboundParams.push(departureDate);  // Assuming 'YYYY-MM-DD' format
     //console.log('Outbound SQL:', baseSQL);
     //console.log('Outbound Params:', outboundParams);
@@ -204,7 +201,6 @@ function searchTickets(req, res) {
         let returnFlights = [];
         if (tripType === 'roundtrip') {
             const returnParams = [toInput.toLowerCase(), fromInput.toLowerCase(), flightClass.toLowerCase()];
-            if (maxPrice) returnParams.push(parseFloat(maxPrice));
             if (returnDate) returnParams.push(returnDate);
             returnFlights = db.prepare(baseSQL).all(...returnParams);
             console.log('Return Flights Found:', returnFlights.length);
