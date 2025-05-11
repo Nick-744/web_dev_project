@@ -22,7 +22,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Handlebars View Engine
-app.engine('hbs', engine({ extname: '.hbs' }));
+app.engine('hbs', engine({
+    extname: '.hbs',
+    helpers: {
+        multiply: (a, b) => a * b
+    }
+}));
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 

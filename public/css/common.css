@@ -18,55 +18,52 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    height: 55px;
+    height: 90px;
     background-color: royalblue;
     color: white;
-    padding: 10px 20px;
+    padding: 0 24px;
     font-size: 1.1rem;
     font-weight: bold;
     z-index: 1000;
     display: flex;
-    justify-content: space-between;
     align-items: center;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     opacity: 0;
     transform: translateY(-20px);
     transition: opacity 0.5s ease, transform 0.5s ease;
-    overflow-x: hidden;
 }
 
 .top-bar .logo {
     display: flex;
     align-items: center;
     gap: 10px;
-    white-space: nowrap;
-    padding: 2em;
-    margin: 1em;
     color: white;
     text-decoration: none;
     font-weight: bold;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
+    margin-right: 20px;
 }
 
-/* Navigation */
-.top-bar nav {
-    flex: 1;
+/* Navigation and Hamburger aligned next to logo */
+.top-bar nav, 
+.hamburger {
     display: flex;
     align-items: center;
 }
 
+/* Navigation Links */
 nav ul {
     display: flex;
     gap: 1em;
     align-items: center;
     list-style: none;
-    margin: 1em;
-    padding: 1em;
+    margin: 0;
+    padding: 0;
 }
 
 nav li a {
     display: block;
-    padding: 1em;
+    padding: 0.5em 1em;
     color: white;
     text-decoration: none;
     border-radius: 10px;
@@ -146,34 +143,33 @@ nav li.selected a {
 
 /* Hamburger Button */
 .hamburger {
-    display: none;
     background: none;
     border: none;
     font-size: 2rem;
     color: white;
     cursor: pointer;
     z-index: 1100;
+    margin-left: 16px;
 }
 
-/* Mobile Navigation Dropdown */
+/* Mobile Navigation */
 @media (max-width: 680px) {
     .top-bar {
         flex-wrap: wrap;
-        justify-content: space-between;
+        justify-content: flex-start;
         height: auto;
         padding: 10px 15px;
     }
 
     .top-bar .logo {
-        padding: 0.5em;
-        margin: 0.5em;
         font-size: 1.4rem;
+        margin-right: 16px;
     }
 
     .hamburger {
         display: block;
-        position: relative;
         font-size: 2.2rem;
+        margin-left: 16px; /* Adjust as needed for spacing */
     }
 
     nav#navMenu {
