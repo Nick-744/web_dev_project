@@ -58,11 +58,23 @@
 
           if (!hasAnimated) {
               header?.classList.add('fade-in-once');
-              footer?.classList.add('fade-in-once');
               sessionStorage.setItem('headerFooterAnimated', 'true');
           } else {
               header?.classList.add('show-instant');
               footer?.classList.add('show-instant');
+          }
+
+          // Footer Smooth Appearance Using IntersectionObserver
+          if (footer) {
+              const observer = new IntersectionObserver(entries => {
+                  entries.forEach(entry => {
+                      if (entry.isIntersecting) {
+                          footer.classList.add('visible');
+                      }
+                  });
+              }, { threshold: 0.1 });
+
+              observer.observe(footer);
           }
 
           hamburgerBtn?.addEventListener('click', () => {
