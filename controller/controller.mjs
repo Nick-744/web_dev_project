@@ -71,18 +71,18 @@ function apiGetFlights(req, res) {
 import { db } from '../lib/db.js';
 
 
-
 // function searchTickets(req, res) {
-//     const { fromInput, toInput, class: flightClass, adults, children, tripType } = req.query;
-//     // console.log('Search Tickets:');
-//     // console.log('From:', fromInput);       // 'Athens'
-//     // console.log('To:', toInput);            // 'Paris'
-//     // console.log('Class:', flightClass);     // 'Economy'
-//     // console.log('Adults:', adults);         // '1'
-//     // console.log('Children:', children);     // '0'
-//     // console.log('Trip Type:', tripType);    // 'oneway'
+//     console.log('Query Params Raw:', req.query);
+//     const { fromInput, toInput, class: flightClass, adults, children, tripType, maxPrice } = req.query;
+
+//     console.log('From:', fromInput);
+//     console.log('To:', toInput);
+//     console.log('Class:', flightClass);
+//     console.log('Max Price:', maxPrice);
+
 //     try {
-//         const stmt = db.prepare(`
+//         // Build SQL dynamically based on whether maxPrice is set
+//         let sql = `
 //             SELECT 
 //                 f.id AS flight_id,
 //                 a1.city AS departure_city,
@@ -99,12 +99,24 @@ import { db } from '../lib/db.js';
 //             JOIN ticket t ON f.id = t.flight_id
 //             JOIN airline al ON f.airline_id = al.id
 //             WHERE LOWER(a1.city) = LOWER(?) 
-//             AND LOWER(a2.city) = LOWER(?) 
-//             AND LOWER(t.class) = LOWER(?) 
-//             AND t.availability > 0;
-//         `);
+//               AND LOWER(a2.city) = LOWER(?) 
+//               AND LOWER(t.class) = LOWER(?) 
+//               AND t.availability > 0
+//         `;
 
-//         const results = stmt.all(fromInput, toInput, flightClass);
+//         const params = [
+//             fromInput.toLowerCase(), 
+//             toInput.toLowerCase(), 
+//             flightClass.toLowerCase()
+//         ];
+
+//         if (maxPrice && !isNaN(maxPrice)) {
+//             sql += ' AND t.price <= ?';
+//             params.push(parseFloat(maxPrice));
+//         }
+
+//         const stmt = db.prepare(sql);
+//         const results = stmt.all(...params);
 
 //         res.render('tickets', { 
 //             title: 'Available Flights - FlyExpress', 
@@ -115,58 +127,68 @@ import { db } from '../lib/db.js';
 //         res.status(500).send('Database Error');
 //     }
 // }
-
 function searchTickets(req, res) {
-    console.log('Query Params Raw:', req.query);
-    const { fromInput, toInput, class: flightClass, adults, children, tripType, maxPrice } = req.query;
+    const { 
+        fromInput, 
+        toInput, 
+        class: flightClass, 
+        tripType, 
+        maxPrice, 
+        departureDate, 
+        returnDate 
+    } = req.query;
 
-    console.log('From:', fromInput);
-    console.log('To:', toInput);
-    console.log('Class:', flightClass);
-    console.log('Max Price:', maxPrice);
+    console.log('Search Params:', req.query);
+
+    const baseSQL = `
+        SELECT 
+            f.id AS flight_id,
+            a1.city AS departure_city,
+            a2.city AS arrival_city,
+            f.time_departure,
+            f.time_arrival,
+            t.class,
+            t.price,
+            t.availability,
+            al.name AS airline_name
+        FROM flight f
+        JOIN airport a1 ON f.airport_depart_id = a1.id
+        JOIN airport a2 ON f.airport_arrive_id = a2.id
+        JOIN ticket t ON f.id = t.flight_id
+        JOIN airline al ON f.airline_id = al.id
+        WHERE LOWER(a1.city) = LOWER(?) 
+          AND LOWER(a2.city) = LOWER(?) 
+          AND LOWER(t.class) = LOWER(?) 
+          ${maxPrice ? 'AND t.price <= ?' : ''} 
+          AND t.availability > 0;
+    `;
+
+    const outboundParams = [fromInput.toLowerCase(), toInput.toLowerCase(), flightClass.toLowerCase()];
+    if (maxPrice) outboundParams.push(parseFloat(maxPrice));
+    //console.log('Outbound SQL:', baseSQL);
+    //console.log('Outbound Params:', outboundParams);
 
     try {
-        // Build SQL dynamically based on whether maxPrice is set
-        let sql = `
-            SELECT 
-                f.id AS flight_id,
-                a1.city AS departure_city,
-                a2.city AS arrival_city,
-                f.time_departure,
-                f.time_arrival,
-                t.class,
-                t.price,
-                t.availability,
-                al.name AS airline_name
-            FROM flight f
-            JOIN airport a1 ON f.airport_depart_id = a1.id
-            JOIN airport a2 ON f.airport_arrive_id = a2.id
-            JOIN ticket t ON f.id = t.flight_id
-            JOIN airline al ON f.airline_id = al.id
-            WHERE LOWER(a1.city) = LOWER(?) 
-              AND LOWER(a2.city) = LOWER(?) 
-              AND LOWER(t.class) = LOWER(?) 
-              AND t.availability > 0
-        `;
+        const outboundFlights = db.prepare(baseSQL).all(...outboundParams);
 
-        const params = [
-            fromInput.toLowerCase(), 
-            toInput.toLowerCase(), 
-            flightClass.toLowerCase()
-        ];
+        let returnFlights = [];
+        console.log('Outbound Query Results:');
+        console.table(outboundFlights);
+        if (tripType === 'roundtrip') {
+            console.log('Return Query Results:');
+            console.table(returnFlights);
+            const returnParams = [toInput.toLowerCase(), fromInput.toLowerCase(), flightClass.toLowerCase()];
+            if (maxPrice) returnParams.push(parseFloat(maxPrice));
 
-        if (maxPrice && !isNaN(maxPrice)) {
-            sql += ' AND t.price <= ?';
-            params.push(parseFloat(maxPrice));
+            returnFlights = db.prepare(baseSQL).all(...returnParams);
         }
-
-        const stmt = db.prepare(sql);
-        const results = stmt.all(...params);
 
         res.render('tickets', { 
             title: 'Available Flights - FlyExpress', 
-            tickets: results 
+            outboundFlights, 
+            returnFlights 
         });
+
     } catch (err) {
         console.error(err);
         res.status(500).send('Database Error');
