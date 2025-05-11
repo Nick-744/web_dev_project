@@ -1,108 +1,135 @@
+/* ----------  Layout & Background  ---------- */
 .tickets-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 30px 20px;
-    color: white;
-    text-align: center;
+    padding: 50px 20px 0;
+    min-height: 100vh;
+    color: #fff;
+    text-align: left;
+    background: linear-gradient(to bottom right, #0b0c1a, #1e1e2f);
+    overflow-x: hidden;
 }
 
+/* ----------  Title  ---------- */
 .tickets-container h2 {
-    font-size: 2.5rem;
-    margin-bottom: 30px;
+    font-size: 3rem;
+    margin-bottom: 40px;
+    color: #f97316;
+    font-weight: bold;
+    transform: translateX(-100px);     /* start off-screen (left)  */
+    opacity: 0;                        /* fully transparent       */
+    transition: transform 1.2s ease,   /* slide-in                */
+                opacity   1.2s ease;   /* fade-in                 */
+    white-space: nowrap;               /* keep in one line        */
 }
 
+/* ----------  Tickets List Wrapper  ---------- */
 .tickets-list {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    align-items: center;
+    gap: 24px;
     width: 100%;
     max-width: 600px;
+    margin-top: 20px;                  /* space below the title   */
 }
 
-/* Ticket Card Style */
+/* ----------  Ticket Card  ---------- */
 .ticket-card {
-    background: rgba(255, 255, 255, 0.95);
-    color: #111;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    transform: translateX(100%);
-    animation: slideInRight 0.6s forwards;
-    animation-timing-function: ease-out;
+    background: rgba(30, 30, 47, 0.95);
+    color: #fff;
+    padding: 24px 28px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 500px;
+    min-height: 120px;
+    border-left: 6px solid #f97316;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+
+    /* initial (hidden) state */
     opacity: 0;
+    transform: translateX(100px);      /* start off-screen (right)*/
+    transition: transform 1s ease,     /* slide-in                */
+                opacity   1s ease;     /* fade-in                 */
 }
 
-.ticket-header {
+/* card becomes visible when JS adds .show */
+.ticket-card.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* ----------  Card Header & Class Badge ---------- */
+.notification-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 12px;
-    font-weight: bold;
-    font-size: 1.1rem;
-}
-
-.ticket-body .cities {
-    display: flex;
-    justify-content: center;
     align-items: center;
+    margin-bottom: 16px;
     font-size: 1.2rem;
-    margin-bottom: 8px;
 }
 
-.ticket-body .arrow {
-    margin: 0 10px;
-    color: #f97316;
-    font-size: 1.4rem;
-}
+.notification-header .airline { font-weight: bold; }
 
-.ticket-body .times, 
-.ticket-body .price {
-    font-size: 1rem;
-    color: #555;
-}
-
-.ticket-body .price {
-    font-weight: bold;
-    margin-top: 10px;
-    color: #f97316;
-    font-size: 1.3rem;
-}
-
-/* Flight Class Badge */
-.class {
-    padding: 4px 8px;
-    border-radius: 6px;
+.flight-class {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
     text-transform: capitalize;
-    font-size: 0.9rem;
+    background: #333;
+    color: #fff;
 }
 
-.class.economy { background: #e0f7fa; color: #00796b; }
-.class.business { background: #ffe0b2; color: #e65100; }
-.class.first { background: #f8bbd0; color: #880e4f; }
+.flight-class.economy  { background: #e0f7fa; color: #00796b; }
+.flight-class.business { background: #ffe0b2; color: #e65100; }
+.flight-class.first    { background: #f8bbd0; color: #880e4f; }
 
-/* Slide In Animation */
-@keyframes slideInRight {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
+/* ----------  Card Body  ---------- */
+.notification-body .cities {
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+    margin-bottom: 12px;
 }
 
-/* Responsive */
+.notification-body .arrow {
+    margin: 0 12px;
+    font-size: 1.6rem;
+    color: #f97316;
+}
+
+.notification-body .times,
+.notification-body .price {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 8px;
+    color: #ccc;
+}
+
+.notification-body .price {
+    font-weight: bold;
+    color: #f97316;
+    font-size: 1.6rem;
+}
+
+/* ----------  Responsive  ---------- */
 @media (max-width: 600px) {
     .tickets-container h2 {
-        font-size: 2rem;
+        font-size: 2.2rem;
+        text-align: center;
+        margin-bottom: 30px;
     }
 
-    .ticket-body .cities {
-        font-size: 1rem;
+    .tickets-list {
+        gap: 16px;
+        margin-top: 30px;
     }
 
     .ticket-card {
         padding: 16px;
+        width: 90%;
     }
+
+    .notification-body .cities { font-size: 1.2rem; }
+    .notification-body .price  { font-size: 1.3rem; }
 }

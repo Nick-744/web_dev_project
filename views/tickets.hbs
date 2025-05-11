@@ -1,35 +1,92 @@
 <div class="tickets-container">
-    <h2>Available Flights</h2>
-    <div class="tickets-list">
-        {{#each outboundFlights}}
-        <div class="ticket-card" style="animation-delay: {{multiply @index 100}}ms;">
-            <div class="ticket-header">
-                <span class="airline">{{airline_name}}</span>
-                <span class="class {{class}}">{{class}}</span>
-            </div>
-            <div class="ticket-body">
-                <div class="cities">
-                    <span class="city">{{departure_city}}</span>
-                    <span class="arrow">➔</span>
-                    <span class="city">{{arrival_city}}</span>
-                </div>
-                <div class="times">
-                    <span>{{time_departure}}</span>
-                    <span>-</span>
-                    <span>{{time_arrival}}</span>
-                </div>
-                <div class="price">
-                    ${{price}}
-                </div>
-            </div>
+  <h2>Available Flights</h2>
+
+  <div class="tickets-list">
+    {{#each outboundFlights}}
+      <div class="ticket-card">
+        <div class="notification-header">
+          <span class="airline">{{airline_name}}</span>
+          <span class="flight-class {{class}}">{{class}}</span>
         </div>
-        {{/each}}
-    </div>
+
+        <div class="notification-body">
+          <div class="cities">
+            <span class="city">{{departure_city}}</span>
+            <span class="arrow">➔</span>
+            <span class="city">{{arrival_city}}</span>
+          </div>
+
+          <div class="times">
+            <span>Departure: {{time_departure}}</span><br />
+            <span>Arrival&nbsp;&nbsp;: {{time_arrival}}</span>
+          </div>
+
+          <div class="price">
+            <strong>Price:</strong> ${{price}}
+          </div>
+        </div>
+      </div>
+    {{/each}}
+
+    {{#if returnFlights}}
+      {{#each returnFlights}}
+        <div class="ticket-card">
+          <div class="notification-header">
+            <span class="airline">{{airline_name}}</span>
+            <span class="flight-class {{class}}">{{class}}</span>
+          </div>
+
+          <div class="notification-body">
+            <div class="cities">
+              <span class="city">{{departure_city}}</span>
+              <span class="arrow">➔</span>
+              <span class="city">{{arrival_city}}</span>
+            </div>
+
+            <div class="times">
+              <span>Departure: {{time_departure}}</span><br />
+              <span>Arrival&nbsp;&nbsp;: {{time_arrival}}</span>
+            </div>
+
+            <div class="price">
+              <strong>Price:</strong> ${{price}}
+            </div>
+          </div>
+        </div>
+      {{/each}}
+    {{/if}}
+  </div>
 </div>
 
 <script>
-// Smooth scroll to tickets on load
+/* Title fades in from the left; cards fade-in from the right on scroll */
 window.addEventListener('DOMContentLoaded', () => {
-    document.querySelector('.tickets-container').scrollIntoView({ behavior: 'smooth' });
+  const title   = document.querySelector('.tickets-container h2');
+  const tickets = document.querySelectorAll('.ticket-card');
+
+  /* ---- Title animation (left-to-right) ---- */
+  title.style.opacity   = '0';
+  title.style.transform = 'translateX(-100px)';
+  title.style.transition = 'transform 1.2s ease, opacity 1.2s ease';
+
+  setTimeout(() => {
+    title.style.opacity   = '1';
+    title.style.transform = 'translateX(0)';
+  }, 200);
+
+  /* ---- Cards fade-in on scroll (right-to-left) ---- */
+  const observer = new IntersectionObserver(
+    (entries, obs) => {
+      entries.forEach((entry, idx) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('show'), idx * 150);
+          obs.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1 }
+  );
+
+  tickets.forEach(card => observer.observe(card));
 });
 </script>
