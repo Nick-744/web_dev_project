@@ -170,29 +170,32 @@ function searchTickets(req, res) {
 
     try {
         const outboundFlights = db.prepare(baseSQL).all(...outboundParams);
-
-        let returnFlights = [];
+    
         console.log('Outbound Query Results:');
         console.table(outboundFlights);
+    
+        let returnFlights = [];
         if (tripType === 'roundtrip') {
-            console.log('Return Query Results:');
-            console.table(returnFlights);
             const returnParams = [toInput.toLowerCase(), fromInput.toLowerCase(), flightClass.toLowerCase()];
             if (maxPrice) returnParams.push(parseFloat(maxPrice));
-
+    
             returnFlights = db.prepare(baseSQL).all(...returnParams);
+    
+            console.log('Return Query Results:');
+            console.table(returnFlights);
         }
-
+    
         res.render('tickets', { 
             title: 'Available Flights - FlyExpress', 
             outboundFlights, 
             returnFlights 
         });
-
+    
     } catch (err) {
         console.error(err);
         res.status(500).send('Database Error');
     }
+    
 }
 
 export { 
