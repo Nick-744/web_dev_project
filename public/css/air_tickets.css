@@ -186,7 +186,7 @@ html, body {
     width: 100%;
 }
 
-#checkBtn {
+#searchBtn {
     padding: 14px;
     background-color: #f97316;
     color: #fff;
@@ -199,13 +199,13 @@ html, body {
     transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
 }
 
-#checkBtn:hover {
+#searchBtn:hover {
     background-color: #fb923c;
     transform: translateY(-3px);
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
-#checkBtn:active {
+#searchBtn:active {
     background-color: #ea580c;
     transform: scale(0.97);
 }

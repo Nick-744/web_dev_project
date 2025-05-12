@@ -68,7 +68,7 @@
 
             <!-- Submit -->
             <div class="button-row">
-                <button id="checkBtn" type="button">Search Flights</button>
+                <button id="searchBtn" type="submit">Search Flights</button>
             </div>
         </form>
     </div>
@@ -157,27 +157,33 @@
         tripTypeSelect.addEventListener('change', updateReturnDateVisibility);
         updateReturnDateVisibility();
     });
-</script>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const searchBtn = document.getElementById('checkBtn');
-    const formBox = document.querySelector('.floating-form-box');
-    const globe = document.getElementById('globeViz');
-    const form = document.getElementById('flightForm');
+    document.addEventListener('DOMContentLoaded', () => {
+        const formBox = document.querySelector('.floating-form-box');
+        const globe = document.getElementById('globeViz');
+        const form = document.getElementById('flightForm');
 
-    searchBtn.addEventListener('click', () => {
-        if (formBox) {
-            formBox.classList.add('slide-out'); // Trigger slide-out
-        }
-        if (globe) {
-            globe.classList.remove('fade-in');
-            globe.classList.add('fade-out');
-        }
+        form.addEventListener('submit', (e) => {
+            e.preventDefault(); // Prevent immediate submit
+            
+            // Trigger form validation
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return; // Invalid fields will show built-in validation
+            }
 
-        setTimeout(() => {
-            form.submit();
-        }, 500); // Match animation duration
+            if (formBox) {
+                formBox.classList.add('slide-out'); // Trigger slide-out
+            }
+            if (globe) {
+                globe.classList.remove('fade-in');
+                globe.classList.add('fade-out');
+            }
+
+            // Submit after animation completes
+            setTimeout(() => {
+                form.submit();
+            }, 500); // Match animation duration
+        });
     });
-});
 </script>
