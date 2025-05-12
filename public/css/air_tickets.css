@@ -32,7 +32,8 @@ html, body {
     top: 52%; /* Below header */
     left: 18%;
     transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.9);
+    transition: all 0.5s ease;
     padding: 35px 40px;
     border-radius: 16px;
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
@@ -45,6 +46,21 @@ html, body {
     max-height: calc(100vh - 130px); /* Accounts for header + footer */
     overflow-y: auto;
     animation: slideInLeft 1s ease-out forwards;
+}
+
+@keyframes slideOutLeft {
+    from {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-150%, -50%);
+    }
+}
+
+.floating-form-box.slide-out {
+    animation: slideOutLeft 0.5s ease forwards;
 }
 
 .floating-form-box h2 {
@@ -62,6 +78,7 @@ html, body {
     gap: 16px;
     width: 100%;
     margin-bottom: 16px;
+    transition: all 0.5s ease;
 }
 
 .floating-form-box label {
@@ -214,6 +231,7 @@ html, body {
         width: 80%;
         max-height: calc(100vh - 200px); /* Header + Footer */
         overflow-y: auto;
+        background: rgba(255, 255, 255, 0.75);
     }
 
     .floating-form-box h2 {
@@ -237,5 +255,23 @@ html, body {
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         overflow-y: auto;
         max-height: calc(100vh - 180px); /* Leaves room for header and footer */
+        background: rgba(255, 255, 255, 0.6);
     }
+}
+
+#globeOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #0b0c1a;
+    z-index: 0; /* Above globe, below the form */
+    opacity: 1;
+    transition: opacity 1s ease;
+    pointer-events: none; /* Allow clicks to pass through */
+}
+
+#globeOverlay.fade-out {
+    opacity: 0;
 }

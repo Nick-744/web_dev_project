@@ -1,44 +1,99 @@
-.about-container {
-  padding: 60px 20px;
-  background: linear-gradient(to right, #1a1a1a, #333333);
-  color: white;
-  text-align: center;
-  min-height: 80vh;
-}
-
-.about-container h1 {
-  font-size: 2.5rem;
-  margin-bottom: 40px;
-}
-
 .dev-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 30px;
-  justify-items: center;
-  max-width: 1000px;
-  margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 50px;
+    justify-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 80px;
 }
 
 .dev-card {
-  background: white;
-  color: #111;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  text-align: left;
-  max-width: 350px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    max-width: 300px;
+    backdrop-filter: blur(10px);
+    animation: floatWave 4s ease-in-out infinite;
+    transform-origin: center center;
+}
+
+/* Start animation with dev 2 */
+.dev-card:nth-child(1) {
+    animation-delay: 2s;
+}
+.dev-card:nth-child(2) {
+    animation-delay: 0s; 
+}
+
+@keyframes floatWave {
+    0% {
+        transform: translateY(0) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-20px) rotate(2deg);
+    }
+    50% {
+        transform: translateY(0) rotate(0deg);
+    }
+    75% {
+        transform: translateY(20px) rotate(-2deg);
+    }
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
 }
 
 .dev-card img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 15px;
+    width: 60%; /* Smaller and centered */
+    height: 140px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    transition: transform 0.5s ease;
 }
 
-.dev-card h2 {
-  font-size: 1.5rem;
-  margin: 10px 0;
+.dev-card:hover img {
+    transform: scale(1.1); /* Slight zoom on hover */
+}
+
+.dev-card h3 {
+    font-size: 1.8rem;
+    margin: 15px 0;
+    color: #f97316;
+}
+
+.dev-card p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #ddd;
+}
+
+@media (max-width: 768px) {
+    .dev-grid {
+        grid-template-columns: 1fr; /* Single column on small screens */
+        gap: 30px; /* Reduced gap for small screens */
+    }
+
+    .dev-card {
+        padding: 20px;
+        max-width: 90%; /* Prevents cards from overflowing */
+        animation: none; /* Optionally disable animation on small screens if it's distracting */
+    }
+
+    .dev-card img {
+        width: 50%; /* Further reduce image size for small screens */
+        height: 120px;
+    }
+
+    .dev-card h3 {
+        font-size: 1.5rem;
+    }
+
+    .dev-card p {
+        font-size: 0.95rem;
+    }
 }

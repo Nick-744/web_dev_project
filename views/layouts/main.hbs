@@ -7,8 +7,6 @@
 
     <!-- Core CSS -->
     <link rel="stylesheet" href="/css/common.css" />
-    <link rel="stylesheet" href="/css/air_tickets.css" />
-    <link rel="stylesheet" href="/css/tickets.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 
     <!-- Optional view-specific CSS -->
@@ -44,50 +42,89 @@
       {{{script}}}
     {{/if}}
 
-    <!-- Animation and Hamburger Logic -->
+    <!-- Animation -->
     <script>
-      window.addEventListener('DOMContentLoaded', () => {
-          const hasAnimated = sessionStorage.getItem('headerFooterAnimated');
-          const header = document.querySelector('.top-bar');
-          const footer = document.querySelector('.footer');
-          const hamburgerBtn = document.getElementById('hamburgerBtn');
-          const navMenu = document.getElementById('navMenu');
+    window.addEventListener('DOMContentLoaded', () => {
+        const header = document.querySelector('.top-bar');
+        const footer = document.querySelector('.footer');
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const navMenu = document.getElementById('navMenu');
+        const pageContainer = document.querySelector('.page-container');
+        const ticketsContainer = document.querySelector('.tickets-container');
+        const overlay = document.getElementById('globeOverlay');
 
-          if (!hasAnimated) {
-              header?.classList.add('fade-in-once');
-              sessionStorage.setItem('headerFooterAnimated', 'true');
-          } else {
-              header?.classList.add('show-instant');
-              footer?.classList.add('show-instant');
-          }
+        // Header & Footer Animation (One-Time)
+        const hasAnimated = sessionStorage.getItem('headerFooterAnimated');
+        if (!hasAnimated) {
+            header?.classList.add('fade-in-once');
+            sessionStorage.setItem('headerFooterAnimated', 'true');
+        } else {
+            header?.classList.add('show-instant');
+            footer?.classList.add('show-instant');
+        }
 
-          // Footer Smooth Appearance Using IntersectionObserver
-          if (footer) {
-              const observer = new IntersectionObserver(entries => {
-                  entries.forEach(entry => {
-                      if (entry.isIntersecting) {
-                          footer.classList.add('visible');
-                      }
-                  });
-              }, { threshold: 0.1 });
+        // Footer Appearance
+        if (footer) {
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        footer.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            observer.observe(footer);
+        }
 
-              observer.observe(footer);
-          }
+        // Hamburger Logic
+        hamburgerBtn?.addEventListener('click', () => {
+            navMenu.classList.toggle('show');
+            hamburgerBtn.classList.toggle('open');
+            document.body.style.overflow = navMenu.classList.contains('show') ? 'hidden' : 'hidden';
+        });
 
-          hamburgerBtn?.addEventListener('click', () => {
-              navMenu.classList.toggle('show');
-              hamburgerBtn.classList.toggle('open');
-              document.body.style.overflow = navMenu.classList.contains('show') ? 'hidden' : 'auto';
-          });
+        document.addEventListener('click', (e) => {
+            if (!navMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+                navMenu.classList.remove('show');
+                hamburgerBtn.classList.remove('open');
+                document.body.style.overflowY = 'auto';  // Allow vertical scrolling
+                document.body.style.overflowX = 'hidden'; // Prevent horizontal scrolling
+            }
+        });
 
-          document.addEventListener('click', (e) => {
-              if (!navMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
-                  navMenu.classList.remove('show');
-                  hamburgerBtn.classList.remove('open');
-                  document.body.style.overflow = 'auto';
-              }
-          });
-      });
+        // Fade-In on Load
+        [pageContainer, ticketsContainer].forEach(el => {
+            if (el) requestAnimationFrame(() => el.classList.add('fade-in'));
+        });
+
+        if (overlay) overlay.classList.add('fade-out'); // Hide overlay after load
+
+        // Fade-Out + Overlay Before Navigation
+        document.querySelectorAll('a[href]').forEach(link => {
+            const url = new URL(link.href, window.location.origin);
+
+            if (url.origin === window.location.origin) {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+
+                    // Trigger fade-out for content
+                    [pageContainer, ticketsContainer].forEach(el => {
+                        if (el) {
+                            el.classList.remove('fade-in');
+                            el.classList.add('fade-out');
+                        }
+                    });
+
+                    // Bring back overlay immediately
+                    if (overlay) overlay.classList.remove('fade-out');
+
+                    setTimeout(() => {
+                        window.location.href = link.href;
+                    }, 500); // Match transition time
+                });
+            }
+        });
+    });
     </script>
+
   </body>
 </html>

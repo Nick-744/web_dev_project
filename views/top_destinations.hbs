@@ -1,35 +1,19 @@
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('.card-front').forEach(front => {
-            front.addEventListener('click', (e) => {
-                e.stopPropagation();
-                front.parentElement.classList.add('flipped');
-            });
-        });
-
-        document.querySelectorAll('.card-back').forEach(back => {
-            back.addEventListener('click', (e) => {
-                e.stopPropagation();
-                back.parentElement.classList.remove('flipped');
-            });
-        });
-    });
-</script>
-
 <div class="page-container">
     <h2>🌍 Top Destinations</h2>
     <div class="destinations-grid">
         {{#each destinations}}
-        <div class="destination-card">
+        <div class="destination-card" ontouchstart="handleTouch(this)">
             <div class="card-inner">
                 <div class="card-front">
                     <img src="{{this.image}}" alt="{{this.name}}" />
                     <h3>{{this.name}}</h3>
+                    <button class="flip-btn" onclick="event.stopPropagation(); this.closest('.destination-card').classList.add('flipped');">Flip</button>
                 </div>
                 <div class="card-back">
                     <h3>{{this.name}}</h3>
                     <p>{{this.description}}</p>
                     <button onclick="viewDestination('{{this.name}}')">View More</button>
+                    <button class="flip-btn" onclick="event.stopPropagation(); this.closest('.destination-card').classList.remove('flipped');">Back</button>
                 </div>
             </div>
         </div>
@@ -37,4 +21,20 @@
     </div>
 </div>
 
+<script>
+    // Reset all cards to default on window resize
+    window.addEventListener('resize', () => {
+        document.querySelectorAll('.destination-card.flipped').forEach(card => {
+            card.classList.remove('flipped');
+        });
+    });
 
+    function handleTouch(card) {
+        // Prevents accidental flips on long press or drag
+        if (!card.classList.contains('flipped')) {
+            card.classList.add('flipped');
+        } else {
+            card.classList.remove('flipped');
+        }
+    }
+</script>
