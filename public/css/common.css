@@ -1,6 +1,6 @@
 /* Global Cursor */
 * {
-    cursor: url(https://cdn.custom-cursor.com/db/cursor/32/Paper_Airplane.png), default !important;
+    cursor: url('/images/Paper_Airplane.png'), default !important;
 }
 
 body {
@@ -208,6 +208,7 @@ nav li.selected a {
 .tickets-container {
     opacity: 0;
     transition: opacity 0.5s ease; /* Normal fade timing */
+    overflow: hidden;
 }
 
 /* Fade-In */

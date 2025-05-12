@@ -9,42 +9,57 @@
 
 .page-container h2 {
     font-size: 2.5rem;
-    margin-bottom: 40px;
+    margin-bottom: 60px;
+    position: relative;
+    animation: fadeSlideDown 1s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .destinations-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
+    row-gap: 80px;
+    column-gap: 40px;
     width: 100%;
     max-width: 1200px;
+    padding-bottom: 80px;
 }
 
 .destination-card {
-    perspective: 1000px;
+    perspective: 1200px;
+    transform-style: preserve-3d;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.destination-card:hover {
+    transform: scale(1.05);
 }
 
 .card-inner {
     position: relative;
     width: 100%;
-    height: 400px;
-    /*transition: transform 0.8s;*/
-    transition: transform 0.4s ease-in-out;  /* Faster and smoother */
-
+    height: 420px;
+    transition: transform 0.6s ease;
     transform-style: preserve-3d;
 }
-.card-inner.flipped {
+
+.destination-card:hover .card-inner,
+.destination-card.flipped .card-inner {
     transform: rotateY(180deg);
 }
 
-.destination-card:hover .card-inner {
-    transform: rotateY(180deg);
-}
-@media (max-width: 768px) {
-    .destination-card:hover .card-inner {
-        transform: none; /* Disable hover-based flip on mobile */
-    }
-}
 .card-front, .card-back {
     position: absolute;
     width: 100%;
@@ -53,11 +68,16 @@
     backface-visibility: hidden;
     overflow: hidden;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    transition: opacity 0.5s ease;
 }
 
 .card-front {
     background: #fff;
     color: #111;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .card-front img {
@@ -65,11 +85,16 @@
     height: 70%;
     object-fit: cover;
     border-radius: 16px 16px 0 0;
+    transition: transform 0.5s ease;
 }
 
 .card-front h3 {
     margin: 15px 0;
     font-size: 1.5rem;
+}
+
+.destination-card:hover .card-front img {
+    transform: scale(1.1);
 }
 
 .card-back {
@@ -78,9 +103,9 @@
     transform: rotateY(180deg);
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    padding: 20px;
+    padding: 30px 20px;
 }
 
 .card-back h3 {
@@ -95,27 +120,53 @@
 }
 
 .card-back button {
-    padding: 10px 20px;
+    margin-top: auto;
+    margin-bottom: 20px;
+    padding: 14px 28px;
     background-color: #f97316;
     border: none;
     color: white;
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .card-back button:hover {
     background-color: #fb923c;
+    transform: translateY(-3px);
 }
 
-/* Responsive for Mobile */
-@media (max-width: 600px) {
+.flip-btn {
+    display: none;
+    margin-top: 10px;
+    padding: 8px 16px;
+    background-color: #f97316;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
     .card-inner {
-        height: 300px;
+        height: 340px;
     }
 
     .page-container h2 {
         font-size: 2rem;
+    }
+
+    .flip-btn {
+        display: inline-block;
+    }
+
+    .destination-card:hover .card-inner {
+        transform: none; /* Disable hover flip on mobile */
+    }
+
+    .destination-card.flipped .card-inner {
+        transform: rotateY(180deg); /* Flip only on tap */
     }
 }
