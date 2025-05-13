@@ -8,11 +8,12 @@
       <!-- Preserve Existing Search Parameters -->
       <input type="hidden" name="fromInput" value="{{fromInput}}">
       <input type="hidden" name="toInput" value="{{toInput}}">
-      <input type="hidden" name="class" value="{{class}}">
+      <input type="hidden" name="flightClass" value="{{flightClass}}">
       <input type="hidden" name="tripType" value="{{tripType}}">
       <input type="hidden" name="departureDate" value="{{departureDate}}">
       <input type="hidden" name="returnDate" value="{{returnDate}}">
-
+      <input type="hidden" name="limit" value="{{limit}}">
+      <input type="hidden" name="rlimit" value="{{rlimit}}">
       <label>Sort By:</label>
       <select name="sortBy" onchange="this.form.submit()">
         <option value="" {{#unless sortBy}}selected{{/unless}}>None</option>
@@ -62,6 +63,14 @@
       </div>
     {{/each}}
   </div>
+  {{#if outboundFlights.length}}
+  {{#if hasMore}}
+  <button id="showMoreBtn" class="search-button" onclick="loadMoreFlights()">
+      <span class="button-text">Show More Flights</span>
+  </button>
+  {{/if}}
+  {{/if}}
+
   
   <!-- Return Flights Part -->
   {{#if returnFlights}}
@@ -73,7 +82,7 @@
         <div class="ticket-card">
           <div class="notification-header">
             <span class="airline">{{airline_name}}</span>
-            <span class="flight-class {{class}}">{{class}}</span>
+            <span class="flight-class {{flightClass}}">{{flightClass}}</span>
           </div>
 
           <div class="notification-body">
@@ -95,9 +104,19 @@
         </div>
       {{/each}}
     </div>
+    {{#if returnFlights.length}}
+    {{#if hasMoreReturns}}
+    <button id="showMoreReturnBtn" class="search-button" onclick="loadMoreReturnFlights()">
+      <span class="button-text">Show More Return Flights</span>
+    </button>
+    {{/if}}
+    {{/if}}
   </div>
   {{/if}}
 </div>
+
+
+
 
 <!-- JS for Animations and Filter Panel Behavior -->
 <script>
@@ -150,4 +169,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+</script>
+
+<script>
+function loadMoreFlights() {
+    const currentLimit = parseInt(new URLSearchParams(window.location.search).get('limit')) || 5;
+    const newLimit = currentLimit + 5;
+
+    const params = new URLSearchParams(window.location.search);
+    params.set('limit', newLimit);
+
+    window.location.search = params.toString();
+}
+</script>
+
+<script>
+  function loadMoreReturnFlights() {
+    const currentRLimit = parseInt(new URLSearchParams(window.location.search).get('rlimit')) || 5;
+    const newRLimit = currentRLimit + 5;
+
+    const params = new URLSearchParams(window.location.search);
+    params.set('rlimit', newRLimit);
+
+    window.location.search = params.toString();
+}
 </script>

@@ -20,8 +20,9 @@
     width: 110%;
     padding: 35px 20px 0; min-height: 100vh;
     color: #fff; text-align: left;
-    background: linear-gradient(to bottom right, #004884, #b2f3ff);
-    overflow-x: hidden; padding-bottom: 20px;
+    background: linear-gradient(to bottom right, #1b223c, #1e1e2f);
+    overflow-x: hidden;
+    padding-bottom: 30px;
 }
 
 .tickets-container h2 {
@@ -190,4 +191,41 @@
 
 .notification-body .price {
     font-weight: bold; color: #f97316; font-size: 1.6rem;
+}
+
+#showMoreBtn {
+    margin: 30px 0;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    background-color: #ea580c;
+    /* background: linear-gradient(to right, #f97316, #ffb347); */
+    color: white;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+#showMoreBtn:hover   { background: #fb923c; transform: translateY(-1px); }
+#showMoreBtn:hover {
+    transform: scale(1.01);
+}
+
+#showMoreReturnBtn {
+    margin: 50px 0 80px; /* Extra space below the button */
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    background-color: #ea580c;
+    /* background: linear-gradient(to right, #f97316, #ffb347); */
+    color: white;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+#showMoreReturnBtn:hover   { background: #fb923c; transform: translateY(-1px); }
+
+#showMoreReturnBtn:hover {
+    transform: scale(1.01);
 }
