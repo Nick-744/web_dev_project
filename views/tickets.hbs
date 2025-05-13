@@ -8,11 +8,12 @@
       <!-- Preserve Existing Search Parameters -->
       <input type="hidden" name="fromInput" value="{{fromInput}}">
       <input type="hidden" name="toInput" value="{{toInput}}">
-      <input type="hidden" name="class" value="{{class}}">
+      <input type="hidden" name="flightClass" value="{{flightClass}}">
       <input type="hidden" name="tripType" value="{{tripType}}">
       <input type="hidden" name="departureDate" value="{{departureDate}}">
       <input type="hidden" name="returnDate" value="{{returnDate}}">
-
+      <input type="hidden" name="limit" value="{{limit}}">
+      <input type="hidden" name="rlimit" value="{{rlimit}}">
       <label>Sort By:</label>
       <select name="sortBy" onchange="this.form.submit()">
         <option value="" {{#unless sortBy}}selected{{/unless}}>None</option>
@@ -81,7 +82,7 @@
         <div class="ticket-card">
           <div class="notification-header">
             <span class="airline">{{airline_name}}</span>
-            <span class="flight-class {{class}}">{{class}}</span>
+            <span class="flight-class {{flightClass}}">{{flightClass}}</span>
           </div>
 
           <div class="notification-body">

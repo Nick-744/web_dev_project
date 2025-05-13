@@ -85,7 +85,7 @@ function searchTickets(req, res) {
         });
     }
 
-    let sql = `
+    let baseSQL = `
         SELECT 
             f.id AS flight_id,
             a1.city AS departure_city,
@@ -103,20 +103,22 @@ function searchTickets(req, res) {
         JOIN ticket t ON f.id = t.flight_id
         JOIN airline al ON f.airline_id = al.id
         WHERE LOWER(a1.city) = LOWER(?)
-          AND LOWER(a2.city) = LOWER(?)
-          AND LOWER(t.class) = LOWER(?)
-          ${departureDate ? 'AND DATE(f.time_departure) = DATE(?)' : ''}
-          AND t.availability > 0
-          ${maxPrice ? 'AND t.price <= ?' : ''}
-          ${maxDuration ? 'AND duration_minutes <= ?' : ''}
+        AND LOWER(a2.city) = LOWER(?)
+        AND LOWER(t.class) = LOWER(?)
+        ${departureDate ? 'AND DATE(f.time_departure) = DATE(?)' : ''}
+        AND t.availability > 0
+        ${maxPrice ? 'AND t.price <= ?' : ''}
+        ${maxDuration ? 'AND duration_minutes <= ?' : ''}
     `;
 
-    if (sortBy === 'price_asc') sql += ' ORDER BY t.price ASC';
-    if (sortBy === 'price_desc') sql += ' ORDER BY t.price DESC';
-    if (sortBy === 'duration_asc') sql += ' ORDER BY duration_minutes ASC';
-    if (sortBy === 'duration_desc') sql += ' ORDER BY duration_minutes DESC';
-    
-    const outboundSQL = sql + ' LIMIT ?';
+    if (sortBy === 'price_asc') baseSQL += ' ORDER BY t.price ASC';
+    if (sortBy === 'price_desc') baseSQL += ' ORDER BY t.price DESC';
+    if (sortBy === 'duration_asc') baseSQL += ' ORDER BY duration_minutes ASC';
+    if (sortBy === 'duration_desc') baseSQL += ' ORDER BY duration_minutes DESC';
+
+    // Separate SQL queries for outbound and return flights
+    const outboundSQL = baseSQL + ' LIMIT ?';
+    const returnSQL = baseSQL + ' LIMIT ?';
     const outboundParams = [
         fromInput.toLowerCase(),
         toInput.toLowerCase(),
@@ -149,7 +151,7 @@ function searchTickets(req, res) {
             if (maxDuration) returnParams.push(parseFloat(maxDuration));
             
             returnParams.push(numericRlimit);
-            const returnSQL = sql + ' LIMIT ?';
+            
             returnFlights = db.prepare(returnSQL).all(...returnParams);
             hasMoreReturns = returnFlights.length >= numericRlimit;
         
