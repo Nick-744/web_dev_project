@@ -25,6 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.engine('hbs', engine({
     extname: '.hbs',
     helpers: {
+        eq: (a, b) => a === b,
         multiply: (a, b) => a * b
     }
 }));

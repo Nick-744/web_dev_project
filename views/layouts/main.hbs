@@ -106,6 +106,14 @@
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
 
+                    const formBox = document.querySelector('.floating-form-box');
+                    const globe = document.getElementById('globeViz');
+                    if (formBox) formBox.classList.add('slide-out');
+                    if (globe) {
+                        globe.classList.remove('fade-in');
+                        globe.classList.add('fade-out');
+                    }
+
                     // Trigger fade-out for content
                     [pageContainer, ticketsContainer].forEach(el => {
                         if (el) {

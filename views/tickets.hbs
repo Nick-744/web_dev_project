@@ -3,6 +3,38 @@
 <div class="tickets-container">
   <h2>Available Flights</h2>
 
+  <div class="filter-controls">
+    <form id="filterForm" method="GET" action="/tickets">
+      <!-- Preserve Existing Search Parameters -->
+      <input type="hidden" name="fromInput" value="{{fromInput}}">
+      <input type="hidden" name="toInput" value="{{toInput}}">
+      <input type="hidden" name="class" value="{{class}}">
+      <input type="hidden" name="tripType" value="{{tripType}}">
+      <input type="hidden" name="departureDate" value="{{departureDate}}">
+      <input type="hidden" name="returnDate" value="{{returnDate}}">
+
+      <label>Sort By:</label>
+      <select name="sortBy" onchange="this.form.submit()">
+        <option value="" {{#unless sortBy}}selected{{/unless}}>None</option>
+        <option value="price_asc" {{#if (eq sortBy 'price_asc')}}selected{{/if}}>Price: Low to High</option>
+        <option value="price_desc" {{#if (eq sortBy 'price_desc')}}selected{{/if}}>Price: High to Low</option>
+        <option value="duration_asc" {{#if (eq sortBy 'duration_asc')}}selected{{/if}}>Duration: Shortest</option>
+        <option value="duration_desc" {{#if (eq sortBy 'duration_desc')}}selected{{/if}}>Duration: Longest</option>
+      </select>
+
+      <label>Max Price:</label>
+      <input type="number" name="maxPrice" min="0" value="{{maxPrice}}" placeholder="e.g. 300" onchange="this.form.submit()">
+
+      <label>Max Duration (mins):</label>
+      <input type="number" name="maxDuration" min="0" value="{{maxDuration}}" placeholder="e.g. 180" onchange="this.form.submit()">
+
+      <button type="submit" class="search-button">
+          <span class="button-icon">🔎</span> 
+          <span class="button-text">Search</span>
+      </button>
+    </form>
+  </div>
+
   <div class="tickets-list">
     {{#each outboundFlights}}
       <div class="ticket-card">
@@ -29,14 +61,14 @@
         </div>
       </div>
     {{/each}}
-    </div>
-</div>
-    
-    {{#if returnFlights}}
+  </div>
+  
+  <!-- Return Flights Part -->
+  {{#if returnFlights}}
 
-    <div class="tickets-container">
-      <h2>Available Return Flights</h2>
-      <div class="tickets-list">
+  <div class="tickets-container-return">
+    <h2>Available Return<br>Flights</h2>
+    <div class="tickets-list">
       {{#each returnFlights}}
         <div class="ticket-card">
           <div class="notification-header">
@@ -62,45 +94,60 @@
           </div>
         </div>
       {{/each}}
-      </div>
-    {{/if}}
+    </div>
   </div>
+  {{/if}}
+</div>
 
-
+<!-- JS for Animations and Filter Panel Behavior -->
 <script>
-/* Title fades in from the left; cards fade-in from the right on scroll */
-window.addEventListener('DOMContentLoaded', () => {
-  
-  const tickets = document.querySelectorAll('.ticket-card');
+document.addEventListener('DOMContentLoaded', () => {
+    const tickets = document.querySelectorAll('.ticket-card');
+    const titles = document.querySelectorAll('.tickets-container h2');
+    const panel = document.querySelector('.filter-controls');
 
-  /* ---- Title animation (left-to-right) ---- */
-  const titles = document.querySelectorAll('.tickets-container h2');
+    // Title Animation
+    titles.forEach((title, idx) => {
+        title.style.opacity = '0';
+        title.style.transform = 'translateX(-100px)';
+        title.style.transition = 'transform 1.2s ease, opacity 1.2s ease';
+        setTimeout(() => {
+            title.style.opacity = '1';
+            title.style.transform = 'translateX(0)';
+        }, 200 + idx * 200);
+    });
 
-titles.forEach((title, idx) => {
-    title.style.opacity = '0';
-    title.style.transform = 'translateX(-100px)';
-    title.style.transition = 'transform 1.2s ease, opacity 1.2s ease';
+    // Cards Fade-In on Scroll
+    const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach((entry, idx) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => entry.target.classList.add('show'), idx * 150);
+                obs.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
 
-    setTimeout(() => {
-        title.style.opacity = '1';
-        title.style.transform = 'translateX(0)';
-    }, 200 + idx * 200);
-});
+    tickets.forEach(card => observer.observe(card));
 
+    // Filter Panel Expand/Collapse for Mobile
+    if (panel) {
+        panel.addEventListener('click', (e) => {
+            if (window.innerWidth <= 900 && e.target === panel) {
+                panel.classList.toggle('active');
+            }
+        });
 
-  /* ---- Cards fade-in on scroll (right-to-left) ---- */
-  const observer = new IntersectionObserver(
-    (entries, obs) => {
-      entries.forEach((entry, idx) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => entry.target.classList.add('show'), idx * 150);
-          obs.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.1 }
-  );
+        document.addEventListener('click', (e) => {
+            if (!panel.contains(e.target) && window.innerWidth <= 900) {
+                panel.classList.remove('active');
+            }
+        });
 
-  tickets.forEach(card => observer.observe(card));
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 900) {
+                panel.classList.remove('active');
+            }
+        });
+    }
 });
 </script>
