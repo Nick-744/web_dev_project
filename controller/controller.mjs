@@ -108,6 +108,7 @@ function searchTickets(req, res) {
           AND t.availability > 0
           ${maxPrice ? 'AND t.price <= ?' : ''}
           ${maxDuration ? 'AND duration_minutes <= ?' : ''}
+          LIMIT 10
     `;
 
     if (sortBy === 'price_asc') sql += ' ORDER BY t.price ASC';
