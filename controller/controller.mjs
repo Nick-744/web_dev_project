@@ -1,6 +1,5 @@
 // controllers/airTicketsController.mjs
 
-const cities = ['Athens', 'Paris', 'London', 'New York', 'Tokyo'];
 
 const topDestinations = [
     {
@@ -33,8 +32,7 @@ let flights = [];
 /* ----------- Page Rendering Controllers ----------- */
 function showHomePage(req, res) {
     res.render('air_tickets', {
-        title: '✈🎫 FlyExpress',
-        cities
+        title: '✈🎫 FlyExpress'
     });
 }
 
@@ -67,7 +65,7 @@ function searchTickets(req, res) {
     const {
         fromInput = '',
         toInput = '',
-        class: flightClass = '',
+        flightClass: flightClass = '',
         tripType,
         departureDate,
         returnDate,
@@ -75,8 +73,11 @@ function searchTickets(req, res) {
         maxPrice,
         maxDuration
     } = req.query;
-
+    const { rlimit = 5 } = req.query; //return limit
+    const { limit = 5} = req.query; // outbound limit
+    
     if (!fromInput || !toInput || !flightClass) {
+        //console.log('Missing required fields');
         return res.render('tickets', {
             title: 'Available Flights - FlyExpress',
             outboundFlights: [],
@@ -108,28 +109,36 @@ function searchTickets(req, res) {
           AND t.availability > 0
           ${maxPrice ? 'AND t.price <= ?' : ''}
           ${maxDuration ? 'AND duration_minutes <= ?' : ''}
-          LIMIT 10
     `;
 
     if (sortBy === 'price_asc') sql += ' ORDER BY t.price ASC';
     if (sortBy === 'price_desc') sql += ' ORDER BY t.price DESC';
     if (sortBy === 'duration_asc') sql += ' ORDER BY duration_minutes ASC';
     if (sortBy === 'duration_desc') sql += ' ORDER BY duration_minutes DESC';
-
+    
+    const outboundSQL = sql + ' LIMIT ?';
     const outboundParams = [
         fromInput.toLowerCase(),
         toInput.toLowerCase(),
         flightClass.toLowerCase()
     ];
+
+
     if (departureDate) outboundParams.push(departureDate);
     if (maxPrice) outboundParams.push(parseFloat(maxPrice));
     if (maxDuration) outboundParams.push(parseFloat(maxDuration));
-
+    // if (limit) outboundParams.push(parseInt(limit, 10));
+    // else{outboundParams.push(10);}
+    const numericLimit = parseInt(limit, 10) || 5; // Safe fallback
+    outboundParams.push(numericLimit);
+    const numericRlimit = parseInt(rlimit, 10) || 5; 
+    let hasMoreReturns = false;
     try {
-        const outboundFlights = db.prepare(sql).all(...outboundParams);
-
+        const outboundFlights = db.prepare(outboundSQL).all(...outboundParams);
+        const hasMore = outboundFlights.length >= numericLimit;
         let returnFlights = [];
         if (tripType === 'roundtrip') {
+            
             const returnParams = [
                 toInput.toLowerCase(),
                 fromInput.toLowerCase(),
@@ -138,25 +147,32 @@ function searchTickets(req, res) {
             if (returnDate) returnParams.push(returnDate);
             if (maxPrice) returnParams.push(parseFloat(maxPrice));
             if (maxDuration) returnParams.push(parseFloat(maxDuration));
-
-            returnFlights = db.prepare(sql).all(...returnParams);
+            
+            returnParams.push(numericRlimit);
+            const returnSQL = sql + ' LIMIT ?';
+            returnFlights = db.prepare(returnSQL).all(...returnParams);
+            hasMoreReturns = returnFlights.length >= numericRlimit;
+        
         }
-
         res.render('tickets', {
             title: 'Available Flights - FlyExpress',
             outboundFlights: outboundFlights || [],
             returnFlights: returnFlights || [],
             fromInput,
             toInput,
-            class: flightClass,
+            flightClass: flightClass,
             tripType,
             departureDate,
             returnDate,
             sortBy,
             maxPrice,
-            maxDuration
+            maxDuration,
+            limit: numericLimit,
+            rlimit: numericRlimit,
+            hasMore,
+            hasMoreReturns
         });
-
+    
     } catch (err) {
         console.error(err);
         res.status(500).send('Database Error');
