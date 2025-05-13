@@ -61,39 +61,41 @@
         </div>
       </div>
     {{/each}}
-    </div>
-    
-    <!-- Return Flights Part -->
-    {{#if returnFlights}}
+  </div>
+  
+  <!-- Return Flights Part -->
+  {{#if returnFlights}}
 
-    <h2>Available Return Flights</h2>
+  <div class="tickets-container-return">
+    <h2>Available Return<br>Flights</h2>
     <div class="tickets-list">
-    {{#each returnFlights}}
-      <div class="ticket-card">
-        <div class="notification-header">
-          <span class="airline">{{airline_name}}</span>
-          <span class="flight-class {{class}}">{{class}}</span>
+      {{#each returnFlights}}
+        <div class="ticket-card">
+          <div class="notification-header">
+            <span class="airline">{{airline_name}}</span>
+            <span class="flight-class {{class}}">{{class}}</span>
+          </div>
+
+          <div class="notification-body">
+            <div class="cities">
+              <span class="city">{{departure_city}}</span>
+              <span class="arrow">➔</span>
+              <span class="city">{{arrival_city}}</span>
+            </div>
+
+            <div class="times">
+              <span>Departure: {{time_departure}}</span><br />
+              <span>Arrival&nbsp;&nbsp;: {{time_arrival}}</span>
+            </div>
+
+            <div class="price">
+              <strong>Price:</strong> ${{price}}
+            </div>
+          </div>
         </div>
-
-        <div class="notification-body">
-          <div class="cities">
-            <span class="city">{{departure_city}}</span>
-            <span class="arrow">➔</span>
-            <span class="city">{{arrival_city}}</span>
-          </div>
-
-          <div class="times">
-            <span>Departure: {{time_departure}}</span><br />
-            <span>Arrival&nbsp;&nbsp;: {{time_arrival}}</span>
-          </div>
-
-          <div class="price">
-            <strong>Price:</strong> ${{price}}
-          </div>
-        </div>
-      </div>
-    {{/each}}
+      {{/each}}
     </div>
+  </div>
   {{/if}}
 </div>
 

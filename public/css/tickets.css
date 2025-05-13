@@ -11,7 +11,17 @@
     padding: 50px 20px 0; min-height: 100vh;
     color: #fff; text-align: left;
     background: linear-gradient(to bottom right, #0b0c1a, #1e1e2f);
-    overflow-x: hidden; padding-bottom: 100px;
+    overflow-x: hidden; padding-bottom: 20px;
+}
+
+/* --- Background Color for Return Tickets --- */
+.tickets-container-return {
+    display: flex; flex-direction: column; align-items: center;
+    width: 110%;
+    padding: 35px 20px 0; min-height: 100vh;
+    color: #fff; text-align: left;
+    background: linear-gradient(to bottom right, #004884, #b2f3ff);
+    overflow-x: hidden; padding-bottom: 20px;
 }
 
 .tickets-container h2 {
@@ -133,6 +143,7 @@
 .tickets-list {
     display: flex; flex-direction: column; align-items: center;
     gap: 24px; width: 100%; max-width: 600px; margin-top: 20px;
+    padding-bottom: 100px;
 }
 
 .ticket-card {
