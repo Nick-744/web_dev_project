@@ -13,7 +13,7 @@ router.get('/tickets', controller.searchTickets);  // Must be EXACTLY this!
 // API Routes
 router.get('/api/cities', controller.apiGetCities);
 router.get('/api/flights', controller.apiGetFlights);
-
+router.get('/api/date-grid', controller.dateGrid);
 router.get('/top-destinations', controller.showTopDestinations);
 
 

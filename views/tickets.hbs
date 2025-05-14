@@ -34,6 +34,18 @@
           <span class="button-text">Search</span>
       </button>
     </form>
+    {{#if outboundFlights.length}}
+      {{#if returnFlights.length}}
+        <button id="showDateGridBtn" class="search-button" onclick="toggleDateGrid()" style="margin-top: 20px;">
+            <span class="button-icon">📅</span> 
+            <span class="button-text">View Date Grid</span>
+        </button>
+
+        <!-- Place the grid container outside the button -->
+        <div id="dateGridContainer" style="margin-top: 30px;"></div>
+      {{/if}}
+    {{/if}}
+
   </div>
 
   <div class="tickets-list">
@@ -194,3 +206,93 @@ function loadMoreFlights() {
     window.location.search = params.toString();
 }
 </script>
+
+<script>
+function loadDateGrid() {
+    const params = new URLSearchParams(window.location.search);
+    const fromCity = params.get('fromInput');
+    const toCity = params.get('toInput');
+
+    const outStart = params.get('departureDate') || '2025-05-14';
+    const outEnd = params.get('returnDate') || '2025-06-14';
+    const retStart = outStart;
+    const retEnd = outEnd;
+
+    if (!fromCity || !toCity) {
+        console.error('Missing fromInput or toInput in URL parameters.');
+        return;
+    }
+
+    const queryParams = new URLSearchParams({
+        fromInput: fromCity,
+        toInput: toCity,
+        outStart,
+        outEnd,
+        retStart,
+        retEnd
+    });
+    console.log('🔍 Fetching:', `/api/date-grid?${queryParams.toString()}`);
+    fetch(`/api/date-grid?${queryParams.toString()}`)
+        .then(response => response.json())
+        .then(data => renderDateGrid(data.outboundPrices, data.returnPrices))
+        .catch(err => console.error('Failed to load date grid', err));
+}
+
+function renderDateGrid(outboundPrices, returnPrices) {
+    const container = document.getElementById('dateGridContainer');
+    if (!container) return;
+
+    let html = `
+        <div style="text-align: right;">
+            <button onclick="closeDateGrid()" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">✖</button>
+        </div>
+        <h3 style="text-align: center; color: #fff;">Date Grid</h3>
+        <table>
+            <tr>
+                <th>Departure ↓ / Return →</th>`;
+
+    const retDates = returnPrices.map(r => r.retDate);
+    retDates.forEach(ret => html += `<th>${ret}</th>`);
+    html += '</tr>';
+
+    outboundPrices.forEach(out => {
+        html += `<tr><td>${out.outDate}</td>`;
+        retDates.forEach(ret => {
+            const validReturn = new Date(ret) > new Date(out.outDate);
+            const retPriceObj = returnPrices.find(r => r.retDate === ret);
+            if (validReturn && retPriceObj) {
+                const total = out.min_out_price + retPriceObj.min_ret_price;
+                html += `<td>€${total}</td>`;
+            } else {
+                html += `<td>-</td>`;
+            }
+        });
+        html += '</tr>';
+    });
+
+    html += '</table>';
+
+    // Add Return Dates Label on the Right Side
+    html += `<div style="position: absolute; top: 50%; right: -60px; transform: rotate(90deg) translateY(-50%); color: #fff; font-weight: bold;">Return Dates →</div>`;
+
+    container.innerHTML = html;
+}
+function toggleDateGrid() {
+    let gridContainer = document.getElementById('dateGridContainer');
+    if (!gridContainer) {
+        gridContainer = document.createElement('div');
+        gridContainer.id = 'dateGridContainer';
+        document.body.appendChild(gridContainer);
+    }
+
+    // Toggle visibility
+    if (gridContainer.style.display === 'none' || !gridContainer.style.display) {
+        gridContainer.style.display = 'block';
+        loadDateGrid();
+    } else {
+        gridContainer.style.display = 'none';
+    }
+}
+
+</script>
+

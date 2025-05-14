@@ -180,6 +180,48 @@ function searchTickets(req, res) {
         res.status(500).send('Database Error');
     }
 }
+function dateGrid(req, res) {
+    try {
+        const { fromInput, toInput, outStart, outEnd, retStart, retEnd } = req.query;
+
+        if (!fromInput || !toInput || !outStart || !outEnd || !retStart || !retEnd) {
+            return res.status(400).json({ error: 'Missing parameters.' });
+        }
+
+        // SQL 1: Outbound Prices
+        const outboundSQL = `
+            SELECT DATE(f.time_departure) AS outDate, MIN(t.price) AS min_out_price
+            FROM flight f 
+            JOIN airport a1 ON f.airport_depart_id = a1.id
+            JOIN airport a2 ON f.airport_arrive_id = a2.id
+            JOIN ticket t ON f.id = t.flight_id
+            WHERE lower(a1.city) = ? 
+              AND lower(a2.city) = ?
+              AND DATE(f.time_departure) BETWEEN ? AND ?
+            GROUP BY outDate;
+        `;
+
+        // SQL 2: Return Prices
+        const returnSQL = `
+            SELECT DATE(r.time_departure) AS retDate, MIN(t.price) AS min_ret_price
+            FROM flight r 
+            JOIN airport a2 ON r.airport_depart_id = a2.id
+            JOIN airport a1 ON r.airport_arrive_id = a1.id
+            JOIN ticket t ON r.id = t.flight_id
+            WHERE lower(a1.city) = ? 
+              AND lower(a2.city) = ?
+              AND DATE(r.time_departure) BETWEEN ? AND ?
+            GROUP BY retDate;
+        `;
+
+        const outboundPrices = db.prepare(outboundSQL).all(fromInput.toLowerCase(), toInput.toLowerCase(), outStart, outEnd);
+        const returnPrices = db.prepare(returnSQL).all(toInput.toLowerCase(), fromInput.toLowerCase(), retStart, retEnd);console.log('📡 /api/date-grid called with params:', req.query);
+        res.json({ outboundPrices, returnPrices });
+    } catch (err) {
+        console.error('Error in DateGrid:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
 
 export {
     showHomePage,
@@ -187,5 +229,6 @@ export {
     showAboutPage,
     apiGetCities,
     apiGetFlights,
-    searchTickets
+    searchTickets,
+    dateGrid
 };

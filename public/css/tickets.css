@@ -89,7 +89,9 @@
 .search-button:hover   { background: #fb923c; transform: translateY(-3px); }
 .search-button:active  { background: #ea580c; transform: scale(.97); }
 .search-button .button-icon { font-size: 1.25rem; }
-
+#showDateGridBtn {
+    margin-top: 0px !important;  /* Force override */
+}
 /* ========== MOBILE (COLLAPSED BAR) ========== */
 @media (max-width: 900px) {
     .filter-controls {
@@ -229,4 +231,43 @@
 
 #showMoreReturnBtn:hover {
     transform: scale(1.01);
+}
+#dateGridContainer {
+    position: fixed;
+    top: 50%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #1e1e2f;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    max-height: 70vh;
+    max-width: 90vw;
+    overflow: auto;
+    z-index: 1000;
+    display: none; /* Hidden by default */
+}
+
+#dateGridContainer table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+    text-align: center;
+}
+
+#dateGridContainer th, #dateGridContainer td {
+    border: 1px solid #444;
+    padding: 12px;
+    min-width: 80px;
+}
+
+#dateGridContainer th {
+    background-color: #2a2a3d;
+    position: sticky;
+    top: 0;
+}
+
+#dateGridContainer td:hover {
+    background-color: #3a3a4d;
+    cursor: pointer;
 }
