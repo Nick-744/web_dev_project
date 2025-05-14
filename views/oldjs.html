@@ -1,0 +1,53 @@
+/* ─── core renderer ──────────────────────────────────── */
+{{!-- function drawGrid(outB, retB){
+  const overlay = document.getElementById('dateGridContainer');
+
+  /* ---------------- cheapest highlighting ---------------- */
+  const totals = [];
+  outB.forEach(o=>{
+    retB.forEach(r=>{
+      if(new Date(r.retDate) > new Date(o.outDate))
+        totals.push(o.min_out_price + r.min_ret_price);
+    });
+  });
+  const cheapest = Math.min(...totals);
+
+  /* ---------------- build table -------------------------- */
+  let html = `<div class="date-grid">
+      <button class="close-btn" onclick="closeDateGrid()">✖</button>
+      <div class="ret-label">Return&nbsp;→</div>`;
+
+  /* === HEADER === */
+  html += `<table><thead><tr>
+             <th class="axis-lbl">Departure&nbsp;↓</th>`;
+  outB.forEach(o => html += `<th>${o.outDate}</th>`);
+  html += `<th class="axis-lbl"></th></tr></thead><tbody>`;
+
+  /* === BODY ===   (for every RETURN row) */
+  retB.forEach(r => {
+    html += `<tr>`;
+    /* cells for each departure */
+    outB.forEach(o => {
+      const valid = new Date(r.retDate) > new Date(o.outDate);
+      let cell="–";
+      if(valid){
+        const total = o.min_out_price + r.min_ret_price;
+        const cls   = total === cheapest     ? 'cell-green' :
+                      total  > cheapest*1.9   ? 'cell-red'  : '';
+        cell = `<span class="${cls}">€${total}</span>`;
+      }
+      html += `<td>${cell}</td>`;
+    });
+    /* right-hand RETURN date label */
+    html += `<td style="background:#f5f7fa;font-weight:600;">${r.retDate}</td></tr>`;
+  });
+
+  html += `</tbody></table>
+           <div class="grid-footer">
+                <button class="cancel" onclick="closeDateGrid()">Cancel</button>
+                <button class="ok"     onclick="closeDateGrid()">OK</button>
+           </div>
+  </div>`;
+
+  overlay.innerHTML = html;
+} --}}
