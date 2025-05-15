@@ -223,43 +223,49 @@
                 });
 
                 if (isRoundtrip) {
-                    pkr.on('click', () => {
-                        clickCounter++;
-                        
+                    pkr.on('click', (e) => {
+                        const target = e.detail?.target || e.target;
+                        if (!target) return;
+                        console.log('Clicked target:', target);
 
-                        if (clickCounter === 1) {
-                            // First click: Departure date selected
-                            currentPrices = inboundPrices;
-                            console.log('→ Switched to return prices (hover preview)');
-                        } 
-                        else if (clickCounter === 2) {
-                            clickCounter = 0;
+                        const classList = target.classList;
 
-                            // Delay reading start/end dates by 0 milliseconds to let the picker update
-                            setTimeout(() => {
-                                const startDate = pkr.getStartDate();
-                                const endDate = pkr.getEndDate();
-
-                                if (startDate && endDate) {
-                                    depInput.value = startDate.format('YYYY-MM-DD');
-                                    retInput.value = endDate.format('YYYY-MM-DD');
-                                    console.log(`departureDate SET to: ${depInput.value}`);
-                                    console.log(`returnDate SET to: ${retInput.value}`);
-                                } else {
-                                    console.warn('Still null, forcing reset.');
-                                    depInput.value = '';
-                                    retInput.value = '';
-                                }
-
-                                currentPrices = outboundPrices;
-                                pkr.hide();
-                            }, 0);
+                        // Ignore clicks on navigation or price tags
+                        if (classList.contains('next-button') || classList.contains('price')) {
+                            console.log('Navigation or price tag clicked. Ignoring...');
+                            return;
                         }
 
-                        // Ensure the picker visually updates immediately
-                        if (clickCounter > 0) {
-                            pkr.hide();
-                            setTimeout(() => pkr.show(), 1);
+                        // Process only clicks on valid day cells
+                        if (classList.contains('day') || classList.contains('price-tag')) {
+                            clickCounter++;
+                            console.log('Day cell clicked. Click counter:', clickCounter);
+
+                            if (clickCounter === 1) {
+                                currentPrices = inboundPrices;
+                                console.log('→ Switched to return prices (hover preview)');
+                            } 
+                            else if (clickCounter === 2) {
+                                clickCounter = 0;
+                                setTimeout(() => {
+                                    const startDate = pkr.getStartDate();
+                                    const endDate = pkr.getEndDate();
+
+                                    if (startDate && endDate) {
+                                        depInput.value = startDate.format('YYYY-MM-DD');
+                                        retInput.value = endDate.format('YYYY-MM-DD');
+                                    } else {
+                                        depInput.value = '';
+                                        retInput.value = '';
+                                        console.warn('Still null, forcing reset.');
+                                    }
+
+                                    currentPrices = outboundPrices;
+                                    pkr.hide();
+                                }, 0);
+                            }
+                        } else {
+                            console.log('Clicked non-day element. Ignoring...');
                         }
                     });
                 } else {
