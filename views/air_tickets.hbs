@@ -62,30 +62,9 @@
     </div>
 </div>
 
-<!-- Flatpickr CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
-
 <!-- Load Globe and Three.js Libraries -->
 <script src="https://unpkg.com/globe.gl"></script>
 <script src="/js/globe.js"></script>
-
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-<!-- Smooth Animation for Return Date -->
-<style>
-    #returnDateContainer {
-        opacity: 0;
-        max-height: 0;
-        overflow: hidden;
-        transition: opacity 0.5s ease, max-height 0.5s ease;
-    }
-
-    #returnDateContainer.show {
-        opacity: 1;
-        max-height: 100px;
-    }
-</style>
 
 <script>
     async function loadCities() {
@@ -118,20 +97,6 @@
         const returnContainer = document.getElementById('returnDateContainer');
         const tripTypeSelect = document.getElementById('tripType');
         const returnDateInput = document.getElementById('returnDate');
-
-        const departurePicker = flatpickr("#departureDate", {
-            disableMobile: true,
-            minDate: "today",
-            onChange: function(selectedDates) {
-                const minReturn = selectedDates[0] ? selectedDates[0].fp_incr(1) : "today";
-                returnPicker.set("minDate", minReturn);
-            }
-        });
-
-        const returnPicker = flatpickr("#returnDate", {
-            disableMobile: true,
-            minDate: "today"
-        });
 
         function updateReturnDateVisibility() {
             if (tripTypeSelect.value === 'roundtrip') {
@@ -174,4 +139,154 @@
             }, 500); // Match animation duration
         });
     });
+</script>
+
+<!-- Date Picker Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.umd.min.js"></script>
+
+<script>
+(() => {
+    const fromSel = document.getElementById('fromInput');
+    const toSel = document.getElementById('toInput');
+    const tripSel = document.getElementById('tripType');
+    const depInput = document.getElementById('departureDate');
+    const retInput = document.getElementById('returnDate');
+    const retWrapper = document.getElementById('returnDateContainer');
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let picker = null;
+    let outboundPrices = {};
+    let inboundPrices = {};
+    let currentPrices = {};
+    let clickCounter = 0;
+
+    function pricesAPI(from, to) {
+        return `/api/price-calendar?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+    }
+
+    async function fetchPrices(from, to) {
+        if (!from || !to) return {};
+        try {
+            const res = await fetch(pricesAPI(from, to));
+            const data = await res.json();
+            const map = {};
+            data.forEach(({ date, price }) => (map[date] = price));
+            return map;
+        } catch (err) {
+            console.error('Price fetch failed:', err);
+            return {};
+        }
+    }
+
+    async function initPicker() {
+        if (picker) picker.destroy();
+
+        const from = fromSel.value;
+        const to = toSel.value;
+        const tripType = tripSel.value;
+
+        if (!from || !to || !tripType) return;
+
+        outboundPrices = await fetchPrices(from, to);
+        inboundPrices = await fetchPrices(to, from);
+        currentPrices = outboundPrices;
+        clickCounter = 0;
+
+        const isRoundtrip = tripType === 'roundtrip';
+
+        picker = new easepick.create({
+            element: depInput,
+            css: ['https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.css'],
+            zIndex: 10000,
+            calendars: 1,
+            readonly: true,
+            plugins: isRoundtrip ? ['LockPlugin', 'RangePlugin'] : ['LockPlugin'],
+            LockPlugin: { minDate: today },
+            RangePlugin: { elementEnd: retInput },
+            setup(pkr) {
+                pkr.on('view', ({ detail: { view, date, target } }) => {
+                    if (view !== 'CalendarDay') return;
+                    const d = date.format('YYYY-MM-DD');
+                    const price = currentPrices[d];
+                    if (!price) return;
+
+                    let tag = target.querySelector('.price-tag');
+                    if (!tag) {
+                        tag = document.createElement('span');
+                        tag.className = 'price-tag';
+                        tag.style.cssText = 'display:block;font-size:0.75rem;';
+                        target.append(tag);
+                    }
+                    tag.textContent = `€${price}`;
+                });
+
+                if (isRoundtrip) {
+                    pkr.on('click', () => {
+                        clickCounter++;
+                        
+
+                        if (clickCounter === 1) {
+                            // First click: Departure date selected
+                            currentPrices = inboundPrices;
+                            console.log('→ Switched to return prices (hover preview)');
+                        } 
+                        else if (clickCounter === 2) {
+                            clickCounter = 0;
+
+                            // Delay reading start/end dates by 0 milliseconds to let the picker update
+                            setTimeout(() => {
+                                const startDate = pkr.getStartDate();
+                                const endDate = pkr.getEndDate();
+
+                                if (startDate && endDate) {
+                                    depInput.value = startDate.format('YYYY-MM-DD');
+                                    retInput.value = endDate.format('YYYY-MM-DD');
+                                    console.log(`departureDate SET to: ${depInput.value}`);
+                                    console.log(`returnDate SET to: ${retInput.value}`);
+                                } else {
+                                    console.warn('Still null, forcing reset.');
+                                    depInput.value = '';
+                                    retInput.value = '';
+                                }
+
+                                currentPrices = outboundPrices;
+                                pkr.hide();
+                            }, 0);
+                        }
+
+                        // Ensure the picker visually updates immediately
+                        if (clickCounter > 0) {
+                            pkr.hide();
+                            setTimeout(() => pkr.show(), 1);
+                        }
+                    });
+                } else {
+                    pkr.on('select', ({ detail: { date } }) => {
+                        depInput.value = date.format('YYYY-MM-DD');
+                        console.log(`- departureDate SET to: ${depInput.value}`);
+                    });
+                }
+            }
+        });
+
+        if (isRoundtrip) {
+            retWrapper.classList.add('show');
+        } else {
+            retWrapper.classList.remove('show');
+            retInput.value = '';
+        }
+
+        //picker.show(); It is just annoying to pop up automatically
+    }
+
+    [fromSel, toSel, tripSel].forEach(el =>
+        el.addEventListener('change', () => {
+            currentPrices = outboundPrices;
+            clickCounter = 0;
+            initPicker();
+        })
+    );
+})();
 </script>

@@ -8,13 +8,11 @@ router.get('/', controller.showHomePage);
 //router.get('/tickets', controller.showTicketsPage);
 router.get('/top-destinations', controller.showTopDestinations);
 router.get('/about', controller.showAboutPage);
-router.get('/tickets', controller.searchTickets);  // Must be EXACTLY this!
+router.get('/tickets', controller.searchTickets); // Must be EXACTLY this!
 
 // API Routes
 router.get('/api/cities', controller.apiGetCities);
 router.get('/api/flights', controller.apiGetFlights);
-
-router.get('/top-destinations', controller.showTopDestinations);
-
+router.get('/api/price-calendar', controller.apiGetPriceCalendar);
 
 export default router;

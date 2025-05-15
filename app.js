@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 // Middleware for form data
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Serve Static Files from ./public
+// Serve Static Files from ./public
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Handlebars View Engine
@@ -26,7 +26,8 @@ app.engine('hbs', engine({
     extname: '.hbs',
     helpers: {
         eq: (a, b) => a === b,
-        multiply: (a, b) => a * b
+        multiply: (a, b) => a * b,
+        json: (context) => JSON.stringify(context)
     }
 }));
 app.set('view engine', 'hbs');
