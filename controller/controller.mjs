@@ -1,6 +1,5 @@
 // controllers/airTicketsController.mjs
 
-
 const topDestinations = [
     {
         name: "Paris",
@@ -56,6 +55,33 @@ function apiGetCities(req, res) {
 
 function apiGetFlights(req, res) {
     res.json(flights);
+}
+
+/* ---------- Prices in Calendar ----------- */
+function apiGetPriceCalendar(req, res) {
+    const { from, to } = req.query;
+
+    if (!from || !to) {
+        return res.status(400).json([]);
+    }
+
+    try {
+        const sql = `
+            SELECT DATE(f.time_departure) AS date, MIN(t.price) AS price
+            FROM flight f
+            JOIN airport a1 ON f.airport_depart_id = a1.id
+            JOIN airport a2 ON f.airport_arrive_id = a2.id
+            JOIN ticket t ON f.id = t.flight_id
+            WHERE LOWER(a1.city) = LOWER(?) AND LOWER(a2.city) = LOWER(?)
+            GROUP BY DATE(f.time_departure)
+            ORDER BY date;
+        `;
+        const result = db.prepare(sql).all(from.toLowerCase(), to.toLowerCase());
+        res.json(result);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json([]);
+    }
 }
 
 /* ----------- Search Tickets with Filters ----------- */
@@ -187,5 +213,6 @@ export {
     showAboutPage,
     apiGetCities,
     apiGetFlights,
+    apiGetPriceCalendar,
     searchTickets
 };

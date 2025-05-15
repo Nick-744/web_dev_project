@@ -41,7 +41,7 @@ html, body {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    width: 320px;
+    width: 280px;
     max-width: 90%;
     max-height: calc(100vh - 130px); /* Accounts for header + footer */
     overflow-y: auto;
@@ -166,6 +166,7 @@ html, body {
     height: 50px;
 }
 
+/* --- Smooth Animation for Return Date --- */
 #returnDateContainer {
     opacity: 0;
     max-height: 0;
@@ -244,21 +245,6 @@ html, body {
     }
 }
 
-@media (max-width: 480px) {
-    .floating-form-box {
-        top: 52%; /* Pushes the form lower to leave space for header */
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-        overflow-y: auto;
-        max-height: calc(100vh - 180px); /* Leaves room for header and footer */
-        background: rgba(255, 255, 255, 0.6);
-    }
-}
-
 #globeOverlay {
     position: fixed;
     top: 0;
@@ -274,4 +260,32 @@ html, body {
 
 #globeOverlay.fade-out {
     opacity: 0;
+}
+
+/* ----- Date Range Picker ----- */
+.floating-form-box {
+    overflow: visible; /* Allow popups to overflow correctly */
+}
+
+/* If possible, make the calendar not be clipped by the footer!!! */
+
+@media (max-width: 480px) {
+    .floating-form-box {
+        top: 52%; /* Pushes the form lower to leave space for header */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        overflow: hidden; /* Has to be below the Date Range Picker in
+                            order to work correctly! */
+        overflow-y: auto;
+        max-height: calc(100vh - 180px); /* Leaves room for header and footer */
+        background: rgba(255, 255, 255, 0.6);
+    }
+}
+
+.easepick-wrapper {
+    padding: 50px;
 }
