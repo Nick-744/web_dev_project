@@ -15,7 +15,9 @@
     {{/if}}
   </head>
 
-  <body>
+  <body class="{{#if isAuthPage}}auth-mode{{/if}}">
+    <!-- Global Auth Background -->
+    <div class="auth-background"></div>
     <!-- Header -->
     <header class="top-bar">
       <a href="/" class="logo">✈ FlyExpress</a>
@@ -25,6 +27,15 @@
           <li><a href="/tickets">Tickets</a></li>
           <li><a href="/top-destinations">Top Destinations</a></li>
           <li><a href="/about">About us</a></li>
+
+          <!-- User-specific Links -->
+          {{#if @root.session.user}}
+              <li><a href="/favorites">My 🧡</a></li>
+              <li><a href="/logout">Logout ({{@root.session.user}})</a></li>
+          {{else}}
+              <li><a href="/login">Login</a></li>
+              <li><a href="/register">Register</a></li>
+          {{/if}}
         </ul>
       </nav>
     </header>
@@ -134,5 +145,68 @@
     });
     </script>
 
+    <script>
+        // --- Handle Smooth Background Transition for Auth Pages ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const bg = document.querySelector('.auth-background');
+            const isAuthPage = ['/login', '/register'].includes(window.location.pathname);
+
+            if (bg && isAuthPage) {
+                // Start with hidden background and fade in smoothly after slight delay
+                setTimeout(() => bg.classList.add('visible'), 100);
+            }
+
+            document.querySelectorAll('a[href]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    const url = new URL(link.href, window.location.origin);
+                    const isTargetAuth = ['/login', '/register'].includes(url.pathname);
+
+                    if (bg) {
+                        // Smooth fade-out before navigation
+                        bg.classList.remove('visible');
+                        e.preventDefault();
+                        setTimeout(() => window.location.href = link.href, 800);
+                    }
+                });
+            });
+        });
+    </script>
   </body>
 </html>
+
+{{! For the colorful bg animation in auth pages! }}
+<style>
+.auth-background {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #0b0c1a;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    overflow: hidden;
+}
+
+.auth-background.visible {
+    opacity: 1;
+}
+
+.auth-background::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, #0ea5e9, #f97316, #fb923c, #0ea5e9);
+    animation: rotateGradient 60s linear infinite;
+    filter: blur(200px);
+    opacity: 0.6;
+}
+
+@keyframes rotateGradient {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>

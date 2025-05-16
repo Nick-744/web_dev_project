@@ -114,7 +114,7 @@
     }
 
     .filter-controls.active::before {
-        content: '▲'; font-size: 2rem; top: 10px;
+        content: '▲'; font-size: 2rem; top: 5px;
         transform: translateX(-50%) rotate(180deg);
     }
 

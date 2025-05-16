@@ -10,6 +10,14 @@ router.get('/top-destinations', controller.showTopDestinations);
 router.get('/about', controller.showAboutPage);
 router.get('/tickets', controller.searchTickets); // Must be EXACTLY this!
 
+// Authentication Routes
+router.get('/login', controller.showLoginPage);
+router.post('/login', controller.handleLogin);
+router.get('/register', controller.showRegisterPage);
+router.post('/register', controller.handleRegister);
+router.get('/logout', controller.handleLogout);
+router.get('/favorites', controller.showFavorites);
+
 // API Routes
 router.get('/api/cities', controller.apiGetCities);
 router.get('/api/flights', controller.apiGetFlights);

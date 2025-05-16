@@ -207,12 +207,88 @@ function searchTickets(req, res) {
     }
 }
 
+/* ----------- Authentication Controllers ----------- */
+import bcrypt from 'bcrypt'; // bcrypt for password hashing!
+
+function showLoginPage(req, res) {
+    res.render('login', { title: 'Login - FlyExpress' });
+}
+
+function showRegisterPage(req, res) {
+    res.render('register', { title: 'Register - FlyExpress' });
+}
+
+function handleRegister(req, res) {
+    const { username, password } = req.body;
+    try {
+        const existing = db.prepare('SELECT * FROM user WHERE id = ?').get(username);
+        if (existing) {
+            return res.render('register', { error: 'Username already exists', title: 'Register - FlyExpress' });
+        }
+        const hashed = bcrypt.hashSync(password, 10);
+        db.prepare('INSERT INTO user (id, password) VALUES (?, ?)').run(username, hashed);
+        res.redirect('/login');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Registration Error');
+    }
+}
+
+function handleLogin(req, res) {
+    const { username, password } = req.body;
+    try {
+        const user = db.prepare('SELECT * FROM user WHERE id = ?').get(username);
+        if (user && bcrypt.compareSync(password, user.password)) {
+            req.session.user = username;
+            return res.redirect('/');
+        }
+        res.render('login', { title: 'Login - FlyExpress', error: 'Invalid credentials' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Login Error');
+    }
+}
+
+function handleLogout(req, res) {
+    req.session.destroy(() => res.redirect('/'));
+}
+
+function showFavorites(req, res) {
+    const userId = req.session.user;
+    if (!userId) return res.redirect('/login');
+    try {
+        const favorites = db.prepare(`
+            SELECT t.*, f.time_departure, f.time_arrival, a1.city AS from_city, a2.city AS to_city
+            FROM hearts h
+            JOIN ticket t ON h.ticket_code = t.code
+            JOIN flight f ON t.flight_id = f.id
+            JOIN airport a1 ON f.airport_depart_id = a1.id
+            JOIN airport a2 ON f.airport_arrive_id = a2.id
+            WHERE h.user_id = ?
+        `).all(userId);
+        res.render('favorites', { title: 'My ❤️', favorites });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error loading favorites');
+    }
+}
+
 export {
     showHomePage,
     showTopDestinations,
     showAboutPage,
+    searchTickets,
+
+    // API Handlers
     apiGetCities,
     apiGetFlights,
     apiGetPriceCalendar,
-    searchTickets
+    
+    // User Authentication
+    showLoginPage,
+    handleLogin,
+    showRegisterPage,
+    handleRegister,
+    handleLogout,
+    showFavorites
 };

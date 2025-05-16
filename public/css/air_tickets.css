@@ -6,6 +6,14 @@ html, body {
     height: 100%;
 }
 
+.auth-background {
+    background: #0b0c1a !important;
+}
+
+.auth-background::before {
+    display: none !important;
+}
+
 /* Globe Full-Screen */
 #globeViz {
     position: fixed;
