@@ -208,14 +208,16 @@ function dateGrid(req, res) {
             JOIN airport a2 ON r.airport_depart_id = a2.id
             JOIN airport a1 ON r.airport_arrive_id = a1.id
             JOIN ticket t ON r.id = t.flight_id
-            WHERE lower(a1.city) = ? 
-              AND lower(a2.city) = ?
+            WHERE lower(a2.city) = ? 
+              AND lower(a1.city) = ?
               AND DATE(r.time_departure) BETWEEN ? AND ?
             GROUP BY retDate;
         `;
 
         const outboundPrices = db.prepare(outboundSQL).all(fromInput.toLowerCase(), toInput.toLowerCase(), outStart, outEnd);
         const returnPrices = db.prepare(returnSQL).all(toInput.toLowerCase(), fromInput.toLowerCase(), retStart, retEnd);console.log('📡 /api/date-grid called with params:', req.query);
+        // console.log('Outbound Prices:', outboundPrices);
+        // console.log('Return Prices:', returnPrices);
         res.json({ outboundPrices, returnPrices });
     } catch (err) {
         console.error('Error in DateGrid:', err);

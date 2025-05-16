@@ -40,11 +40,12 @@
             <span class="button-icon">📅</span>
             <span class="button-text">View Date Grid</span>
         </button>
+  {{/if}}
+  {{/if}}
   </div>
   <!-- stays empty until first open -->
         <div id="dateGridContainer" style="display:none;"></div>
-      {{/if}}
-    {{/if}}
+      
 
   <div class="tickets-list">
     {{#each outboundFlights}}
@@ -248,21 +249,23 @@ function drawGrid(outB, retB){
 
   /* ---------------- build table -------------------------- */
   let html = `<div class="date-grid">
-      <button class="close-btn" onclick="closeDateGrid()">✖</button>
-      <div class="ret-label">Return&nbsp;→</div>`;
+      <button class="close-btn" onclick="closeDateGrid()" style="color: #FFFFFF;">✖</button>`;
 
   /* === HEADER === */
   html += `<table><thead><tr>
-             <th class="axis-lbl">Departure&nbsp;↓</th>`;
+             <th class="axis-lbl">Return&nbsp;↓</th>`;
   outB.forEach(o => html += `<th>${o.outDate}</th>`);
-  html += `<th class="axis-lbl"></th></tr></thead><tbody>`;
-
+  /*html += `<th class="axis-lbl"></th></tr></thead><tbody>`;*/
+  html += `<th class="axis-lbl">Departure&nbsp;</th></tr></thead><tbody>`;
   /* === BODY ===   (for every RETURN row) */
-  retB.forEach(r => {
+  retB.forEach((r, retIdx) => {
     html += `<tr>`;
     /* cells for each departure */
-    outB.forEach(o => {
-      const valid = new Date(r.retDate) > new Date(o.outDate);
+    /*first column empty*/
+    html += `<td class="axis-lbl">${r.retDate}</td>`;
+    outB.forEach((o, outIdx) => {
+      /*const valid = new Date(r.retDate) > new Date(o.outDate);*/
+      const valid = retIdx >= outIdx;
       let cell="–";
       if(valid){
         const total = o.min_out_price + r.min_ret_price;
@@ -273,19 +276,114 @@ function drawGrid(outB, retB){
       html += `<td>${cell}</td>`;
     });
     /* right-hand RETURN date label */
-    html += `<td class="axis-lbl ret-date">${r.retDate}</td></tr>`;
+    /*html += `<td class="axis-lbl ret-date">${r.retDate}</td></tr>`; rendundant*/
   });
 
   html += `</tbody></table>
            <div class="grid-footer">
                 <button class="cancel" onclick="closeDateGrid()">Cancel</button>
                 <button class="ok"     onclick="closeDateGrid()">OK</button>
+                <button class="move-down" onclick="moveReturnDatesDown()">▼ Later Dates</button>
+
            </div>
   </div>`;
+  sessionStorage.setItem('outB', JSON.stringify(outB));
 
   overlay.innerHTML = html;
   console.log("final html:", html);
 }
+
+let returnDateOffset = 0;
+
+function moveReturnDatesDown() {
+    returnDateOffset += 1;
+
+    const table = document.querySelector('.date-grid table tbody');
+    const firstRow = table.querySelector('tr');
+    if (firstRow) firstRow.remove();
+
+    // Correctly select the first column of each row for return dates
+    const currentReturnDates = [...table.querySelectorAll('tr > td.axis-lbl')]
+        .map(td => td.textContent.trim())
+        .filter(text => /^\d{4}-\d{2}-\d{2}$/.test(text)); // Ensure only date strings
+
+    if (currentReturnDates.length === 0) {
+        console.warn("No return dates found in the table!");
+        return;
+    }
+
+    const lastDateStr = currentReturnDates[currentReturnDates.length - 1];
+    const lastDate = new Date(lastDateStr);
+
+    if (isNaN(lastDate)) {
+        console.error("Invalid last return date:", lastDateStr);
+        return;
+    }
+
+    lastDate.setDate(lastDate.getDate() + 1);
+    const nextRetDate = lastDate.toISOString().split('T')[0];
+    console.log("Moving return dates down to:", nextRetDate);
+
+    const p = new URLSearchParams(location.search);
+    const qs = new URLSearchParams({
+        fromInput: p.get('fromInput'),
+        toInput: p.get('toInput'),
+        retStart: nextRetDate,
+        retEnd: nextRetDate, // Only one new return date requested
+        outStart: p.get('departureDate'),
+        outEnd: p.get('returnDate')
+    });
+
+    fetch('/api/date-grid?' + qs.toString())
+        .then(r => r.json())
+        .then(d => {
+            if (d.returnPrices && d.returnPrices.length > 0) {
+                appendNewReturnRow(d.returnPrices[0]);
+            } else {
+                console.log("No new return prices found for date:", nextRetDate);
+            }
+        })
+        .catch(e => console.error('grid error', e));
+}
+
+function appendNewReturnRow(returnPriceData) {
+    if (!returnPriceData) return;
+
+    const table = document.querySelector('.date-grid table tbody');
+    const outB = JSON.parse(sessionStorage.getItem('outB'));
+    if (!outB) {
+        console.error("Outbound flight data missing in sessionStorage.");
+        return;
+    }
+
+    const totals = [];
+    outB.forEach(o => {
+        if (new Date(returnPriceData.retDate) > new Date(o.outDate)) {
+            totals.push(o.min_out_price + returnPriceData.min_ret_price);
+        }
+    });
+    const cheapest = Math.min(...totals);
+
+    let html = `<tr>`;
+    html += `<td class="axis-lbl">${returnPriceData.retDate}</td>`;
+    outB.forEach(o => {
+        const valid = new Date(returnPriceData.retDate) > new Date(o.outDate);
+        let cell = "–";
+        if (valid) {
+            const total = o.min_out_price + returnPriceData.min_ret_price;
+            const cls = total === cheapest ? 'cell-green' :
+                        total > cheapest * 1.9 ? 'cell-red' : '';
+            cell = `<span class="${cls}">€${total}</span>`;
+        }
+        html += `<td>${cell}</td>`;
+    });
+    html += `</tr>`;
+
+    table.insertAdjacentHTML('beforeend', html);
+}
+
+
+
 </script>
 
 
