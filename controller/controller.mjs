@@ -273,6 +273,39 @@ function showFavorites(req, res) {
     }
 }
 
+// ----- Favorites API in tickets! -----
+function addFavorite(req, res) {
+    const userId = req.session.user;
+    const { flightId } = req.query;
+
+    if (!userId) return res.status(401).json({ success: false });
+
+    try {
+        const stmt = db.prepare('INSERT OR IGNORE INTO hearts (user_id, ticket_code) VALUES (?, ?)');
+        stmt.run(userId, flightId);
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+}
+
+function removeFavorite(req, res) {
+    const userId = req.session.user;
+    const { flightId } = req.query;
+
+    if (!userId) return res.status(401).json({ success: false });
+
+    try {
+        const stmt = db.prepare('DELETE FROM hearts WHERE user_id = ? AND ticket_code = ?');
+        stmt.run(userId, flightId);
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+}
+
 export {
     showHomePage,
     showTopDestinations,
@@ -290,5 +323,7 @@ export {
     showRegisterPage,
     handleRegister,
     handleLogout,
-    showFavorites
+    showFavorites,
+    addFavorite,
+    removeFavorite
 };

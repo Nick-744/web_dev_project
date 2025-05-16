@@ -23,4 +23,7 @@ router.get('/api/cities', controller.apiGetCities);
 router.get('/api/flights', controller.apiGetFlights);
 router.get('/api/price-calendar', controller.apiGetPriceCalendar);
 
+router.post('/api/favorites/add', controller.addFavorite);
+router.post('/api/favorites/remove', controller.removeFavorite);
+
 export default router;

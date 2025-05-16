@@ -2,6 +2,15 @@
  *  tickets.css  –  Floating Search Panel with Smooth Transitions & Fixes
  *****************************************************************************/
 
+ /* For the stupid auth background glitch */
+.auth-background {
+    background: #0b0c1a !important;
+}
+
+.auth-background::before {
+    display: none !important;
+}
+
 /* ---------- GLOBAL HELPERS ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -228,4 +237,49 @@
 
 #showMoreReturnBtn:hover {
     transform: scale(1.01);
+}
+
+/* ========== Heart Button ========== */
+.heart-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    padding-left: 89%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.heart-icon {
+    scale: 2.5;
+    font-size: 1.5rem;
+    color: #f97316;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.heart-btn:hover .heart-icon {
+    transform: scale(1.3);
+    color: #ff0000;
+}
+
+/* ========== Toast Notification to log in for favorites ========== */
+.custom-toast {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 1rem;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    z-index: 2000;
+}
+
+.custom-toast.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }

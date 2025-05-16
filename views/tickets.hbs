@@ -42,8 +42,6 @@
         <div class="notification-header">
           <span class="airline">{{airline_name}}</span>
           <span class="flight-class {{class}}">{{class}}</span>
-          <!-- Heart Icon Button -->
-          <button class="heart-btn" onclick="toggleFavorite('{{flight_id}}', '{{airline_name}}')">🤍</button>
         </div>
 
         <div class="notification-body">
@@ -57,6 +55,11 @@
             <span>Departure: {{time_departure}}</span><br />
             <span>Arrival&nbsp;&nbsp;: {{time_arrival}}</span>
           </div>
+
+          <!-- Heart Icon Button -->
+          <button class="heart-btn" onclick="toggleFavorite(this, '{{flight_id}}')">
+              <i class="heart-icon">&#9829;</i> <!-- Unicode empty heart -->
+          </button>
 
           <div class="price">
             <strong>Price:</strong> ${{price}}
@@ -117,72 +120,69 @@
   {{/if}}
 </div>
 
-
-
-
 <!-- JS for Animations and Filter Panel Behavior -->
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const tickets = document.querySelectorAll('.ticket-card');
-    const titles = document.querySelectorAll('.tickets-container h2');
-    const panel = document.querySelector('.filter-controls');
+  document.addEventListener('DOMContentLoaded', () => {
+      const tickets = document.querySelectorAll('.ticket-card');
+      const titles = document.querySelectorAll('.tickets-container h2');
+      const panel = document.querySelector('.filter-controls');
 
-    // Title Animation
-    titles.forEach((title, idx) => {
-        title.style.opacity = '0';
-        title.style.transform = 'translateX(-100px)';
-        title.style.transition = 'transform 1.2s ease, opacity 1.2s ease';
-        setTimeout(() => {
-            title.style.opacity = '1';
-            title.style.transform = 'translateX(0)';
-        }, 200 + idx * 200);
-    });
+      // Title Animation
+      titles.forEach((title, idx) => {
+          title.style.opacity = '0';
+          title.style.transform = 'translateX(-100px)';
+          title.style.transition = 'transform 1.2s ease, opacity 1.2s ease';
+          setTimeout(() => {
+              title.style.opacity = '1';
+              title.style.transform = 'translateX(0)';
+          }, 200 + idx * 200);
+      });
 
-    // Cards Fade-In on Scroll
-    const observer = new IntersectionObserver((entries, obs) => {
-        entries.forEach((entry, idx) => {
-            if (entry.isIntersecting) {
-                setTimeout(() => entry.target.classList.add('show'), idx * 150);
-                obs.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.1 });
+      // Cards Fade-In on Scroll
+      const observer = new IntersectionObserver((entries, obs) => {
+          entries.forEach((entry, idx) => {
+              if (entry.isIntersecting) {
+                  setTimeout(() => entry.target.classList.add('show'), idx * 150);
+                  obs.unobserve(entry.target);
+              }
+          });
+      }, { threshold: 0.1 });
 
-    tickets.forEach(card => observer.observe(card));
+      tickets.forEach(card => observer.observe(card));
 
-    // Filter Panel Expand/Collapse for Mobile
-    if (panel) {
-        panel.addEventListener('click', (e) => {
-            if (window.innerWidth <= 900 && e.target === panel) {
-                panel.classList.toggle('active');
-            }
-        });
+      // Filter Panel Expand/Collapse for Mobile
+      if (panel) {
+          panel.addEventListener('click', (e) => {
+              if (window.innerWidth <= 900 && e.target === panel) {
+                  panel.classList.toggle('active');
+              }
+          });
 
-        document.addEventListener('click', (e) => {
-            if (!panel.contains(e.target) && window.innerWidth <= 900) {
-                panel.classList.remove('active');
-            }
-        });
+          document.addEventListener('click', (e) => {
+              if (!panel.contains(e.target) && window.innerWidth <= 900) {
+                  panel.classList.remove('active');
+              }
+          });
 
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 900) {
-                panel.classList.remove('active');
-            }
-        });
-    }
-});
+          window.addEventListener('resize', () => {
+              if (window.innerWidth > 900) {
+                  panel.classList.remove('active');
+              }
+          });
+      }
+  });
 </script>
 
 <script>
-function loadMoreFlights() {
-    const currentLimit = parseInt(new URLSearchParams(window.location.search).get('limit')) || 5;
-    const newLimit = currentLimit + 5;
+  function loadMoreFlights() {
+      const currentLimit = parseInt(new URLSearchParams(window.location.search).get('limit')) || 5;
+      const newLimit = currentLimit + 5;
 
-    const params = new URLSearchParams(window.location.search);
-    params.set('limit', newLimit);
+      const params = new URLSearchParams(window.location.search);
+      params.set('limit', newLimit);
 
-    window.location.search = params.toString();
-}
+      window.location.search = params.toString();
+  }
 </script>
 
 <script>
@@ -195,4 +195,49 @@ function loadMoreFlights() {
 
     window.location.search = params.toString();
 }
+</script>
+
+<script>
+  function toggleFavorite(buttonElement, flightId) {
+      const isLoggedIn = {{#if @root.session.user}}true{{else}}false{{/if}};
+      const icon = buttonElement.querySelector('.heart-icon');
+
+      if (!isLoggedIn) {
+          showCustomToast("You need to log in to use Favorites!");
+          return;
+      }
+
+      // Toggle Visual State Immediately for Feedback
+      const addingToFavorites = !icon.classList.contains('filled');
+      icon.classList.toggle('filled');
+      icon.innerHTML = addingToFavorites ? '&#10084;' : '&#9825;'; // ❤️ or ♡
+
+      fetch(`/api/favorites/${addingToFavorites ? 'add' : 'remove'}?flightId=${flightId}`, { method: 'POST' })
+          .then(res => res.json())
+          .then(data => {
+              if (!data.success) {
+                  // Revert icon if failed
+                  icon.classList.toggle('filled');
+                  icon.innerHTML = addingToFavorites ? '&#9825;' : '&#10084;';
+                  showCustomToast("Failed to update favorites.");
+              }
+          })
+          .catch(() => {
+              icon.classList.toggle('filled');
+              icon.innerHTML = addingToFavorites ? '&#9825;' : '&#10084;';
+              showCustomToast("Server error. Try again.");
+          });
+  }
+
+  function showCustomToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'custom-toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.classList.add('visible'), 10);
+      setTimeout(() => {
+          toast.classList.remove('visible');
+          setTimeout(() => toast.remove(), 300);
+      }, 3000);
+  }
 </script>

@@ -6,6 +6,7 @@ html, body {
     height: 100%;
 }
 
+/* For the stupid auth background glitch */
 .auth-background {
     background: #0b0c1a !important;
 }
