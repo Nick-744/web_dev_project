@@ -42,6 +42,8 @@
         <div class="notification-header">
           <span class="airline">{{airline_name}}</span>
           <span class="flight-class {{class}}">{{class}}</span>
+          <!-- Heart Icon Button -->
+          <button class="heart-btn" onclick="toggleFavorite('{{flight_id}}', '{{airline_name}}')">🤍</button>
         </div>
 
         <div class="notification-body">

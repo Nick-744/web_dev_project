@@ -231,28 +231,6 @@ html, body {
     }
 }
 
-/* Responsive Adjustments */
-@media (max-width: 900px) {
-    .floating-form-box {
-        top: 52%; /* Leaves space for header */
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80%;
-        max-height: calc(100vh - 200px); /* Header + Footer */
-        overflow-y: auto;
-        background: rgba(255, 255, 255, 0.75);
-    }
-
-    .floating-form-box h2 {
-        font-size: 1.4rem;
-    }
-
-    .form-grid-2 {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-}
-
 #globeOverlay {
     position: fixed;
     top: 0;
@@ -275,7 +253,29 @@ html, body {
     overflow: visible; /* Allow popups to overflow correctly */
 }
 
-/* If possible, make the calendar not be clipped by the footer!!! */
+/* Responsive Adjustments */
+@media (max-width: 900px) {
+    .floating-form-box {
+        top: 52%; /* Leaves space for header */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        max-height: calc(100vh - 200px); /* Header + Footer */
+        overflow: hidden; /* Has to be placed below DRP for the Search button
+                            to show correctly! */
+        overflow-y: auto;
+        background: rgba(255, 255, 255, 0.75);
+    }
+
+    .floating-form-box h2 {
+        font-size: 1.4rem;
+    }
+
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
 
 @media (max-width: 480px) {
     .floating-form-box {
