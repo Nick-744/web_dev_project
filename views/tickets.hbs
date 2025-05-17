@@ -57,8 +57,11 @@
           </div>
 
           <!-- Heart Icon Button -->
-          <button class="heart-btn" onclick="toggleFavorite(this, '{{this.code}}', '{{this.flight_id}}', '{{this.airline_id}}')">
-              <span class="heart-icon">&#9825;</span>
+          <button class="heart-btn" 
+              onclick="toggleFavorite(this, '{{this.code}}', '{{this.flight_id}}', '{{this.airline_id}}')">
+              <span class="heart-icon {{#if (includes ../favoritesList this.code)}}filled{{/if}}">
+                  {{#if (includes ../favoritesList this.code)}}&#10084;{{else}}&#9825;{{/if}}
+              </span>
           </button>
 
           <div class="price">
@@ -87,7 +90,7 @@
         <div class="ticket-card">
           <div class="notification-header">
             <span class="airline">{{airline_name}}</span>
-            <span class="flight-class {{flightClass}}">{{flightClass}}</span>
+            <span class="flight-class {{class}}">{{class}}</span>
           </div>
 
           <div class="notification-body">
@@ -101,6 +104,14 @@
               <span>Departure: {{time_departure}}</span><br />
               <span>Arrival&nbsp;&nbsp;: {{time_arrival}}</span>
             </div>
+
+            <!-- Heart Icon Button -->
+            <button class="heart-btn" 
+                onclick="toggleFavorite(this, '{{this.code}}', '{{this.flight_id}}', '{{this.airline_id}}')">
+                <span class="heart-icon {{#if (includes ../favoritesList this.code)}}filled{{/if}}">
+                    {{#if (includes ../favoritesList this.code)}}&#10084;{{else}}&#9825;{{/if}}
+                </span>
+            </button>
 
             <div class="price">
               <strong>Price:</strong> ${{price}}

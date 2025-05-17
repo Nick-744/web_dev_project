@@ -88,6 +88,15 @@ function apiGetPriceCalendar(req, res) {
 import { db } from '../lib/db.js';
 
 function searchTickets(req, res) {
+    const userId = req.session.user;
+    let favoriteTickets = [];
+
+    if (userId) { // For Database integrity reasons!
+        favoriteTickets = db.prepare(`
+            SELECT ticket_code FROM hearts WHERE user_id = ?
+        `).all(userId).map(row => row.ticket_code);
+    }
+
     const {
         fromInput = '',
         toInput = '',
@@ -189,6 +198,7 @@ function searchTickets(req, res) {
             title: 'Available Flights - FlyExpress',
             outboundFlights: outboundFlights || [],
             returnFlights: returnFlights || [],
+            favoritesList: favoriteTickets || [],
             fromInput,
             toInput,
             flightClass: flightClass,

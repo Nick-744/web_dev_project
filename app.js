@@ -39,6 +39,7 @@ app.engine('hbs', engine({
     extname: '.hbs',
     helpers: {
         eq: (a, b) => a === b,
+        includes: (array, value) => Array.isArray(array) && array.includes(value),
         multiply: (a, b) => a * b,
         json: (context) => JSON.stringify(context)
     }
