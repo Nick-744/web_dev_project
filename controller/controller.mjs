@@ -355,6 +355,7 @@ function removeFavorite(req, res) {
         res.status(500).json({ success: false });
     }
 }
+
 function dateGrid(req, res) {
     try {
         const { fromInput, toInput, outStart, outEnd, retStart, retEnd } = req.query;

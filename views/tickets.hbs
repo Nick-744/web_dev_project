@@ -341,8 +341,8 @@ function moveReturnDatesDown() {
     returnDateOffset += 1;
 
     const table = document.querySelector('.date-grid table tbody');
-    const firstRow = table.querySelector('tr');
-    if (firstRow) firstRow.remove(); // Remove the topmost row to keep the grid size fixed
+    //const firstRow = table.querySelector('tr');
+   // if (firstRow) firstRow.remove(); // Remove the topmost row to keep the grid size fixed
 
     const currentReturnDates = [...table.querySelectorAll('tr > td.axis-lbl')]
         .map(td => td.textContent.trim())
@@ -377,7 +377,9 @@ function moveReturnDatesDown() {
         .then(r => r.json())
         .then(d => {
             if (d.length > 0) {
-                appendNewReturnRow(d[0]); // Corrected to expect a raw array response
+                //appendNewReturnRow(d[0]); // Corrected to expect a raw array response
+                table.querySelector('tr').remove();
+                appendNewReturnRow(d[0]);
             } else {
                 console.log("No new return prices found for date:", nextRetDate);
             }
@@ -430,8 +432,8 @@ function moveReturnDatesUp() {
     returnDateOffset -= 1;
 
     const table = document.querySelector('.date-grid table tbody');
-    const lastRow = table.querySelector('tr:last-child');
-    if (lastRow) lastRow.remove();
+    //const lastRow = table.querySelector('tr:last-child');
+    //if (lastRow) lastRow.remove();
 
     const currentReturnDates = [...table.querySelectorAll('tr > td.axis-lbl')]
         .map(td => td.textContent.trim())
@@ -466,6 +468,8 @@ function moveReturnDatesUp() {
     .then(r => r.json())
     .then(d => {
         if (d.length > 0) {
+            const lastRow = table.querySelector('tr:last-child');
+            if (lastRow) lastRow.remove();
             prependReturnRow(d[0]); // or appendNewReturnRow depending on Up/Down
         } else {
             console.log("No previous return prices found for date:", prevRetDate);
