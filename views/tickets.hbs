@@ -217,21 +217,11 @@ function toggleDateGrid(){
 function closeDateGrid(){ document.getElementById('dateGridContainer').style.display='none'; }
 
 /* ─── fetch + render ─────────────────────────────────── */
-/*function loadDateGrid(){
-  const p = new URLSearchParams(location.search);
-  const qs = new URLSearchParams({
-      fromInput : p.get('fromInput'),
-      toInput   : p.get('toInput'),
-      outStart  : p.get('departureDate'),
-      outEnd    : p.get('returnDate'),
-      retStart  : p.get('departureDate'),
-      retEnd    : p.get('returnDate')
-  });
-  fetch('/api/date-grid?'+qs.toString())
-    .then(r=>r.json())
-    .then(d=>drawGrid(d.outboundPrices,d.returnPrices))
-    .catch(e=>console.error('grid error',e));
-}*/
+function getCellClass(total, cheapest) {
+    if (total === cheapest) return 'cell-green';
+    if (total > cheapest * 1.9) return 'cell-red';
+    return '';
+}
 function addDays(dateStr, n) {
   const d = new Date(dateStr);
   d.setDate(d.getDate() + n);
@@ -279,6 +269,7 @@ function drawGrid(outB, retB){
       <button class="close-btn" onclick="closeDateGrid()" style="color: #FFFFFF;">✖</button>`;
 
   /* === HEADER === */
+  html += `<div class="departure-label">Departure Dates</div>`;
   html += `<table><thead><tr>
              <th class="axis-lbl">Return&nbsp;↓</th>`;
   outB.forEach(o => html += `<th>${o.outDate}</th>`);
@@ -296,8 +287,7 @@ function drawGrid(outB, retB){
       let cell="–";
       if(valid){
         const total = o.min_out_price + r.min_ret_price;
-        const cls   = total === cheapest     ? 'cell-green' :
-                      total  > cheapest*1.9   ? 'cell-red'  : '';
+        const cls   =  getCellClass(total, cheapest);
         cell = `<span class="${cls}">€${total}</span>`;
       }
       html += `<td>${cell}</td>`;
@@ -311,8 +301,9 @@ function drawGrid(outB, retB){
     <!-- vertical navigation -->
     <button class="move-down" onclick="moveReturnDatesDown()">▼ Later Return</button>
     <button class="move-up" onclick="moveReturnDatesUp()"> ▲ Earlier Return</button>
-    <button class="move-right" onclick="moveDepartureDatesRight()">► Later Departure</button>
     <button class="move-left" onclick="moveDepartureDatesLeft()">◄ Earlier Departure</button>
+    <button class="move-right" onclick="moveDepartureDatesRight()">► Later Departure</button>
+    
 
   </div>
   </div>`;
@@ -399,8 +390,7 @@ function appendNewReturnRow(returnPriceData) {
         let cell = "–";
         if (valid) {
             const total = o.min_out_price + returnPriceData.min_ret_price;
-            const cls = total === cheapest ? 'cell-green' :
-                        total > cheapest * 1.9 ? 'cell-red' : '';
+            const cls = getCellClass(total, cheapest);
             cell = `<span class="${cls}">€${total}</span>`;
         }
         html += `<td>${cell}</td>`;
@@ -488,8 +478,7 @@ function prependReturnRow(returnPriceData) {
         let cell = "–";
         if (valid) {
             const total = o.min_out_price + returnPriceData.min_ret_price;
-            const cls = total === cheapest ? 'cell-green' :
-                        total > cheapest * 1.9 ? 'cell-red' : '';
+            const cls = getCellClass(total, cheapest);
             cell = `<span class="${cls}">€${total}</span>`;
         }
         html += `<td>${cell}</td>`;
@@ -560,9 +549,9 @@ function appendNewDepartureColumn(outDate, outboundPrice, priceData) {
 
         let cell = "–";
 
-        if (priceEntry) {
+        if (priceEntry && new Date(retDate) >= new Date(outDate)) {
             const total = priceEntry.totalPrice;
-            const cls = total < 150 ? 'cell-green' : total > 300 ? 'cell-red' : '';
+            const cls = getCellClass(total, cheapest);
             cell = `<span class="${cls}">€${total}</span>`;
         }
 
@@ -578,7 +567,16 @@ function moveDepartureDatesLeft() {
 
     const firstDateStr = currentDepartureDates[0];
     const firstDate = new Date(firstDateStr);
-    firstDate.setDate(firstDate.getDate() - 1); // Go one day earlier
+
+    // 🚨 Prevent scrolling left before the initial departure date
+    const initialDepDate = new Date(new URLSearchParams(location.search).get('departureDate'));
+    if (firstDate <= initialDepDate) {
+        console.log("Already at the earliest departure date.");
+        alert("Already at the earliest departure date.");
+        return;
+    }
+
+    firstDate.setDate(firstDate.getDate() - 1);
     const prevDepDate = firstDate.toISOString().split('T')[0];
 
     const p = new URLSearchParams(location.search);
@@ -591,14 +589,15 @@ function moveDepartureDatesLeft() {
     fetch('/api/date-grid/column?' + qs.toString())
         .then(r => r.json())
         .then(data => {
-            if (data && data.prices) {
+            if (data && data.prices.length > 0) {
                 prependNewDepartureColumn(data.outDate, data.outboundPrice, data.prices);
             } else {
-                console.log("No earlier column data found for", prevDepDate);
+                console.log(`No departure data found for ${prevDepDate}`);
             }
         })
         .catch(e => console.error('grid error', e));
 }
+
 
 function prependNewDepartureColumn(outDate, outboundPrice, priceData) {
     if (!outDate || !priceData) return;
@@ -633,7 +632,7 @@ function prependNewDepartureColumn(outDate, outboundPrice, priceData) {
 
         if (priceEntry) {
             const total = priceEntry.totalPrice;
-            const cls = total < 150 ? 'cell-green' : total > 300 ? 'cell-red' : '';
+            const cls = getCellClass(total, cheapest);
             cell = `<span class="${cls}">€${total}</span>`;
         }
 
@@ -678,7 +677,7 @@ function appendNewDepartureColumnoLD(outDate, outboundPrice, priceData) {
 
         if (priceEntry && new Date(retDate) >= new Date(outDate)) {
             const total = priceEntry.price + outboundPrice;
-            const cls = total < 150 ? 'cell-green' : total > 300 ? 'cell-red' : '';
+            const cls = getCellClass(total, cheapest);
             cell = `<span class="${cls}">€${total}</span>`;
         }
 
@@ -694,8 +693,8 @@ function appendNewDepartureColumnoLD(outDate, outboundPrice, priceData) {
             console.log("total:", total);
             console.log("priceEntry:", priceEntry);
             console.log("outboundPrice:", outboundPrice);
-            
-            const cls = total < 150 ? 'cell-green' : total > 300 ? 'cell-red' : '';
+            const cls = getCellClass(total, cheapest);
+            //const cls = total < 150 ? 'cell-green' : total > 300 ? 'cell-red' : '';
             cell = `<span class="${cls}">€${total}</span>`;
         }
 

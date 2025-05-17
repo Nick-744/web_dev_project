@@ -252,14 +252,32 @@
     border-radius: 12px;
     padding: 24px 32px 90px; /* Space for footer */
     width:auto;
-    max-width:95vw; /* Doesn't grow beyond 1200px */
-    max-height: 90vh; /* At most 90% of viewport height */
+    /*max-width:95vw;  Doesn't grow beyond 1200px */
+    /*max-height: 90vh;  At most 90% of viewport height */
     overflow: auto;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
     font: 14px/1.4 "Roboto", sans-serif;
 }
-
-
+.departure-label {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #fff;
+    font-weight: bold;
+    margin: 0 auto 10px;
+    width: fit-content;
+}
+button.move-down {
+    color: #FFFFFF;
+}
+button.move-up {
+    color: #FFFFFF;
+}
+button.move-right {
+    color: #FFFFFF;
+}
+button.move-left {
+    color: #FFFFFF;
+}
 
 /* close ( ✖ ) button */
 .date-grid .close-btn{

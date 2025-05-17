@@ -217,7 +217,8 @@ function dateGrid(req, res) {
         `;
 
         const outboundPrices = db.prepare(outboundSQL).all(fromInput.toLowerCase(), toInput.toLowerCase(), outStart, outEnd);
-        const returnPrices = db.prepare(returnSQL).all(toInput.toLowerCase(), fromInput.toLowerCase(), retStart, retEnd);console.log('📡 /api/date-grid called with params:', req.query);
+        const returnPrices = db.prepare(returnSQL).all(toInput.toLowerCase(), fromInput.toLowerCase(), retStart, retEnd);
+        //console.log('📡 /api/date-grid called with params:', req.query);
         // console.log('Outbound Prices:', outboundPrices);
         // console.log('Return Prices:', returnPrices);
         res.json({ outboundPrices, returnPrices });
