@@ -1,28 +1,47 @@
 // controllers/airTicketsController.mjs
 
-const topDestinations = [
-    {
-        name: "Paris",
-        image: "/images/paris.jpg",
-        description: "The city of lights, love, and culture. 🗼"
-    },
-    {
-        name: "Tokyo",
-        image: "/images/tokyo.jpg",
-        description: "Futuristic vibes and timeless traditions. ⛩️"
-    },
-    {
-        name: "New York",
-        image: "/images/new-york.jpg",
-        description: "The city that never sleeps. 🗽"
-    }
-];
+// DB Connection/access
+import { db } from '../lib/db.js';
 
-function showTopDestinations(req, res) {
+// Wikipedia stealer - Top Destinations Page!
+async function getCityImage(city) {
+    const url = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(city)}&prop=pageimages&format=json&pithumbsize=600&origin=*`;
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const pages = data.query.pages;
+        const page = Object.values(pages)[0];
+        return page?.thumbnail?.source || '/images/default_city.jpg';
+    } catch (err) {
+        console.error(`Error fetching image for ${city}:`, err);
+        return '/images/default_city.jpg';
+    }
+}
+
+async function showTopDestinations(req, res) {
+    const stats = db.prepare(`
+        SELECT a2.city AS name, COUNT(*) AS favorites_count
+        FROM hearts h
+        JOIN ticket t ON h.ticket_code = t.code
+        JOIN flight f ON t.flight_id = f.id
+        JOIN airport a2 ON f.airport_arrive_id = a2.id
+        GROUP BY a2.city
+        ORDER BY favorites_count DESC
+        LIMIT 5
+    `).all();
+
+    // Fetch images for each city dynamically
+    const destinations = await Promise.all(
+        stats.map(async (dest) => ({
+            ...dest,
+            image: await getCityImage(dest.name)
+        }))
+    );
+
     res.render('top_destinations', {
         title: 'Top Destinations - FlyExpress',
-        destinations: topDestinations,
-        styles: `<link rel="stylesheet" href="/css/top_destinations.css">`
+        destinations,
+        statsData: stats
     });
 }
 
@@ -85,9 +104,16 @@ function apiGetPriceCalendar(req, res) {
 }
 
 /* ----------- Search Tickets with Filters ----------- */
-import { db } from '../lib/db.js';
-
 function searchTickets(req, res) {
+    const userId = req.session.user;
+    let favoriteTickets = [];
+
+    if (userId) { // For Database integrity reasons!
+        favoriteTickets = db.prepare(`
+            SELECT ticket_code FROM hearts WHERE user_id = ?
+        `).all(userId).map(row => row.ticket_code);
+    }
+
     const {
         fromInput = '',
         toInput = '',
@@ -111,6 +137,7 @@ function searchTickets(req, res) {
         });
     }
 
+    /* t.code -> ticket code, so we can use it to add to favorites */
     let baseSQL = `
         SELECT 
             f.id AS flight_id,
@@ -120,8 +147,10 @@ function searchTickets(req, res) {
             f.time_arrival,
             t.class,
             t.price,
+            t.code AS code,
             t.availability,
             al.name AS airline_name,
+            al.id AS airline_id,
             (strftime('%s', f.time_arrival) - strftime('%s', f.time_departure)) / 60 AS duration_minutes
         FROM flight f
         JOIN airport a1 ON f.airport_depart_id = a1.id
@@ -186,6 +215,7 @@ function searchTickets(req, res) {
             title: 'Available Flights - FlyExpress',
             outboundFlights: outboundFlights || [],
             returnFlights: returnFlights || [],
+            favoritesList: favoriteTickets || [],
             fromInput,
             toInput,
             flightClass: flightClass,
@@ -207,12 +237,144 @@ function searchTickets(req, res) {
     }
 }
 
+/* ----------- Authentication Controllers ----------- */
+import bcrypt from 'bcrypt'; // bcrypt for password hashing!
+
+function showLoginPage(req, res) {
+    res.render('login', { title: 'Login - FlyExpress' });
+}
+
+function showRegisterPage(req, res) {
+    res.render('register', { title: 'Register - FlyExpress' });
+}
+
+function handleRegister(req, res) {
+    const { username, password } = req.body;
+    try {
+        const existing = db.prepare('SELECT * FROM user WHERE id = ?').get(username);
+        if (existing) {
+            return res.render('register', { error: 'Username already exists', title: 'Register - FlyExpress' });
+        }
+        const hashed = bcrypt.hashSync(password, 10);
+        db.prepare('INSERT INTO user (id, password) VALUES (?, ?)').run(username, hashed);
+        res.redirect('/login');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Registration Error');
+    }
+}
+
+function handleLogin(req, res) {
+    const { username, password } = req.body;
+    try {
+        const user = db.prepare('SELECT * FROM user WHERE id = ?').get(username);
+        if (user && bcrypt.compareSync(password, user.password)) {
+            req.session.user = username;
+            return res.redirect('/');
+        }
+        res.render('login', { title: 'Login - FlyExpress', error: 'Invalid credentials' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Login Error');
+    }
+}
+
+function handleLogout(req, res) {
+    req.session.destroy(() => res.redirect('/'));
+}
+
+// ----- Favorites API! -----
+function showFavorites(req, res) {
+    const userId = req.session.user;
+    if (!userId) return res.redirect('/login');
+
+    try {
+        const favorites = db.prepare(`
+            SELECT t.code AS id,
+                   t.flight_id AS flight_id,
+                   t.airline_id AS airline_id,
+                   f.time_departure,
+                   f.time_arrival,
+                   a1.city AS origin,
+                   a2.city AS destination,
+                   t.price
+            FROM hearts h
+            JOIN ticket t ON h.ticket_code = t.code
+            JOIN flight f ON t.flight_id = f.id
+            JOIN airport a1 ON f.airport_depart_id = a1.id
+            JOIN airport a2 ON f.airport_arrive_id = a2.id
+            WHERE h.user_id = ?
+        `).all(userId);
+
+        res.render('favorites', { 
+            title: 'My ❤️', 
+            favorites 
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error loading favorites');
+    }
+}
+
+function addFavorite(req, res) {
+    const userId = req.session.user;
+    const { ticketId, flightId, airlineId } = req.query;
+
+    if (!userId || !ticketId || !flightId || !airlineId) 
+        return res.status(400).json({ success: false });
+
+    try {
+        const stmt = db.prepare(`
+            INSERT OR IGNORE INTO hearts (ticket_code, flight_id, airline_id, user_id) 
+            VALUES (?, ?, ?, ?)
+        `);
+        stmt.run(ticketId, flightId, airlineId, userId);
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+}
+
+function removeFavorite(req, res) {
+    const userId = req.session.user;
+    const { ticketId, flightId, airlineId } = req.query;
+
+    if (!userId || !ticketId || !flightId || !airlineId) 
+        return res.status(400).json({ success: false });
+
+    try {
+        const stmt = db.prepare(`
+            DELETE FROM hearts 
+            WHERE user_id = ? AND ticket_code = ? AND flight_id = ? AND airline_id = ?
+        `);
+        stmt.run(userId, ticketId, flightId, airlineId);
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false });
+    }
+}
+
 export {
     showHomePage,
     showTopDestinations,
     showAboutPage,
+    searchTickets,
+
+    // API Handlers
     apiGetCities,
     apiGetFlights,
     apiGetPriceCalendar,
-    searchTickets
+    
+    // User Authentication
+    showLoginPage,
+    handleLogin,
+    showRegisterPage,
+    handleRegister,
+    handleLogout,
+    
+    showFavorites,
+    addFavorite,
+    removeFavorite
 };

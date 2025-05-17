@@ -11,7 +11,8 @@ window.addEventListener('load', () => {
 
     // Initialize Globe
     globe = Globe()(el)
-        .globeImageUrl('https://i.imgur.com/ZyNPC40.jpg')
+        .globeImageUrl('/images/world.topo.bathy.200412.3x5400x2700.jpg')
+        // 'https://i.imgur.com/ZyNPC40.jpg' in prototype!
         .backgroundColor('rgba(0,0,0,0)')
         .showAtmosphere(true)
         .atmosphereColor('#3a228a')
