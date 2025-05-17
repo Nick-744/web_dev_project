@@ -1,0 +1,137 @@
+ /* For the stupid auth background glitch */
+.auth-background {
+    background: #0b0c1a !important;
+}
+
+.auth-background::before {
+    display: none !important;
+}
+
+.page-container {
+    text-align: center;
+    color: #fff;
+    margin-top: 30px;
+}
+
+.favorites-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.favorites-header h2 {
+    font-size: 2.5rem;
+}
+
+.favorites-title {
+    margin-bottom: 30px;
+    color: #f97316;
+    text-shadow: 0 0 8px #f97316;
+}
+
+.favorites-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+    padding: 20px;
+    transition: all 0.5s ease;
+}
+
+.favorite-card {
+    width: 280px;
+    padding: 20px;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #1e1e2f, #2c2c3f);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+/* Smooth removal class */
+.favorite-card.removing {
+    opacity: 0;
+    transform: scale(0.8);
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 0 !important;
+    overflow: hidden;
+}
+
+.favorite-card:hover {
+    transform: translateY(-8px) scale(1.03);
+}
+
+.destination-title {
+    font-size: 1.5rem;
+    margin: 10px 0;
+    color: #FF6B81;
+    text-shadow: 0 0 6px #FF6B81;
+}
+
+.flight-info {
+    margin: 8px 0;
+    font-size: 1rem;
+    color: #ccc;
+}
+
+.price-info {
+    margin: 12px 0;
+    font-size: 1.1rem;
+    color: #90EE90;
+    font-weight: bold;
+}
+
+.remove-btn {
+    padding: 10px 20px;
+    background: #FF4D4F;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.remove-btn:hover {
+    background: #E60000;
+}
+
+.no-favorites {
+    margin-top: 50px;
+    font-size: 1.3rem;
+    color: #bbb;
+}
+
+.heart-burst {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: #FF4D4F;
+    border-radius: 50%;
+    opacity: 1;
+    pointer-events: none;
+    transition: transform 0.7s ease, opacity 0.7s ease;
+}
+
+.custom-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.8);
+    background: #333;
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 24px;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 9999;
+}
+
+.custom-toast.visible {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}

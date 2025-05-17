@@ -1,196 +1,96 @@
-<div class="page-container fade-in">
-    <h2 class="favorites-title">🌟 Your Favorite Flights</h2>
+<link rel="stylesheet" href="/css/favorites.css">
+
+<div class="page-container">
+    <div class="favorites-header">
+        <h2>💖</h2>
+        <h2 class="favorites-title">Your Interested Flights</h2>
+    </div>
 
     {{#if favorites.length}}
-        <div class="favorites-grid">
-            {{#each favorites}}
-                <div class="favorite-card" id="fav-{{this.id}}">
-                    <h3>{{this.destination}}</h3>
-                    <p>From: <strong>{{this.origin}}</strong></p>
-                    <p>Price: <strong>${{this.price}}</strong></p>
-                    <button class="remove-btn" onclick="removeFavorite('{{this.id}}')">❌ Remove</button>
+    <div class="favorites-grid">
+        {{#each favorites}}
+        <div class="favorite-card" id="fav-{{this.id}}">
+            <div class="card-inner">
+                <div class="card-front">
+                    <h3 class="destination-title">To: {{this.destination}}</h3>
+                    <p class="flight-info">From: <strong>{{this.origin}}</strong></p>
+                    <p class="flight-info">Departure: <strong>{{this.time_departure}}</strong></p>
+                    <p class="price-info">💰 Price: <strong>${{this.price}}</strong></p>
+                    <button class="remove-btn" 
+                        onclick="removeFavorite('{{this.id}}', '{{this.flight_id}}', '{{this.airline_id}}')">
+                        ❤️ Remove
+                    </button>
                 </div>
-            {{/each}}
+            </div>
         </div>
+        {{/each}}
+    </div>
     {{else}}
-        <p class="no-favorites">You haven’t added any favorites yet!</p>
+    <p class="no-favorites">You haven’t added any flights to your interest list yet!</p>
     {{/if}}
-
-    <button class="add-fav-btn" onclick="addFavorite()">Add Random Favorite - TEST</button>
 </div>
 
-<style>
-.page-container {
-    min-height: 60vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 50px 20px;
-    text-align: center;
-    color: #fff;
-}
-
-.favorites-title {
-    font-size: 3rem;
-    margin-bottom: 40px;
-    color: #0ea5e9;
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
-    animation: slideFadeIn 1s ease-out;
-}
-
-.favorites-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
-    justify-items: center;
-    padding: 0 20px;
-}
-
-.favorite-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    border-radius: 20px;
-    padding: 30px;
-    width: 100%;
-    max-width: 300px;
-    text-align: center;
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
-    animation: floatUp 0.8s ease-out forwards;
-    transform: translateY(30px);
-    opacity: 0;
-    position: relative;
-}
-
-.favorite-card h3 {
-    font-size: 1.8rem;
-    color: #38bdf8;
-    margin-bottom: 10px;
-}
-
-.favorite-card p {
-    margin: 8px 0;
-    font-size: 1rem;
-    color: #ccc;
-}
-
-.remove-btn {
-    margin-top: 20px;
-    padding: 10px 16px;
-    background: linear-gradient(135deg, #f97316, #fb923c);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: transform 0.2s ease, background 0.3s ease;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-}
-
-.remove-btn:hover {
-    background: linear-gradient(135deg, #fb923c, #f97316);
-    transform: translateY(-3px);
-}
-
-.add-fav-btn {
-    margin-top: 50px;
-    margin-bottom: 20px;
-    padding: 14px 24px;
-    background: linear-gradient(135deg, #0ea5e9, #38bdf8);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-}
-
-.add-fav-btn:hover {
-    background: linear-gradient(135deg, #38bdf8, #0ea5e9);
-    transform: translateY(-3px);
-}
-
-.no-favorites {
-    font-size: 1.5rem;
-    margin-top: 80px;
-    color: #aaa;
-}
-
-@keyframes floatUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-</style>
-
 <script>
-function removeFavorite(favId) {
-    const card = document.getElementById(`fav-${favId}`);
-    if (card) {
-        card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-        card.style.opacity = 0;
-        card.style.transform = 'translateY(-30px)';
-        setTimeout(() => card.remove(), 0);
+function removeFavorite(ticketId, flightId, airlineId) {
+    fetch(`/api/favorites/remove?ticketId=${ticketId}&flightId=${flightId}&airlineId=${airlineId}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const card = document.getElementById(`fav-${ticketId}`);
+                if (card) {
+                    card.classList.add('removing');
+                    setTimeout(() => card.remove(), 400);
+                    heartBurst(card);
+                }
+
+                if (!document.querySelector('.favorite-card')) {
+                    document.querySelector('.favorites-grid')?.remove();
+                    const message = document.createElement('p');
+                    message.className = 'no-favorites fade-in-card';
+                    message.textContent = "You haven’t added any flights to your interest list yet!";
+                    document.querySelector('.page-container').appendChild(message);
+                }
+            } else {
+                showCustomToast("Failed to remove from favorites.");
+            }
+        })
+        .catch(() => showCustomToast("Server error. Try again."));
+}
+
+function heartBurst(target) {
+    for (let i = 0; i < 10; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'heart-burst';
+        document.body.appendChild(particle);
+
+        const rect = target.getBoundingClientRect();
+        particle.style.left = `${rect.left + rect.width / 2}px`;
+        particle.style.top = `${rect.top + rect.height / 2}px`;
+
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 80 + Math.random() * 40;
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+
+        requestAnimationFrame(() => {
+            particle.style.transform = `translate(${x}px, ${y}px) scale(1.5)`;
+            particle.style.opacity = '0';
+        });
+
+        setTimeout(() => particle.remove(), 700);
     }
 }
 
-function addFavorite() {
-    const grid = document.querySelector('.favorites-grid') || createFavoritesGrid();
-    const newId = Date.now();
-    const newCard = document.createElement('div');
-    newCard.className = 'favorite-card';
-    newCard.id = `fav-${newId}`;
-    newCard.innerHTML = `
-        <h3>Random Place</h3>
-        <p>From: <strong>Anywhere</strong></p>
-        <p>Price: <strong>$${Math.floor(Math.random() * 500 + 50)}</strong></p>
-        <button class="remove-btn" onclick="removeFavorite('${newId}')">❌ Remove</button>
-    `;
-    grid.appendChild(newCard);
-    requestAnimationFrame(() => newCard.style.opacity = 1);
+function showCustomToast(message) {
+    let toast = document.createElement('div');
+    toast.className = 'custom-toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
 
-    triggerConfetti();
-}
-
-function createFavoritesGrid() {
-    const grid = document.createElement('div');
-    grid.className = 'favorites-grid';
-    document.querySelector('.page-container').appendChild(grid);
-    document.querySelector('.no-favorites')?.remove();
-    return grid;
-}
-
-function triggerConfetti() {
-    const confetti = document.createElement('div');
-    confetti.className = 'confetti';
-    document.body.appendChild(confetti);
-    confetti.style.position = 'fixed';
-    confetti.style.left = '50%';
-    confetti.style.top = '50%';
-    confetti.style.transform = 'translate(-50%, -50%)';
-    confetti.style.fontSize = '3rem';
-    confetti.style.color = '#f97316';
-    confetti.innerText = '🎉';
-    confetti.style.opacity = 1;
-    confetti.style.transition = 'opacity 1s ease, transform 1s ease';
+    setTimeout(() => toast.classList.add('visible'), 100);
     setTimeout(() => {
-        confetti.style.opacity = 0;
-        confetti.style.transform = 'translate(-50%, -150%)';
-    }, 100);
-    setTimeout(() => confetti.remove(), 1000);
+        toast.classList.remove('visible');
+        setTimeout(() => toast.remove(), 300);
+    }, 2000);
 }
 </script>

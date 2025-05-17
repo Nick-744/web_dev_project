@@ -111,6 +111,7 @@ function searchTickets(req, res) {
         });
     }
 
+    /* t.code -> ticket code, so we can use it to add to favorites */
     let baseSQL = `
         SELECT 
             f.id AS flight_id,
@@ -120,8 +121,10 @@ function searchTickets(req, res) {
             f.time_arrival,
             t.class,
             t.price,
+            t.code AS code,
             t.availability,
             al.name AS airline_name,
+            al.id AS airline_id,
             (strftime('%s', f.time_arrival) - strftime('%s', f.time_departure)) / 60 AS duration_minutes
         FROM flight f
         JOIN airport a1 ON f.airport_depart_id = a1.id
@@ -253,12 +256,21 @@ function handleLogout(req, res) {
     req.session.destroy(() => res.redirect('/'));
 }
 
+// ----- Favorites API! -----
 function showFavorites(req, res) {
     const userId = req.session.user;
     if (!userId) return res.redirect('/login');
+
     try {
         const favorites = db.prepare(`
-            SELECT t.*, f.time_departure, f.time_arrival, a1.city AS from_city, a2.city AS to_city
+            SELECT t.code AS id,
+                   t.flight_id AS flight_id,
+                   t.airline_id AS airline_id,
+                   f.time_departure,
+                   f.time_arrival,
+                   a1.city AS origin,
+                   a2.city AS destination,
+                   t.price
             FROM hearts h
             JOIN ticket t ON h.ticket_code = t.code
             JOIN flight f ON t.flight_id = f.id
@@ -266,23 +278,30 @@ function showFavorites(req, res) {
             JOIN airport a2 ON f.airport_arrive_id = a2.id
             WHERE h.user_id = ?
         `).all(userId);
-        res.render('favorites', { title: 'My ❤️', favorites });
+
+        res.render('favorites', { 
+            title: 'My ❤️', 
+            favorites 
+        });
     } catch (err) {
         console.error(err);
         res.status(500).send('Error loading favorites');
     }
 }
 
-// ----- Favorites API in tickets! -----
 function addFavorite(req, res) {
     const userId = req.session.user;
-    const { flightId } = req.query;
+    const { ticketId, flightId, airlineId } = req.query;
 
-    if (!userId) return res.status(401).json({ success: false });
+    if (!userId || !ticketId || !flightId || !airlineId) 
+        return res.status(400).json({ success: false });
 
     try {
-        const stmt = db.prepare('INSERT OR IGNORE INTO hearts (user_id, ticket_code) VALUES (?, ?)');
-        stmt.run(userId, flightId);
+        const stmt = db.prepare(`
+            INSERT OR IGNORE INTO hearts (ticket_code, flight_id, airline_id, user_id) 
+            VALUES (?, ?, ?, ?)
+        `);
+        stmt.run(ticketId, flightId, airlineId, userId);
         res.json({ success: true });
     } catch (err) {
         console.error(err);
@@ -292,13 +311,17 @@ function addFavorite(req, res) {
 
 function removeFavorite(req, res) {
     const userId = req.session.user;
-    const { flightId } = req.query;
+    const { ticketId, flightId, airlineId } = req.query;
 
-    if (!userId) return res.status(401).json({ success: false });
+    if (!userId || !ticketId || !flightId || !airlineId) 
+        return res.status(400).json({ success: false });
 
     try {
-        const stmt = db.prepare('DELETE FROM hearts WHERE user_id = ? AND ticket_code = ?');
-        stmt.run(userId, flightId);
+        const stmt = db.prepare(`
+            DELETE FROM hearts 
+            WHERE user_id = ? AND ticket_code = ? AND flight_id = ? AND airline_id = ?
+        `);
+        stmt.run(userId, ticketId, flightId, airlineId);
         res.json({ success: true });
     } catch (err) {
         console.error(err);
@@ -323,6 +346,7 @@ export {
     showRegisterPage,
     handleRegister,
     handleLogout,
+    
     showFavorites,
     addFavorite,
     removeFavorite

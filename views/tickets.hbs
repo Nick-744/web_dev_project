@@ -57,8 +57,8 @@
           </div>
 
           <!-- Heart Icon Button -->
-          <button class="heart-btn" onclick="toggleFavorite(this, '{{flight_id}}')">
-              <i class="heart-icon">&#9829;</i> <!-- Unicode empty heart -->
+          <button class="heart-btn" onclick="toggleFavorite(this, '{{this.code}}', '{{this.flight_id}}', '{{this.airline_id}}')">
+              <span class="heart-icon">&#9825;</span>
           </button>
 
           <div class="price">
@@ -183,9 +183,7 @@
 
       window.location.search = params.toString();
   }
-</script>
 
-<script>
   function loadMoreReturnFlights() {
     const currentRLimit = parseInt(new URLSearchParams(window.location.search).get('rlimit')) || 5;
     const newRLimit = currentRLimit + 5;
@@ -197,8 +195,9 @@
 }
 </script>
 
+<!-- Heart Icon Toggle and Animation -->
 <script>
-  function toggleFavorite(buttonElement, flightId) {
+  function toggleFavorite(buttonElement, ticketId, flightId, airlineId) {
       const isLoggedIn = {{#if @root.session.user}}true{{else}}false{{/if}};
       const icon = buttonElement.querySelector('.heart-icon');
 
@@ -207,34 +206,74 @@
           return;
       }
 
-      // Toggle Visual State Immediately for Feedback
-      const addingToFavorites = !icon.classList.contains('filled');
+      const adding = !icon.classList.contains('filled');
       icon.classList.toggle('filled');
-      icon.innerHTML = addingToFavorites ? '&#10084;' : '&#9825;'; // ❤️ or ♡
+      icon.innerHTML = adding ? '&#10084;' : '&#9825;';
 
-      fetch(`/api/favorites/${addingToFavorites ? 'add' : 'remove'}?flightId=${flightId}`, { method: 'POST' })
+      icon.classList.add('pop-spin');
+      setTimeout(() => icon.classList.remove('pop-spin'), 800);
+
+      if (adding) burstEffect(icon);
+
+      const url = `/api/favorites/${adding ? 'add' : 'remove'}?ticketId=${ticketId}&flightId=${flightId}&airlineId=${airlineId}`;
+
+      fetch(url, { method: 'POST' })
           .then(res => res.json())
           .then(data => {
               if (!data.success) {
-                  // Revert icon if failed
                   icon.classList.toggle('filled');
-                  icon.innerHTML = addingToFavorites ? '&#9825;' : '&#10084;';
+                  icon.innerHTML = adding ? '&#9825;' : '&#10084;';
                   showCustomToast("Failed to update favorites.");
               }
           })
           .catch(() => {
               icon.classList.toggle('filled');
-              icon.innerHTML = addingToFavorites ? '&#9825;' : '&#10084;';
+              icon.innerHTML = adding ? '&#9825;' : '&#10084;';
               showCustomToast("Server error. Try again.");
           });
   }
 
+  function burstEffect(target) {
+      for (let i = 0; i < 8; i++) {
+          const particle = document.createElement('div');
+          particle.className = 'heart-burst';
+          document.body.appendChild(particle);
+
+          const rect = target.getBoundingClientRect();
+          particle.style.left = `${rect.left + rect.width / 2}px`;
+          particle.style.top = `${rect.top + rect.height / 2}px`;
+
+          const angle = Math.random() * 2 * Math.PI;
+          const distance = 60 + Math.random() * 40;
+
+          const x = Math.cos(angle) * distance;
+          const y = Math.sin(angle) * distance;
+
+          particle.style.transform = `translate(${x}px, ${y}px)`;
+          setTimeout(() => particle.remove(), 600);
+      }
+  }
+</script>
+
+/* Custom Toast Notification if User is not logged in */
+<script>
   function showCustomToast(message) {
+      let existingToast = document.querySelector('.custom-toast');
+      if (existingToast) existingToast.remove();
+
       const toast = document.createElement('div');
       toast.className = 'custom-toast';
-      toast.textContent = message;
+
+      toast.innerHTML = `
+          <span>${message}</span>
+          <button onclick="window.location.href='/login'" class="toast-btn">Login</button>
+      `;
+
       document.body.appendChild(toast);
+
       setTimeout(() => toast.classList.add('visible'), 10);
+
+      // Auto-dismiss after 4 seconds if not clicked
       setTimeout(() => {
           toast.classList.remove('visible');
           setTimeout(() => toast.remove(), 300);
