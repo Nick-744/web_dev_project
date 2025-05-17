@@ -1,0 +1,493 @@
+<link rel="stylesheet" href="/css/tickets.css" />
+
+<div class="tickets-container">
+  <h2>Available Flights</h2>
+
+  <div class="filter-controls">
+    <form id="filterForm" method="GET" action="/tickets">
+      <!-- Preserve Existing Search Parameters -->
+      <input type="hidden" name="fromInput" value="{{fromInput}}">
+      <input type="hidden" name="toInput" value="{{toInput}}">
+      <input type="hidden" name="flightClass" value="{{flightClass}}">
+      <input type="hidden" name="tripType" value="{{tripType}}">
+      <input type="hidden" name="departureDate" value="{{departureDate}}">
+      <input type="hidden" name="returnDate" value="{{returnDate}}">
+      <input type="hidden" name="limit" value="{{limit}}">
+      <input type="hidden" name="rlimit" value="{{rlimit}}">
+      <label>Sort By:</label>
+      <select name="sortBy" onchange="this.form.submit()">
+        <option value="" {{#unless sortBy}}selected{{/unless}}>None</option>
+        <option value="price_asc" {{#if (eq sortBy 'price_asc')}}selected{{/if}}>Price: Low to High</option>
+        <option value="price_desc" {{#if (eq sortBy 'price_desc')}}selected{{/if}}>Price: High to Low</option>
+        <option value="duration_asc" {{#if (eq sortBy 'duration_asc')}}selected{{/if}}>Duration: Shortest</option>
+        <option value="duration_desc" {{#if (eq sortBy 'duration_desc')}}selected{{/if}}>Duration: Longest</option>
+      </select>
+
+      <label>Max Price:</label>
+      <input type="number" name="maxPrice" min="0" value="{{maxPrice}}" placeholder="e.g. 300" onchange="this.form.submit()">
+
+      <label>Max Duration (mins):</label>
+      <input type="number" name="maxDuration" min="0" value="{{maxDuration}}" placeholder="e.g. 180" onchange="this.form.submit()">
+
+      <button type="submit" class="search-button">
+          <span class="button-icon">🔎</span>
+          <span class="button-text">Search</span>
+      </button>
+    </form>
+    {{#if outboundFlights.length}}
+      {{#if returnFlights.length}}
+        <button id="showDateGridBtn" class="search-button" onclick="toggleDateGrid()" style="margin-top: 20px;">
+            <span class="button-icon">📅</span>
+            <span class="button-text">View Date Grid</span>
+        </button>
+  {{/if}}
+  {{/if}}
+  </div>
+  <!-- stays empty until first open -->
+        <div id="dateGridContainer" style="display:none;"></div>
+      
+
+  <div class="tickets-list">
+    {{#each outboundFlights}}
+      <div class="ticket-card">
+        <div class="notification-header">
+          <span class="airline">{{airline_name}}</span>
+          <span class="flight-class {{class}}">{{class}}</span>
+        </div>
+
+        <div class="notification-body">
+          <div class="cities">
+            <span class="city">{{departure_city}}</span>
+            <span class="arrow">➔</span>
+            <span class="city">{{arrival_city}}</span>
+          </div>
+
+          <div class="times">
+            <span>Departure: {{time_departure}}</span><br />
+            <span>Arrival&nbsp;&nbsp;: {{time_arrival}}</span>
+          </div>
+
+          <div class="price">
+            <strong>Price:</strong> ${{price}}
+          </div>
+        </div>
+      </div>
+    {{/each}}
+  </div>
+  {{#if outboundFlights.length}}
+  {{#if hasMore}}
+  <button id="showMoreBtn" class="search-button" onclick="loadMoreFlights()">
+      <span class="button-text">Show More Flights</span>
+  </button>
+  {{/if}}
+  {{/if}}
+
+
+  <!-- Return Flights Part -->
+  {{#if returnFlights}}
+
+  <div class="tickets-container-return">
+    <h2>Available Return<br>Flights</h2>
+    <div class="tickets-list">
+      {{#each returnFlights}}
+        <div class="ticket-card">
+          <div class="notification-header">
+            <span class="airline">{{airline_name}}</span>
+            <span class="flight-class {{flightClass}}">{{flightClass}}</span>
+          </div>
+
+          <div class="notification-body">
+            <div class="cities">
+              <span class="city">{{departure_city}}</span>
+              <span class="arrow">➔</span>
+              <span class="city">{{arrival_city}}</span>
+            </div>
+
+            <div class="times">
+              <span>Departure: {{time_departure}}</span><br />
+              <span>Arrival&nbsp;&nbsp;: {{time_arrival}}</span>
+            </div>
+
+            <div class="price">
+              <strong>Price:</strong> ${{price}}
+            </div>
+          </div>
+        </div>
+      {{/each}}
+    </div>
+    {{#if returnFlights.length}}
+    {{#if hasMoreReturns}}
+    <button id="showMoreReturnBtn" class="search-button" onclick="loadMoreReturnFlights()">
+      <span class="button-text">Show More Return Flights</span>
+    </button>
+    {{/if}}
+    {{/if}}
+  </div>
+  {{/if}}
+</div>
+
+
+
+
+<!-- JS for Animations and Filter Panel Behavior -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const tickets = document.querySelectorAll('.ticket-card');
+    const titles = document.querySelectorAll('.tickets-container h2');
+    const panel = document.querySelector('.filter-controls');
+
+    // Title Animation
+    titles.forEach((title, idx) => {
+        title.style.opacity = '0';
+        title.style.transform = 'translateX(-100px)';
+        title.style.transition = 'transform 1.2s ease, opacity 1.2s ease';
+        setTimeout(() => {
+            title.style.opacity = '1';
+            title.style.transform = 'translateX(0)';
+        }, 200 + idx * 200);
+    });
+
+    // Cards Fade-In on Scroll
+    const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach((entry, idx) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => entry.target.classList.add('show'), idx * 150);
+                obs.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    tickets.forEach(card => observer.observe(card));
+
+    // Filter Panel Expand/Collapse for Mobile
+    if (panel) {
+        panel.addEventListener('click', (e) => {
+            if (window.innerWidth <= 900 && e.target === panel) {
+                panel.classList.toggle('active');
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!panel.contains(e.target) && window.innerWidth <= 900) {
+                panel.classList.remove('active');
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 900) {
+                panel.classList.remove('active');
+            }
+        });
+    }
+});
+</script>
+
+<script>
+function loadMoreFlights() {
+    const currentLimit = parseInt(new URLSearchParams(window.location.search).get('limit')) || 5;
+    const newLimit = currentLimit + 5;
+
+    const params = new URLSearchParams(window.location.search);
+    params.set('limit', newLimit);
+
+    window.location.search = params.toString();
+}
+</script>
+
+<script>
+  function loadMoreReturnFlights() {
+    const currentRLimit = parseInt(new URLSearchParams(window.location.search).get('rlimit')) || 5;
+    const newRLimit = currentRLimit + 5;
+
+    const params = new URLSearchParams(window.location.search);
+    params.set('rlimit', newRLimit);
+
+    window.location.search = params.toString();
+}
+</script>
+
+<script>
+  const search = new URLSearchParams(location.search);
+async function fetchDay(dir, date){
+  if (!date) return [];                         // nothing to fetch
+  const qs = new URLSearchParams({
+    fromInput : search.get('fromInput'),
+    toInput   : search.get('toInput'),
+    date, dir                              // <— your endpoint uses these
+  });
+  const r = await fetch('/api/date-grid/day?' + qs);
+  return r.ok ? r.json() : [];
+}
+function addDays(dateStr, n){
+  if (!dateStr) return null;                  // protect against undefined
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return null; // protect against bad format
+  d.setDate(d.getDate() + n);
+  return d.toISOString().split('T')[0];
+}
+  
+function loadDateGrid() {
+  const p = new URLSearchParams(location.search);
+
+  const outStart = p.get('departureDate');              // first day
+  const outEnd   = addDays(outStart, 6);                // +6 → 7 days total
+  const retStart = p.get('departureDate');              // same anchor
+  const retEnd   = addDays(retStart, 6);
+
+  const qs = new URLSearchParams({
+    fromInput : p.get('fromInput'),
+    toInput   : p.get('toInput'),
+    outStart,  outEnd,
+    retStart,  retEnd
+  });
+
+  fetch('/api/date-grid?' + qs)
+    .then(r => r.json())
+    .then(d => drawGrid(d.outboundPrices, d.returnPrices))
+    .catch(e => console.error('grid error', e));
+}
+
+  function toggleDateGrid(){
+  const overlay = document.getElementById('dateGridContainer');
+  if(overlay.style.display==='block'){ overlay.style.display='none'; return; }
+  overlay.style.display='block';
+  loadDateGrid();
+}
+function closeDateGrid(){ document.getElementById('dateGridContainer').style.display='none'; }
+let outB     = [];        //  full outbound-price buffer (as fetched so far)
+let retB     = [];        //  full return   -price buffer (as fetched so far)
+let outStart = '';        //  YYYY-MM-DD of left-most departure  in DOM
+let retStart = '';        //  YYYY-MM-DD of top-most   return    in DOM
+const VISIBLE = 7;        //  grid is always 7×7
+
+const grid = {
+  body  : () => document.querySelector('.date-grid tbody'),
+  head  : () => document.querySelector('.date-grid thead tr'),
+  rows  : () => grid.body().querySelectorAll('tr'),
+  cells : row => row.querySelectorAll('td')
+};
+
+/* ---------- ROW helpers (returns) ------------------- */
+function removeTopRow()  { grid.body().firstElementChild?.remove(); }
+function removeBotRow()  { grid.body().lastElementChild ?.remove(); }
+
+function prependReturnRow(r) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = buildRowHTML(r, outWindow());   // buildRowHTML below
+  grid.body().prepend(tr);
+}
+
+function appendReturnRow(r)  {
+  const tr = document.createElement('tr');
+  tr.innerHTML = buildRowHTML(r, outWindow());
+  grid.body().append(tr);
+}
+
+/* ---------- COL helpers (departures) ---------------- */
+function removeLeftCol() {
+  grid.head().children[1].remove();                        // header
+  grid.rows().forEach(row => row.children[1].remove());    // every body row
+}
+
+function removeRightCol() {
+  const hdr = grid.head();
+  hdr.children[hdr.children.length - 2].remove();          // last data-th
+  grid.rows().forEach(row => row.lastElementChild.remove());
+}
+
+function prependDepartureCol(o) {
+  /* header */
+  const th = document.createElement('th'); th.textContent = o.outDate;
+  grid.head().insertBefore(th, grid.head().children[1]);
+
+  /* body cells */
+  grid.rows().forEach((row, idx) => {
+    const r = retWindow()[idx];
+    row.insertAdjacentHTML('afterbegin', buildCellHTML(r, o));
+  });
+}
+
+function appendDepartureCol(o) {
+  const hdr = grid.head();
+  const th = document.createElement('th'); th.textContent = o.outDate;
+  hdr.insertBefore(th, hdr.lastElementChild);              // before trailing axis lbl
+
+  grid.rows().forEach((row, idx) => {
+    const r = retWindow()[idx];
+    row.insertAdjacentHTML('beforeend', buildCellHTML(r, o));
+  });
+}
+
+function buildCellHTML(r, o){
+  if (!r) return '–';                    // row anchor not in buffer
+  if (new Date(r.retDate) <= new Date(o.outDate)) return '–';
+
+  const total = o.min_out_price + r.min_ret_price;
+  const cls   = total === cheapest ? 'cell-green'
+             : total  > cheapest*1.9 ? 'cell-red'  : '';
+  return `<span class="${cls}">€${total}</span>`;
+}
+
+function buildRowHTML(r, outWin){
+  let html = `<td class="axis-lbl">${r.retDate}</td>`;
+  outWin.forEach(o => html += `<td>${buildCellHTML(r,o)}</td>`);
+  return html;
+}
+
+const outWindow = () => {
+  const i = outB.findIndex(o => o.outDate === outStart);
+  if (i < 0) return [];                  // anchor missing – fail softly
+  return outB.slice(i, i + VISIBLE);
+};
+
+const retWindow = () => {
+  const i = retB.findIndex(r => r.retDate === retStart);
+  if (i < 0) return [];                  // anchor missing – fail softly
+  return retB.slice(i, i + VISIBLE);
+};
+async function shiftReturns(delta) {  // delta = ±7
+    if (delta < 0) {  // ▲ Earlier Returns
+        const newDate = addDays(retStart, -1);
+        const data = await fetchDay('ret', newDate);
+        if (!data.length) return;
+
+        retB.unshift(data[0]);
+        prependReturnRow(data[0]);
+        removeBotRow();  // Keep 7 rows
+        retStart = newDate;  // Update anchor correctly
+
+    } else {  // ▼ Later Returns
+        const lastRetDate = addDays(retStart, VISIBLE - 1);
+        const newDate = addDays(lastRetDate, 1);  // Correct next day
+        const data = await fetchDay('ret', newDate);
+        if (!data.length) return;
+
+        retB.push(data[0]);
+        appendReturnRow(data[0]);
+        removeTopRow();  // Keep 7 rows
+        retStart = addDays(retStart, 1);  // Advance window by 1
+    }
+
+    retAnchor = retStart;
+}
+
+async function shiftDepartures(delta) {
+    if (delta < 0) {  // ◄ Earlier Departures
+        const newDate = addDays(outStart, -1);
+        const data = await fetchDay('out', newDate);
+        if (!data.length) return;
+
+        outB.unshift(data[0]);
+        prependDepartureCol(data[0]);
+        removeRightCol();
+        outStart = newDate;
+
+        // Check if new departure date overlaps earliest return date
+        if (new Date(outStart) < new Date(retStart)) {
+            const prevReturnDate = addDays(retStart, -1);
+            const rData = await fetchDay('ret', prevReturnDate);
+            if (rData.length) {
+                retB.unshift(rData[0]);
+                prependReturnRow(rData[0]);
+                removeBotRow();
+                retStart = prevReturnDate;
+            }
+        }
+    } else {  // ► Later Departures
+        const lastOutDate = addDays(outStart, VISIBLE - 1);
+        const newDate = addDays(lastOutDate, 1);  // This is the correct next day
+        const data = await fetchDay('out', newDate);
+        if (!data.length) return;
+
+        outB.push(data[0]);
+        appendDepartureCol(data[0]);
+        removeLeftCol();
+        outStart = addDays(outStart, 1);
+
+        const lastRetDate = addDays(retStart, VISIBLE - 1);
+        if (new Date(lastOutDate) >= new Date(lastRetDate)) {
+            const nextReturnDate = addDays(lastRetDate, 1);
+            const rData = await fetchDay('ret', nextReturnDate);
+            if (rData.length) {
+                retB.push(rData[0]);
+                appendReturnRow(rData[0]);
+                removeTopRow();
+                retStart = nextReturnDate;
+            }
+        }
+    }
+
+    outAnchor = outStart;
+    retAnchor = retStart;
+}
+
+
+/* ─── core renderer ──────────────────────────────────── */
+function drawGrid(outB, retB){
+  const overlay = document.getElementById('dateGridContainer');
+
+  /* ---------------- cheapest highlighting ---------------- */
+  const totals = [];
+  outB.forEach(o=>{
+    retB.forEach(r=>{
+      if(new Date(r.retDate) > new Date(o.outDate))
+        totals.push(o.min_out_price + r.min_ret_price);
+    });
+  });
+  const cheapest = Math.min(...totals);
+
+  /* ---------------- build table -------------------------- */
+  let html = `<div class="date-grid">
+      <button class="close-btn" onclick="closeDateGrid()" style="color: #FFFFFF;">✖</button>`;
+
+  /* === HEADER === */
+  html += `<table><thead><tr>
+             <th class="axis-lbl">Return&nbsp;↓</th>`;
+  outB.forEach(o => html += `<th>${o.outDate}</th>`);
+  /*html += `<th class="axis-lbl"></th></tr></thead><tbody>`;*/
+  html += `<th class="axis-lbl">Departure&nbsp;</th></tr></thead><tbody>`;
+  /* === BODY ===   (for every RETURN row) */
+  retB.forEach((r, retIdx) => {
+    html += `<tr>`;
+    /* cells for each departure */
+    /*first column empty*/
+    html += `<td class="axis-lbl">${r.retDate}</td>`;
+    outB.forEach((o, outIdx) => {
+      /*const valid = new Date(r.retDate) > new Date(o.outDate);*/
+      const valid = retIdx >= outIdx;
+      let cell="–";
+      if(valid){
+        const total = o.min_out_price + r.min_ret_price;
+        const cls   = total === cheapest     ? 'cell-green' :
+                      total  > cheapest*1.9   ? 'cell-red'  : '';
+        cell = `<span class="${cls}">€${total}</span>`;
+      }
+      html += `<td>${cell}</td>`;
+    });
+    /* right-hand RETURN date label */
+    /*html += `<td class="axis-lbl ret-date">${r.retDate}</td></tr>`; rendundant*/
+  });
+
+  html += `</tbody></table>
+           <div class="grid-footer">
+    <!-- vertical navigation -->
+    <button class="move-up"   onclick="shiftReturns(-7)">▲ Earlier Returns</button>
+    <button class="move-down" onclick="shiftReturns( 7)">▼ Later Returns</button>
+
+    <!-- horizontal navigation -->
+    <button class="move-left"  onclick="shiftDepartures(-7)">◄ Earlier Departures</button>
+    <button class="move-right" onclick="shiftDepartures( 7)">► Later Departures</button>
+</div>
+  </div>`;
+  sessionStorage.setItem('outB', JSON.stringify(outB));
+  outStart  = outB[0]?.outDate;   // left-most departure
+  retStart  = retB[0]?.retDate;   // top-most  return
+  outAnchor = outStart;           // keep both sets in sync
+  retAnchor = retStart;
+  overlay.innerHTML = html;
+  console.log("final html:", html);
+}
+
+</script>
+
+

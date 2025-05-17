@@ -14,6 +14,9 @@ router.get('/tickets', controller.searchTickets);  // Must be EXACTLY this!
 router.get('/api/cities', controller.apiGetCities);
 router.get('/api/flights', controller.apiGetFlights);
 router.get('/api/date-grid', controller.dateGrid);
+router.get('/api/date-grid/day', controller.dateGridDay);
+router.get('/api/date-grid/column', controller.dateGridColumn);
+
 router.get('/top-destinations', controller.showTopDestinations);
 
 
