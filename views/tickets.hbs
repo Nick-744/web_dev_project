@@ -241,24 +241,33 @@ function addDays(dateStr, n) {
 }
 
 function loadDateGrid() {
-  const p = new URLSearchParams(location.search);
+    const p = new URLSearchParams(location.search);
 
-  const outStart = p.get('departureDate');              // first day
-  const outEnd   = addDays(outStart, 6);                // +6 → 7 days total
-  const retStart = p.get('departureDate');              // same anchor
-  const retEnd   = addDays(retStart, 6);
+    const fromInput = p.get('fromInput');
+    const toInput = p.get('toInput');
+    const outStart = p.get('departureDate');
+    const outEnd = addDays(outStart, 6);
+    const retStart = outStart;
+    const retEnd = addDays(retStart, 6);
 
-  const qs = new URLSearchParams({
-    fromInput : p.get('fromInput'),
-    toInput   : p.get('toInput'),
-    outStart,  outEnd,
-    retStart,  retEnd
-  });
+    if (!fromInput || !toInput || !outStart) {
+        alert('Please select valid From, To locations and a Departure Date before viewing the grid.');
+        return;
+    }
 
-  fetch('/api/date-grid?' + qs)
-    .then(r => r.json())
-    .then(d => drawGrid(d.outboundPrices, d.returnPrices))
-    .catch(e => console.error('grid error', e));
+    const qs = new URLSearchParams({
+        fromInput,
+        toInput,
+        outStart,
+        outEnd,
+        retStart,
+        retEnd
+    });
+
+    fetch('/api/date-grid?' + qs.toString())
+        .then(r => r.json())
+        .then(d => drawGrid(d.outboundPrices, d.returnPrices))
+        .catch(e => console.error('grid error', e));
 }
 
 
