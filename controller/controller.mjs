@@ -356,6 +356,7 @@ function removeFavorite(req, res) {
     }
 }
 
+// ----- Date Grid API! -----
 function dateGrid(req, res) {
     try {
         const { fromInput, toInput, outStart, outEnd, retStart, retEnd } = req.query;
@@ -525,6 +526,7 @@ export {
     addFavorite,
     removeFavorite,
 
+    // Date Grid API
     dateGrid,
     dateGridDay,
     dateGridColumn
