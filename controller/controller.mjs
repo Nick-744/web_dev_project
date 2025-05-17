@@ -1,28 +1,47 @@
 // controllers/airTicketsController.mjs
 
-const topDestinations = [
-    {
-        name: "Paris",
-        image: "/images/paris.jpg",
-        description: "The city of lights, love, and culture. 🗼"
-    },
-    {
-        name: "Tokyo",
-        image: "/images/tokyo.jpg",
-        description: "Futuristic vibes and timeless traditions. ⛩️"
-    },
-    {
-        name: "New York",
-        image: "/images/new-york.jpg",
-        description: "The city that never sleeps. 🗽"
-    }
-];
+// DB Connection/access
+import { db } from '../lib/db.js';
 
-function showTopDestinations(req, res) {
+// Wikipedia stealer - Top Destinations Page!
+async function getCityImage(city) {
+    const url = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(city)}&prop=pageimages&format=json&pithumbsize=600&origin=*`;
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const pages = data.query.pages;
+        const page = Object.values(pages)[0];
+        return page?.thumbnail?.source || '/images/default_city.jpg';
+    } catch (err) {
+        console.error(`Error fetching image for ${city}:`, err);
+        return '/images/default_city.jpg';
+    }
+}
+
+async function showTopDestinations(req, res) {
+    const stats = db.prepare(`
+        SELECT a2.city AS name, COUNT(*) AS favorites_count
+        FROM hearts h
+        JOIN ticket t ON h.ticket_code = t.code
+        JOIN flight f ON t.flight_id = f.id
+        JOIN airport a2 ON f.airport_arrive_id = a2.id
+        GROUP BY a2.city
+        ORDER BY favorites_count DESC
+        LIMIT 5
+    `).all();
+
+    // Fetch images for each city dynamically
+    const destinations = await Promise.all(
+        stats.map(async (dest) => ({
+            ...dest,
+            image: await getCityImage(dest.name)
+        }))
+    );
+
     res.render('top_destinations', {
         title: 'Top Destinations - FlyExpress',
-        destinations: topDestinations,
-        styles: `<link rel="stylesheet" href="/css/top_destinations.css">`
+        destinations,
+        statsData: stats
     });
 }
 
@@ -85,8 +104,6 @@ function apiGetPriceCalendar(req, res) {
 }
 
 /* ----------- Search Tickets with Filters ----------- */
-import { db } from '../lib/db.js';
-
 function searchTickets(req, res) {
     const userId = req.session.user;
     let favoriteTickets = [];
