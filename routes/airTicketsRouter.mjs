@@ -26,4 +26,10 @@ router.get('/api/price-calendar', controller.apiGetPriceCalendar);
 router.post('/api/favorites/add', controller.addFavorite);
 router.post('/api/favorites/remove', controller.removeFavorite);
 
+router.get('/api/date-grid', controller.dateGrid);
+router.get('/api/date-grid/day', controller.dateGridDay);
+router.get('/api/date-grid/column', controller.dateGridColumn);
+
+
+
 export default router;

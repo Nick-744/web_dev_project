@@ -356,3 +356,130 @@
 .toast-btn:hover {
     background: #fb923c;
 }
+
+/* ─── Popup shell ────────────────────────────────────────── */
+#dateGridContainer {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+    padding: 20px; /* Add this to ensure grid has room even on small screens */
+}
+
+.date-grid {
+    position: relative;
+    background: #2a2a3d;
+    color: #fff;
+    border-radius: 12px;
+    padding: 24px 32px 90px; /* Space for footer */
+    width:auto;
+    /*max-width:95vw;  Doesn't grow beyond 1200px */
+    /*max-height: 90vh;  At most 90% of viewport height */
+    overflow: auto;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    font: 14px/1.4 "Roboto", sans-serif;
+}
+.departure-label {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #fff;
+    font-weight: bold;
+    margin: 0 auto 10px;
+    width: fit-content;
+}
+button.move-down {
+    color: #FFFFFF;
+}
+button.move-up {
+    color: #FFFFFF;
+}
+button.move-right {
+    color: #FFFFFF;
+}
+button.move-left {
+    color: #FFFFFF;
+}
+
+/* close ( ✖ ) button */
+.date-grid .close-btn{
+    position:absolute; top:12px; right:16px;
+    border:none; background:none; font-size:20px; cursor:pointer;
+    z-index: 10; 
+}
+
+/* Return-dates vertical label */
+.date-grid .ret-label {
+    position: absolute; 
+    top: 50%; 
+    right: 16px; /* Bring it closer */
+    transform: rotate(90deg) translateY(-50%);
+    font-weight: 600; 
+    letter-spacing: .5px;
+    color: #fff; /* If using dark background, keep text visible */
+}
+
+/* table skeleton */
+.date-grid table{ border-collapse:collapse; width:100%; }
+.date-grid th,
+.date-grid td{ min-width:85px; padding:10px 8px; text-align:center; }
+
+/* sticky departure header row */
+.date-grid thead th {
+    background: #2a2a3d;
+    color: #fff;
+    border-bottom: 1px solid #444;
+}
+
+/* zebra for better readability */
+.date-grid tbody tr:nth-child(even) td{ background:#292939; }
+
+/* borders */
+.date-grid td{ border-bottom:1px solid #444; }
+/* --- Right-hand return-date column ------------------- */
+.date-grid td.ret-date{
+    background:#2a2a3d;
+    color:#fff;
+    font-weight:600;
+
+}
+/* price colouring */
+.cell-green { color:#058e3f; font-weight:600; }
+.cell-red   { color:#c61a1a; font-weight:600; }
+.cell-blue  { background:#1976d2; color:#fff !important; }
+
+/* hover highlight */
+.date-grid td:hover{ background:#3a3a4d; cursor:pointer; }
+
+/* footer action row  */
+.grid-footer {
+    position: absolute;
+    background: linear-gradient(to top, #1e1e2f, #2a2a3d);
+    text-align: right;
+    padding: 16px 24px;
+    border-top: 1px solid #444;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+    margin-top: auto; /* Pushes footer to the bottom */
+}
+
+.grid-footer button{
+    border:none; background:none; cursor:pointer; font:inherit;
+}
+.grid-footer .ok   { color:#1976d2; }
+.grid-footer .cancel{ color:#c61a1a; }
+/* departure header & return-axis labels */
+.date-grid .axis-lbl {
+    position: sticky;
+    left: 0;
+    background: #2a2a3d;   /* dark cell bg */
+    color: #fff;
+    font-weight: 600;
+    z-index: 3;            /* above normal <td> */
+  }
+.date-grid thead th:nth-last-child(1){ 
+    background:#2a2a3d; 
+    color:#fff
+}  /* keeps right header neat */
