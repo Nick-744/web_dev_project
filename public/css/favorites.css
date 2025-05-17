@@ -27,8 +27,8 @@
 
 .favorites-title {
     margin-bottom: 30px;
-    color: #f97316;
-    text-shadow: 0 0 8px #f97316;
+    color: #00c6c1;
+    text-shadow: 0 0 8px #00c6c1;
 }
 
 .favorites-grid {
@@ -38,6 +38,7 @@
     gap: 24px;
     padding: 20px;
     transition: all 0.5s ease;
+    margin-bottom: 20px;
 }
 
 .favorite-card {
@@ -68,8 +69,10 @@
 .destination-title {
     font-size: 1.5rem;
     margin: 10px 0;
-    color: #FF6B81;
-    text-shadow: 0 0 6px #FF6B81;
+    color: #00c6c1;
+    text-shadow: #000d0d;
+    /*color: #6b8eff;
+    text-shadow: 0 0 6px #FF6B81;*/
 }
 
 .flight-info {
@@ -81,13 +84,15 @@
 .price-info {
     margin: 12px 0;
     font-size: 1.1rem;
-    color: #90EE90;
+    color: #5decbf; /*#90EE90 */
     font-weight: bold;
 }
 
 .remove-btn {
     padding: 10px 20px;
-    background: #FF4D4F;
+    background:#1fbeb8;
+    /*background: #007d58;
+    background: #FF4D4F;*/
     color: #fff;
     border: none;
     border-radius: 8px;

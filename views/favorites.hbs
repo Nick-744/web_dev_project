@@ -1,9 +1,8 @@
 <link rel="stylesheet" href="/css/favorites.css">
 
 <div class="page-container">
-    <div class="favorites-header">
-        <h2>💖</h2>
-        <h2 class="favorites-title">Your Favourite Flights</h2>
+    <div >
+        <h1 class="favorites-title">Your Favourite Flights</h1>
     </div>
 
     {{#if favorites.length}}
@@ -15,10 +14,10 @@
                     <h3 class="destination-title">To: {{this.destination}}</h3>
                     <p class="flight-info">From: <strong>{{this.origin}}</strong></p>
                     <p class="flight-info">Departure: <strong>{{this.time_departure}}</strong></p>
-                    <p class="price-info">💰 Price: <strong>${{this.price}}</strong></p>
+                    <p class="price-info"> Price: <strong>${{this.price}}</strong></p>
                     <button class="remove-btn" 
                         onclick="removeFavorite('{{this.id}}', '{{this.flight_id}}', '{{this.airline_id}}')">
-                        ❤️ Remove
+                         Remove
                     </button>
                 </div>
             </div>
