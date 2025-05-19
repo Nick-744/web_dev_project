@@ -4,7 +4,52 @@ from datetime import datetime, timedelta
 from random import Random
 import argparse, hashlib, os, sqlite3, string, sys
 from time import perf_counter
-
+SCHEMA_SQL = """
+CREATE TABLE IF NOT EXISTS "USER" (
+    "id" STRING PRIMARY KEY,
+    "password" STRING
+);
+CREATE TABLE IF NOT EXISTS "AIRPORT" (
+    "id" STRING PRIMARY KEY,
+    "city" STRING,
+    "country" STRING
+);
+CREATE TABLE IF NOT EXISTS "AIRLINE" (
+    "id" STRING PRIMARY KEY,
+    "name" STRING,
+    "website_link" STRING
+);
+CREATE TABLE IF NOT EXISTS "FLIGHT" (
+    "id" STRING PRIMARY KEY,
+    "num_of_tickets" STRING,
+    "time_departure" STRING,
+    "time_arrival" STRING,
+    "airport_depart_id" STRING,
+    "airport_arrive_id" STRING,
+    "airline_id" STRING,
+    FOREIGN KEY ("airport_depart_id") REFERENCES "AIRPORT" ("id"),
+    FOREIGN KEY ("airport_arrive_id") REFERENCES "AIRPORT" ("id"),
+    FOREIGN KEY ("airline_id") REFERENCES "AIRLINE" ("id")
+);
+CREATE TABLE IF NOT EXISTS "TICKET" (
+    "code" STRING,
+    "class" STRING,
+    "price" STRING,
+    "availability" STRING,
+    "flight_id" STRING,
+    "airline_id" STRING,
+    PRIMARY KEY ("code", "flight_id", "airline_id"),
+    FOREIGN KEY ("flight_id") REFERENCES "FLIGHT" ("id"),
+    FOREIGN KEY ("airline_id") REFERENCES "AIRLINE" ("id")
+);
+CREATE TABLE IF NOT EXISTS "Hearts" (
+    "ticket_code" STRING,
+    "user_id" STRING,
+    PRIMARY KEY ("ticket_code", "user_id"),
+    FOREIGN KEY ("ticket_code") REFERENCES "TICKET" ("code"),
+    FOREIGN KEY ("user_id") REFERENCES "USER" ("id")
+);
+"""
 RND = Random(42)
 CLASSES = [('economy', 1.0), ('business', 2.5), ('first', 5)]
 CITY_NAMES = ["Athens", "London", "Paris", "Rome", "Berlin", "Madrid",
@@ -27,6 +72,12 @@ ROUTE_FREQUENCY = {
     "medium": 1,    # daily
     "low": 0.3      # every ~3 days
 }
+def create_db_schema():
+    conn = sqlite3.connect(DB_PATH)
+    conn.executescript(SCHEMA_SQL)
+    conn.commit()
+    conn.close()
+    print("✔ Database schema created.")
 
 def iata_code(n, width):
     seen = set()
@@ -153,11 +204,12 @@ def seed(scale: float):
     conn.close()
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(description="Populate AirTickets DB with synthetic data.")
+    ap = argparse.ArgumentParser(description="Create and Populate AirTickets DB with Synthetic Data.")
     ap.add_argument("--scale", type=float, default=1.0, help="× multiplier for base dataset sizes")
     args = ap.parse_args()
 
     if not DB_PATH.exists():
-        sys.exit(f"[ERROR] SQLite file not found at {DB_PATH} – create schema first.")
+        print("• Creating DB and schema …")
+        create_db_schema()
 
     seed(max(args.scale, 0.01))
