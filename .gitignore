@@ -1,6 +1,5 @@
 # Dependency directories
 node_modules/
-flights.db
 
 # Environment variables
 .env
@@ -24,4 +23,3 @@ build/
 
 # Optional: Ignore coverage reports
 coverage/
-env

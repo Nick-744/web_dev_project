@@ -2,9 +2,9 @@
     "engines": {
         "node": "22.x"
     },
-    "name": "books",
-    "version": "1.1.0",
-    "description": "δημιουργήστε φάκελο mybooks αποσυμπιέστε το αρχείο στον φάκελο και στη συνέχεια τρέξτε  > npm install (θα δημιουργήσει τον φάκελο node_modules με τα εξαρτήματα του πρότζεκτ) θα πάρει κάποιο χρόνο για την ολοκλήρωση της εγατάστασης.",
+    "name": "flyexpress",
+    "version": "2.0.0",
+    "description": "Run npm install -> You got the node_modules! Then, run npm run init-db to create the database. After that, run the database_generator.py script to generate the database. Finally, run npm run watch to start the server.",
     "main": "app.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
@@ -22,25 +22,18 @@
     "type": "module",
     "dependencies": {
         "bcrypt": "^6.0.0",
-        "bcryptjs": "^3.0.2",
         "better-sqlite3": "^11.10.0",
         "dotenv": "^16.5.0",
         "express": "^5.1.0",
         "express-handlebars": "^8.0.3",
         "express-session": "^1.18.1",
-        "mongo": "^0.1.0",
-        "mongoose": "^8.14.1",
-        "node-fetch": "^3.3.2",
-        "nodemailer": "^7.0.3",
-        "pg": "^8.15.6",
-        "sequelize": "^6.37.7",
-        "sqlite3": "^5.1.7"
+        "nodemailer": "^7.0.3"
     },
     "nodemonConfig": {
         "ignore": [
             "**/test/**",
             "**/docs/**",
-            "/data/**"
+            "**/data/**"
         ],
         "exec": "node app.js"
     },
