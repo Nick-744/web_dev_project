@@ -24,3 +24,4 @@ build/
 
 # Optional: Ignore coverage reports
 coverage/
+env

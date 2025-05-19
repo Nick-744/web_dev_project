@@ -10,7 +10,7 @@ const __dirname = path.resolve();
 
 // Session Middleware (User Authentication Support)
 app.use(session({
-    secret: 'super_secret_key', // Replace with a strong secret in production!
+    secret: process.env.SESSION_SECRET || 'super_secret_key', // Replace with a strong secret in production!
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 24 * 60 * 60 * 1000 } // 1 Day Session
