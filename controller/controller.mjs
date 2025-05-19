@@ -356,6 +356,154 @@ function removeFavorite(req, res) {
     }
 }
 
+// ----- Date Grid API! -----
+function dateGrid(req, res) {
+    try {
+        const { fromInput, toInput, outStart, outEnd, retStart, retEnd } = req.query;
+
+        if (!fromInput || !toInput || !outStart || !outEnd || !retStart || !retEnd) {
+            return res.status(400).json({ error: 'Missing parameters.' });
+        }
+
+        // SQL 1: Outbound Prices
+        const outboundSQL = `
+            SELECT DATE(f.time_departure) AS outDate, MIN(t.price) AS min_out_price
+            FROM flight f 
+            JOIN airport a1 ON f.airport_depart_id = a1.id
+            JOIN airport a2 ON f.airport_arrive_id = a2.id
+            JOIN ticket t ON f.id = t.flight_id
+            WHERE lower(a1.city) = ? 
+              AND lower(a2.city) = ?
+              AND DATE(f.time_departure) BETWEEN ? AND ?
+            GROUP BY outDate
+            LIMIT 7;
+        `;
+
+        // SQL 2: Return Prices
+        const returnSQL = `
+            SELECT DATE(r.time_departure) AS retDate, MIN(t.price) AS min_ret_price
+            FROM flight r 
+            JOIN airport a2 ON r.airport_depart_id = a2.id
+            JOIN airport a1 ON r.airport_arrive_id = a1.id
+            JOIN ticket t ON r.id = t.flight_id
+            WHERE lower(a2.city) = ? 
+              AND lower(a1.city) = ?
+              AND DATE(r.time_departure) BETWEEN ? AND ?
+            GROUP BY retDate
+            LIMIT 7;
+        `;
+
+        const outboundPrices = db.prepare(outboundSQL).all(fromInput.toLowerCase(), toInput.toLowerCase(), outStart, outEnd);
+        const returnPrices = db.prepare(returnSQL).all(toInput.toLowerCase(), fromInput.toLowerCase(), retStart, retEnd);
+        //console.log('📡 /api/date-grid called with params:', req.query);
+        // console.log('Outbound Prices:', outboundPrices);
+        // console.log('Return Prices:', returnPrices);
+        res.json({ outboundPrices, returnPrices });
+    } catch (err) {
+        console.error('Error in DateGrid:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+function dateGridDay(req, res) {
+    const { dir, date, fromInput, toInput } = req.query;
+    if (!dir || !date) return res.json([]);
+  
+    const sql =
+      dir === 'out'
+        ? `SELECT DATE(f.time_departure) AS outDate,
+                  MIN(t.price)         AS min_out_price
+           FROM flight f
+           JOIN airport a1 ON f.airport_depart_id = a1.id
+           JOIN airport a2 ON f.airport_arrive_id = a2.id
+           JOIN ticket  t  ON f.id = t.flight_id
+           WHERE lower(a1.city)=? AND lower(a2.city)=?
+             AND DATE(f.time_departure)=?
+           GROUP BY outDate
+           LIMIT 1`
+        : `SELECT DATE(r.time_departure) AS retDate,
+                  MIN(t.price)         AS min_ret_price
+           FROM flight r
+           JOIN airport a2 ON r.airport_depart_id = a2.id
+           JOIN airport a1 ON r.airport_arrive_id = a1.id
+           JOIN ticket  t  ON r.id = t.flight_id
+           WHERE lower(a2.city)=? AND lower(a1.city)=?
+             AND DATE(r.time_departure)=?
+           GROUP BY retDate
+           LIMIT 1`;
+  
+    const rows = db.prepare(sql).all(
+        dir === 'out' ? [fromInput.toLowerCase(), toInput.toLowerCase(), date]
+                      : [toInput.toLowerCase(),  fromInput.toLowerCase(), date]
+    );
+    res.json(rows);            // either [] or 1-row array
+  }
+
+function dateGridColumn(req, res) {
+    const { fromInput, toInput, depDate } = req.query;
+
+    if (!fromInput || !toInput || !depDate) {
+        return res.status(400).json({ error: 'Missing parameters.' });
+    }
+
+    // 1. Fetch outbound price for the selected departure date
+    const outboundSQL = `
+        SELECT MIN(t_out.price) AS min_out_price
+        FROM flight f
+        JOIN airport a1 ON f.airport_depart_id = a1.id
+        JOIN airport a2 ON f.airport_arrive_id = a2.id
+        JOIN ticket t_out ON f.id = t_out.flight_id
+        WHERE lower(a1.city) = ?
+          AND lower(a2.city) = ?
+          AND DATE(f.time_departure) = ?
+    `;
+
+    const outboundRow = db.prepare(outboundSQL).get(
+        fromInput.toLowerCase(),
+        toInput.toLowerCase(),
+        depDate
+    );
+
+    const outboundPrice = outboundRow ? outboundRow.min_out_price : 0;
+
+    if (!outboundPrice) {
+        return res.json({
+            outDate: depDate,
+            outboundPrice: 0,
+            prices: []
+        });
+    }
+
+    // 2. Fetch return prices and calculate total prices
+    const returnSQL = `
+        SELECT 
+            DATE(r.time_departure) AS retDate,
+            (? + MIN(t_ret.price)) AS totalPrice
+        FROM flight r
+        JOIN airport a2 ON r.airport_depart_id = a2.id
+        JOIN airport a1 ON r.airport_arrive_id = a1.id
+        JOIN ticket t_ret ON r.id = t_ret.flight_id
+        WHERE lower(a2.city) = ?
+          AND lower(a1.city) = ?
+          AND DATE(r.time_departure) >= DATE(?)
+        GROUP BY retDate
+        ORDER BY retDate ASC;
+    `;
+
+    const rows = db.prepare(returnSQL).all(
+        outboundPrice,                    // 👈 This gets added directly to return prices
+        toInput.toLowerCase(),
+        fromInput.toLowerCase(),
+        depDate
+    );
+
+    res.json({
+        outDate: depDate,
+        outboundPrice,
+        prices: rows // [{ retDate: '...', totalPrice: ... }]
+    });
+}
+
+
 export {
     showHomePage,
     showTopDestinations,
@@ -376,5 +524,10 @@ export {
     
     showFavorites,
     addFavorite,
-    removeFavorite
+    removeFavorite,
+
+    // Date Grid API
+    dateGrid,
+    dateGridDay,
+    dateGridColumn
 };
