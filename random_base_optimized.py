@@ -115,7 +115,8 @@ def insert_data(cur):
 
                     for seat_class, multiplier in CLASSES:
                         base_price = RND.uniform(100, 500)
-                        price = round(base_price * multiplier * seasonal_price_adjustment(dep_time), 2)
+                        price = int(base_price * multiplier * seasonal_price_adjustment(dep_time))  
+
                         code = f"{flight_id}-{seat_class[0].upper()}"
                         availability = choice(["available", "limited", "sold out"])
                         ticket_data.append((code, seat_class, price, availability, flight_id, airline_id))
