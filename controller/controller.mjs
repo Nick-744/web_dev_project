@@ -310,7 +310,7 @@ function showFavorites(req, res) {
         `).all(userId);
 
         res.render('favorites', { 
-            title: 'My ❤️', 
+            title: 'Favourites', 
             favorites 
         });
     } catch (err) {
