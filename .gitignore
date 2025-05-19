@@ -23,3 +23,6 @@ build/
 
 # Optional: Ignore coverage reports
 coverage/
+data/flights.db
+data/flights.db
+data/flights.db
