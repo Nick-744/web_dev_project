@@ -248,6 +248,7 @@ function showRegisterPage(req, res) {
     res.render('register', { title: 'Register - FlyExpress' });
 }
 
+import { sendWelcomeEmail } from '../lib/mailer.js';
 function handleRegister(req, res) {
     const { username, password } = req.body;
     try {
@@ -257,6 +258,8 @@ function handleRegister(req, res) {
         }
         const hashed = bcrypt.hashSync(password, 10);
         db.prepare('INSERT INTO user (id, password) VALUES (?, ?)').run(username, hashed);
+        sendWelcomeEmail(username);
+
         res.redirect('/login');
     } catch (err) {
         console.error(err);
