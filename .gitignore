@@ -23,3 +23,5 @@ build/
 
 # Optional: Ignore coverage reports
 coverage/
+data/flights.db
+planing/ERD.png
