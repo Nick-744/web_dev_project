@@ -25,3 +25,10 @@ Or download ZIP manually and extract it.
 4. **Start the server:**
    ```npm run watch```
 
+## 📧 (Optional) Email Setup
+To enable welcome emails on user registration, create a .env file in the project root with the following:
+```WEBSITE_EMAIL=your_email@gmail.com
+WEBSITE_EMAIL_PASSWORD=your_password
+SESSION_SECRET=your_random_session_key
+```
+
