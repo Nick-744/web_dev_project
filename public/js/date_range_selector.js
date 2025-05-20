@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         el.addEventListener('change', () => {
             currentPrices = outboundPrices;
             clickCounter = 0;
-            initPicker();
+            setTimeout(() => {initPicker()}, 0);
         })
     );
 
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === depInput || e.target === retInput) {
             if (clickCounter > 0) {
                 clickCounter = 0;
-                initPicker(true);
+                setTimeout(() => {initPicker(true)}, 0);
             }
             return;
         }

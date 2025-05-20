@@ -1,8 +1,8 @@
 import airTicketsRouter from './routes/airTicketsRouter.mjs';
 import { engine } from 'express-handlebars';
 import session from 'express-session'; // User session management
+import crypto from 'node:crypto';
 import express from 'express';
-import crypto from 'crypto';
 import path from 'path';
 
 console.log('-> App started fresh!');
