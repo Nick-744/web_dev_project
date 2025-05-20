@@ -14,13 +14,13 @@ A modern flight search platform for airline tickets. Built using Node.js, Expres
 1. **Clone the repository** (or download as ZIP):
    ```bash
    git clone https://github.com/Nick-744/web_dev_project.git
-   cd web_dev_project
+   cd web_dev_project```
 Or download ZIP manually and extract it.
 
 2. **Install dependencies**
-   ```npm install
+   ```npm install```
 3. **(Optional) Generate a new database:**
-   ```python final_base_generation.py
+   ```python final_base_generation.py```
 4. **Start the server:**
-   ```npm run watch
+   ```npm run watch```
 
