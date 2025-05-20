@@ -2,12 +2,7 @@ import subprocess
 from pathlib import Path
 
 THIS_DIR = Path(__file__).resolve().parent
-print("📂 Current directory:", THIS_DIR)
-db_file = THIS_DIR / 'data' / 'flights.db'
-if db_file.exists():
-    print('🗑  Removing old flights.db …')
-    db_file.unlink()
-db_generator = THIS_DIR / "database_generator_FIXED.py"
+db_generator = THIS_DIR / "database_generator.py"
 random_base = THIS_DIR / "random_base_optimized.py"
 
 # Step 1: Run Database Generator (create schema + seed)

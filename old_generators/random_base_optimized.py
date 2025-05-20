@@ -54,36 +54,26 @@ def create_schema(cur):
     CREATE TABLE IF NOT EXISTS "AIRPORT" ("id" STRING PRIMARY KEY, "city" STRING, "country" STRING);
     CREATE TABLE IF NOT EXISTS "AIRLINE" ("id" STRING PRIMARY KEY, "name" STRING, "website_link" STRING);
     CREATE TABLE IF NOT EXISTS "FLIGHT" (
-        "id" STRING PRIMARY KEY, "num_tickets" INTEGER NOT NULL CHECK (num_tickets >= 0),
-        "time_departure" STRING, "time_arrival" STRING,
+        "id" STRING PRIMARY KEY, "num_of_tickets" STRING, "time_departure" STRING, "time_arrival" STRING,
         "airport_depart_id" STRING, "airport_arrive_id" STRING, "airline_id" STRING,
         FOREIGN KEY ("airport_depart_id") REFERENCES "AIRPORT" ("id"),
         FOREIGN KEY ("airport_arrive_id") REFERENCES "AIRPORT" ("id"),
         FOREIGN KEY ("airline_id") REFERENCES "AIRLINE" ("id")
     );
     CREATE TABLE IF NOT EXISTS "TICKET" (
-        "code" TEXT,
-        "flight_id" TEXT NOT NULL,
-        "airline_id" TEXT NOT NULL,
-        "class" TEXT NOT NULL,
-        "price" INTEGER NOT NULL CHECK (price >= 0),
-        "availability" INTEGER NOT NULL CHECK (availability >= 0),
+        "code" STRING, "class" STRING, "price" STRING, "availability" STRING,
+        "flight_id" STRING, "airline_id" STRING,
         PRIMARY KEY ("code", "flight_id", "airline_id"),
         FOREIGN KEY ("flight_id") REFERENCES "FLIGHT" ("id"),
         FOREIGN KEY ("airline_id") REFERENCES "AIRLINE" ("id")
     );
-
     CREATE TABLE IF NOT EXISTS "USER" ("id" STRING PRIMARY KEY, "password" STRING);
     CREATE TABLE IF NOT EXISTS "Hearts" (
-        "ticket_code" TEXT NOT NULL,
-        "flight_id" TEXT NOT NULL,
-        "airline_id" TEXT NOT NULL,
-        "user_id" TEXT NOT NULL,
-        PRIMARY KEY ("ticket_code", "flight_id", "airline_id", "user_id"),
-        FOREIGN KEY ("ticket_code", "flight_id", "airline_id") REFERENCES "TICKET" ("code", "flight_id", "airline_id"),
+        "ticket_code" STRING, "user_id" STRING,
+        PRIMARY KEY ("ticket_code", "user_id"),
+        FOREIGN KEY ("ticket_code") REFERENCES "TICKET" ("code"),
         FOREIGN KEY ("user_id") REFERENCES "USER" ("id")
     );
-
     """)
 
 def get_db_connection():
@@ -128,16 +118,13 @@ def insert_data(cur):
                         price = int(base_price * multiplier * seasonal_price_adjustment(dep_time))  
 
                         code = f"{flight_id}-{seat_class[0].upper()}"
-                        availability = RND.randint(10, 200)
-                        ticket_data.append((code, flight_id, airline_id, seat_class, price, availability))
-
+                        availability = choice(["available", "limited", "sold out"])
+                        ticket_data.append((code, seat_class, price, availability, flight_id, airline_id))
         current_date += timedelta(days=1)
 
     # Insert Flights and Tickets in Bulk
     cur.executemany('INSERT INTO FLIGHT VALUES (?, ?, ?, ?, ?, ?, ?)', flight_data)
-    cur.executemany(
-        'INSERT INTO TICKET (code, flight_id, airline_id, class, price, availability) VALUES (?, ?, ?, ?, ?, ?)',
-        ticket_data)
+    cur.executemany('INSERT INTO TICKET VALUES (?, ?, ?, ?, ?, ?)', ticket_data)
 
     # === Insert Users ===
     user_data = []
@@ -147,19 +134,21 @@ def insert_data(cur):
         user_data.append((user_id, password_hash))
     cur.executemany('INSERT INTO USER (id, password) VALUES (?, ?)', user_data)
 
-    # === Insert Hearts (Matching full composite key) ===
-    ticket_rows = cur.execute('SELECT code, flight_id, airline_id FROM TICKET').fetchall()
+    # === Insert Hearts (Efficient, O(N)) ===
+    all_ticket_codes = [row[0] for row in cur.execute('SELECT code FROM TICKET').fetchall()]
     user_ids = [f"user{i:03}" for i in range(1, 101)]
 
-    total_hearts = 500
-    selected_tickets = RND.choices(ticket_rows, k=total_hearts)
+    # Total hearts you want to create (tune this as needed for realism)
+    total_hearts = 500  
 
-    hearts_data = [(code, fid, aid, choice(user_ids)) for (code, fid, aid) in selected_tickets]
+    # Randomly select tickets (allow repeats if you want multiple users liking the same ticket)
+    selected_ticket_codes = RND.choices(all_ticket_codes, k=total_hearts)
 
-    cur.executemany(
-        'INSERT OR IGNORE INTO Hearts (ticket_code, flight_id, airline_id, user_id) VALUES (?, ?, ?, ?)',
-        hearts_data
-    )
+    # Create heart entries efficiently
+    hearts_data = [(ticket_code, choice(user_ids)) for ticket_code in selected_ticket_codes]
+
+    # Bulk insert
+    cur.executemany('INSERT OR IGNORE INTO Hearts (ticket_code, user_id) VALUES (?, ?)', hearts_data)
 
 
 def main():
