@@ -25,3 +25,4 @@ build/
 coverage/
 data/flights.db
 planing/ERD.png
+data/sessions.db

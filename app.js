@@ -1,5 +1,6 @@
 import airTicketsRouter from './routes/airTicketsRouter.mjs';
 import { engine } from 'express-handlebars';
+import SQLiteStore from 'connect-sqlite3';
 import session from 'express-session'; // User session management
 import crypto from 'node:crypto';
 import express from 'express';
@@ -11,15 +12,21 @@ const app = express();
 const __dirname = path.resolve();
 
 // Session Middleware (User Authentication Support)
+// Production-safe session storage using SQLite
 app.use(session({
-    secret: process.env.SESSION_SECRET || crypto.randomBytes(64).toString('hex'), // Strong dynamic fallback
+    store: new (SQLiteStore(session))({
+        db: 'sessions.db',
+        dir: './data',
+        concurrentDB: true,
+    }),
+    secret: process.env.SESSION_SECRET || crypto.randomBytes(64).toString('hex'),
     resave: false,
     saveUninitialized: false,
     cookie: {
         maxAge: 24 * 60 * 60 * 1000, // 1 Day
-        httpOnly: true,              // Prevent access via JavaScript (XSS protection)
-        secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
-        sameSite: 'lax'               // CSRF protection without breaking most flows ('strict' for full lockdown)
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
     }
 }));
 

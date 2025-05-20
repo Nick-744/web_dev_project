@@ -1,68 +1,82 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const fromSel    = document.getElementById('fromInput');
-    const toSel      = document.getElementById('toInput');
-    const tripSel    = document.getElementById('tripType');
-    const depInput   = document.getElementById('departureDate');
-    const retInput   = document.getElementById('returnDate');
-    const retWrapper = document.getElementById('returnDateContainer');
+    const fromSel        = document.getElementById('fromInput');
+    const toSel          = document.getElementById('toInput');
+    const tripSel        = document.getElementById('tripType');
+    const depInput       = document.getElementById('departureDate');
+    const retInput       = document.getElementById('returnDate');
+    const retWrapper     = document.getElementById('returnDateContainer');
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Helpers
+    const today = (() => {
+        const d = new Date();
+        d.setHours(0, 0, 0, 0);
+        return d;
+    })();
 
-    let picker = null;
-    let outboundPrices = {};
-    let inboundPrices  = {};
-    let currentPrices  = {};
-    let clickCounter   = 0;
+    // Build REST endpoint URL
+    const pricesAPI = (from, to) =>
+        `/api/price-calendar?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
 
-    function pricesAPI(from, to) {
-        return `/api/price-calendar?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
-    }
-
+    // Fetch prices and convert to { 'YYYY-MM-DD': price } map
     async function fetchPrices(from, to) {
         if (!from || !to) return {};
         try {
-            const res = await fetch(pricesAPI(from, to));
-            const data = await res.json();
-            const map = {};
-            data.forEach(({ date, price }) => (map[date] = price));
-            return map;
+            const res  = await fetch(pricesAPI(from, to));
+            const json = await res.json();
+            return Object.fromEntries(json.map(({ date, price }) => [date, price]));
         } catch (err) {
             console.error('Price fetch failed:', err);
             return {};
         }
     }
 
-    async function initPicker(show = false) {
+    // Picker state
+    let picker          = null; // Easepick instance
+    let outboundPrices  = {};   // {date: price}
+    let inboundPrices   = {};
+    let currentPrices   = {};
+    let clickCounter    = 0;    // Track clicks inside round-trip workflow
+
+    // Initialise / re-initialise picker
+    async function initPicker(openImmediately = false) {
+        // destroy old instance (idempotent)
         if (picker) picker.destroy();
 
-        const from = fromSel.value;
-        const to = toSel.value;
-        const tripType = tripSel.value;
+        /* Always keep return field visibility in sync with trip type
+           – this single line eliminates the “show → hide → show” flicker */
+        const isRoundtrip = tripSel.value === 'roundtrip';
+        retWrapper.classList.toggle('show', isRoundtrip);
 
+        // guard: need FROM / TO / tripType
+        const from      = fromSel.value;
+        const to        = toSel.value;
+        const tripType  = tripSel.value;
         if (!from || !to || !tripType) return;
 
-        outboundPrices = await fetchPrices(from, to);
-        inboundPrices = await fetchPrices(to, from);
-        currentPrices = outboundPrices;
-        clickCounter = 0;
-
-        const isRoundtrip = tripType === 'roundtrip';
+        // (re)load prices
+        outboundPrices  = await fetchPrices(from, to);
+        inboundPrices   = await fetchPrices(to, from);
+        currentPrices   = outboundPrices;
+        clickCounter    = 0;
 
         picker = new easepick.create({
-            element: depInput,
-            css: ['https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.css'],
-            zIndex: 10000,
-            calendars: 1,
-            readonly: true,
-            plugins: isRoundtrip ? ['LockPlugin', 'RangePlugin'] : ['LockPlugin'],
-            LockPlugin: { minDate: today },
-            RangePlugin: { elementEnd: retInput },
+            element     : depInput, // anchor input
+            css         : ['https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.css'],
+            calendars   : 1,
+            readonly    : true,
+            zIndex      : 10_000,
+            plugins     : isRoundtrip ? ['LockPlugin', 'RangePlugin']
+                                      : ['LockPlugin'],
+            LockPlugin  : { minDate: today },
+            RangePlugin : { elementEnd: retInput },
+
+            // Custom life-cycle hooks
             setup(pkr) {
+                // Render price tags on each calendar day
                 pkr.on('view', ({ detail: { view, date, target } }) => {
                     if (view !== 'CalendarDay') return;
-                    const d = date.format('YYYY-MM-DD');
-                    const price = currentPrices[d];
+                    const ymd   = date.format('YYYY-MM-DD');
+                    const price = currentPrices[ymd];
                     if (!price) return;
 
                     let tag = target.querySelector('.price-tag');
@@ -75,82 +89,78 @@ document.addEventListener('DOMContentLoaded', () => {
                     tag.textContent = `€${price}`;
                 });
 
-                if (isRoundtrip) {
-                    pkr.on('click', (e) => {
-                        const target = e.detail?.target || e.target;
-                        if (!target) return;
+                // ONE-WAY → simple select
+                if (!isRoundtrip) {
+                    pkr.on('select', ({ detail: { date } }) => {
+                        depInput.value = date.format('YYYY-MM-DD');
+                    });
+                    return; // done
+                }
 
-                        const classList = target.classList;
+                // ROUND-TRIP click logic
+                pkr.on('click', (ev) => {
+                    // filter out nav arrows / price-tags
+                    const target = ev.detail?.target || ev.target;
+                    const cls    = target?.classList;
+                    if (!cls || cls.contains('next-button') || cls.contains('price')) return;
 
-                        // Ignore clicks on navigation or price tags
-                        if (classList.contains('next-button') || classList.contains('price')) {
+                    if (cls.contains('day') || cls.contains('price-tag')) {
+                        clickCounter++;
+
+                        // first click = switch to inbound prices
+                        if (clickCounter === 1) {
+                            currentPrices = inboundPrices;
                             return;
                         }
 
-                        // Process only clicks on valid day cells
-                        if (classList.contains('day') || classList.contains('price-tag')) {
-                            clickCounter++;
+                        // second click = finalise range
+                        if (clickCounter === 2) {
+                            clickCounter  = 0;
+                            setTimeout(() => {
+                                const start = pkr.getStartDate();
+                                const end   = pkr.getEndDate();
 
-                            if (clickCounter === 1) {
-                                currentPrices = inboundPrices;
-                            } 
-                            else if (clickCounter === 2) {
-                                clickCounter = 0;
-                                setTimeout(() => {
-                                    const startDate = pkr.getStartDate();
-                                    const endDate = pkr.getEndDate();
+                                if (start && end) {
+                                    depInput.value = start.format('YYYY-MM-DD');
+                                    retInput.value = end.format('YYYY-MM-DD');
+                                } else {
+                                    // defensive reset (rare)
+                                    depInput.value = '';
+                                    retInput.value = '';
+                                    console.warn('Range selection incomplete – reset.');
+                                }
 
-                                    if (startDate && endDate) {
-                                        depInput.value = startDate.format('YYYY-MM-DD');
-                                        retInput.value = endDate.format('YYYY-MM-DD');
-                                    } else {
-                                        depInput.value = '';
-                                        retInput.value = '';
-                                        console.warn('Still null, forcing reset.');
-                                    }
-
-                                    currentPrices = outboundPrices;
-                                    pkr.hide();
-                                }, 0);
-                            }
+                                currentPrices = outboundPrices; // restore
+                                pkr.hide();
+                            }, 0);
                         }
-                    });
-                } else {
-                    pkr.on('select', ({ detail: { date } }) => {
-                        depInput.value = date.format('YYYY-MM-DD');
-                        console.log(`- departureDate SET to: ${depInput.value}`);
-                    });
-                }
+                    }
+                });
             }
         });
 
-        if (isRoundtrip) {
-            retWrapper.classList.add('show');
-        } else {
-            retWrapper.classList.remove('show');
-            retInput.value = '';
-        }
-
-        if (show) {
-            setTimeout(() => picker.show(), 0);
-        }
+        // --- optionally open immediately
+        if (openImmediately) setTimeout(() => picker.show(), 0);
     }
 
+    // React to user parameter changes
     [fromSel, toSel, tripSel].forEach(el =>
-        el.addEventListener('change', () => {
-            currentPrices = outboundPrices;
-            clickCounter = 0;
-            setTimeout(() => {initPicker()}, 0);
-        })
+        el.addEventListener('change', () => initPicker(/* open= */ false))
     );
 
+    // Show picker when user clicks on either input
     document.addEventListener('click', (e) => {
         if (e.target === depInput || e.target === retInput) {
+            /* if user re-opens while mid-range selection, reset logic */
             if (clickCounter > 0) {
-                clickCounter = 0;
-                setTimeout(() => {initPicker(true)}, 0);
+                clickCounter  = 0;
+                initPicker(/* open= */ true);
+                return;
             }
-            return;
+            /* picker.show() will be called automatically */
         }
     });
+
+    // Initialise for the first time (but keep closed)
+    initPicker(false);
 });
