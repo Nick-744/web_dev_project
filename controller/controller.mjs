@@ -7,6 +7,7 @@ const model = await import(`../model/model-betterSqlite3.mjs`);
 // Wikipedia stealer - Top Destinations Page!
 async function getCityImage(city) {
     const url = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(city)}&prop=pageimages&format=json&pithumbsize=600&origin=*`;
+    throw new Error('Error fetching city image');
     try {
         const res = await fetch(url);
         const data = await res.json();

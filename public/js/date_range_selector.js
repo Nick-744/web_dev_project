@@ -79,24 +79,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     pkr.on('click', (e) => {
                         const target = e.detail?.target || e.target;
                         if (!target) return;
-                        console.log('Clicked target:', target);
 
                         const classList = target.classList;
 
                         // Ignore clicks on navigation or price tags
                         if (classList.contains('next-button') || classList.contains('price')) {
-                            console.log('Navigation or price tag clicked. Ignoring...');
                             return;
                         }
 
                         // Process only clicks on valid day cells
                         if (classList.contains('day') || classList.contains('price-tag')) {
                             clickCounter++;
-                            console.log('Day cell clicked. Click counter:', clickCounter);
 
                             if (clickCounter === 1) {
                                 currentPrices = inboundPrices;
-                                console.log('→ Switched to return prices (hover preview)');
                             } 
                             else if (clickCounter === 2) {
                                 clickCounter = 0;
@@ -117,8 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                     pkr.hide();
                                 }, 0);
                             }
-                        } else {
-                            console.log('Clicked non-day element. Ignoring...');
                         }
                     });
                 } else {
@@ -151,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     document.addEventListener('click', (e) => {
-        console.log('Click event:', e.target);
         if (e.target === depInput || e.target === retInput) {
             if (clickCounter > 0) {
                 clickCounter = 0;
