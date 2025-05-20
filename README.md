@@ -19,3 +19,8 @@ Or download ZIP manually and extract it.
 
 2. **Install dependencies**
    ```npm install
+3. **(Optional) Generate a new database:**
+   ```python final_base_generation.py
+4. **Start the server:**
+   ```npm run watch
+
