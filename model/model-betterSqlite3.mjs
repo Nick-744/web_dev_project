@@ -161,12 +161,9 @@ function getDateGridColumn({ fromInput, toInput, depDate }) {
     );
 
     const outboundPrice = outboundRow ? outboundRow.min_out_price : 0;
+    // If no outbound flight -> return empty result
     if (!outboundPrice) {
-        return res.json({
-            outDate: depDate,
-            outboundPrice: 0,
-            prices: []
-        });
+        return { outboundPrice: 0, prices: [] };
     }
 
     /* --------------------------------------------------------
@@ -187,12 +184,14 @@ function getDateGridColumn({ fromInput, toInput, depDate }) {
         ORDER BY retDate ASC;
     `;
 
-    return db.prepare(returnSQL).all(
+    const prices = db.prepare(returnSQL).all(
         outboundPrice,
         toInput.toLowerCase(),
         fromInput.toLowerCase(),
         depDate
     );
+
+    return { outboundPrice, prices };
 }
 
 function searchTickets(req) {

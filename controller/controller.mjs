@@ -215,8 +215,6 @@ async function dateGridDay(req, res) {
 async function dateGridColumn(req, res) {
     try {
         const { depDate } = req.query;
-
-        // model now returns an OBJECT, not an array
         const { outboundPrice, prices } = await model.getDateGridColumn(req.query);
         
         res.json({
