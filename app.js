@@ -1,8 +1,10 @@
-import express from 'express';
-import path from 'path';
-import session from 'express-session'; // User session management
-import { engine } from 'express-handlebars';
 import airTicketsRouter from './routes/airTicketsRouter.mjs';
+import { engine } from 'express-handlebars';
+import session from 'express-session'; // User session management
+import express from 'express';
+import crypto from 'crypto';
+import path from 'path';
+
 console.log('-> App started fresh!');
 
 const app = express();
@@ -10,10 +12,15 @@ const __dirname = path.resolve();
 
 // Session Middleware (User Authentication Support)
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'super_secret_key', // Replace with a strong secret in production!
+    secret: process.env.SESSION_SECRET || crypto.randomBytes(64).toString('hex'), // Strong dynamic fallback
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 } // 1 Day Session
+    cookie: {
+        maxAge: 24 * 60 * 60 * 1000, // 1 Day
+        httpOnly: true,              // Prevent access via JavaScript (XSS protection)
+        secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
+        sameSite: 'lax'               // CSRF protection without breaking most flows ('strict' for full lockdown)
+    }
 }));
 
 // Prevent Caching
@@ -48,7 +55,12 @@ app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Register Router
-//app.use(airTicketsRouter);
 app.use('/', airTicketsRouter);
+
+// Error Handling
+app.use((err, req, res, next) => {
+   console.error(err.stack);
+   res.status(500).render('error', { error: err, layout: false });
+});
 
 app.listen(3000, () => console.log('Server running on http://localhost:3000'));
