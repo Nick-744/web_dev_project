@@ -5,7 +5,7 @@ const router = express.Router();
 
 // Page Routes
 router.get('/', controller.showHomePage);
-//router.get('/tickets', controller.showTicketsPage);
+
 router.get('/top-destinations', controller.showTopDestinations);
 router.get('/about', controller.showAboutPage);
 router.get('/tickets', controller.searchTickets); // Must be EXACTLY this!
@@ -29,7 +29,5 @@ router.post('/api/favorites/remove', controller.removeFavorite);
 router.get('/api/date-grid', controller.dateGrid);
 router.get('/api/date-grid/day', controller.dateGridDay);
 router.get('/api/date-grid/column', controller.dateGridColumn);
-
-
 
 export default router;

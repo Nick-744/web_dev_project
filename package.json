@@ -1,6 +1,6 @@
 {
     "engines": {
-        "node": "22.x"
+        "node": ">=22.x"
     },
     "name": "flyexpress",
     "version": "2.0.0",

@@ -1,0 +1,110 @@
+.page-container {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    z-index: 1;
+}
+
+.auth-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    padding: 40px 50px;
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    animation: slideFadeIn 0.8s ease-out forwards;
+    box-sizing: border-box;
+}
+
+.auth-error {
+    color: #ff4d4f;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.auth-form input {
+    width: 90%;
+    padding: 14px 18px;
+    margin: 12px 0;
+    border-radius: 12px;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 1rem;
+    backdrop-filter: blur(10px);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-form input::placeholder {
+    color: #ddd;
+}
+
+.auth-button:active {
+    transform: scale(0.97);
+}
+
+.auth-footer {
+    margin-top: 30px;
+    color: #ccc;
+    font-size: 1rem;
+}
+
+@keyframes slideFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 480px) {
+    html, body {
+        overflow: hidden;
+    }
+}
+
+/* For the colorful bg animation in pages! */
+.auth-background {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #0b0c1a;
+    z-index: -2;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    overflow: hidden;
+}
+
+.auth-background.visible {
+    opacity: 1;
+}
+
+.auth-background::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, #0ea5e9, #f97316, #fb923c, #0ea5e9);
+    animation: rotateGradient 30s linear infinite;
+    filter: blur(200px);
+    opacity: 0.6;
+}
+
+@keyframes rotateGradient {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

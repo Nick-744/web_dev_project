@@ -1,0 +1,27 @@
+# Dependency directories
+node_modules/
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+build/
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# Optional: Ignore coverage reports
+coverage/
+data/flights.db
+planing/ERD.png
