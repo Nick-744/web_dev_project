@@ -3,7 +3,12 @@ from pathlib import Path
 
 THIS_DIR = Path(__file__).resolve().parent
 print("📂 Current directory:", THIS_DIR)
-db_file = THIS_DIR / 'data' / 'flights.db'
+
+data_dir = THIS_DIR / "data"
+data_dir.mkdir(parents=True, exist_ok=True)
+
+db_file = data_dir / "flights.db"
+
 if db_file.exists():
     print('🗑  Removing old flights.db …')
     db_file.unlink()
