@@ -187,14 +187,12 @@ function getDateGridColumn({ fromInput, toInput, depDate }) {
         ORDER BY retDate ASC;
     `;
 
-    const prices = db.prepare(returnSQL).all(
+    return db.prepare(returnSQL).all(
         outboundPrice,
         toInput.toLowerCase(),
         fromInput.toLowerCase(),
         depDate
     );
-
-    return { outboundPrice, prices };
 }
 
 function searchTickets(req) {

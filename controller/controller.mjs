@@ -193,8 +193,9 @@ async function removeFavorite(req, res) {
 // ----- Date Grid API! -----
 async function dateGrid(req, res) {
     try {
-        const {outboundPrices, returnPrices} = await model.getDateGrid(req.query);
-        res.json({ outboundPrices, returnPrices });
+        // Out bound prices & Return prices
+        const result = await model.getDateGrid(req.query);
+        res.json(result);
     } catch (err) {
         console.error('Error in DateGrid:', err);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -215,12 +216,13 @@ async function dateGridColumn(req, res) {
     try {
         const { depDate } = req.query;
 
-        const { outboundPrice, rows } = await model.getDateGridColumn(req.query);
-
+        // model now returns an OBJECT, not an array
+        const { outboundPrice, prices } = await model.getDateGridColumn(req.query);
+        
         res.json({
             outDate: depDate,
             outboundPrice,
-            prices: rows // [{ retDate: '...', totalPrice: ... }]
+            prices // [{ retDate: '...', totalPrice: ... }]
         });
     } catch (err) {
         console.error(err);
