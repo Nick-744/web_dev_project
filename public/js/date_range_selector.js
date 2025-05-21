@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         preloadedMonths.add(key);
                         await fetchMonthPrices(dirFrom, dirTo, y, m, store);
                         // trigger full redraw of calendar view
-                        pkr.setStartDate(preservedStartDate, true);
+                        picker.setStartDate(preservedStartDate, true);
 
                         // Also manually set the plugin state:
                         const range = pkr.plugin?.RangePlugin;
