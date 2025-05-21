@@ -43,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let outboundPrices  = {};   // {date: price}
     let inboundPrices   = {};
     let currentPrices   = {};
-    monthCache.clear(); // Reset cache on each init
     let clickCounter    = 0;    // Track clicks inside round-trip workflow
     let preservedStartDate = null;
 
@@ -75,13 +74,73 @@ document.addEventListener('DOMContentLoaded', () => {
         // Load outbound prices into outboundPrices
         await fetchMonthPrices(from, to, year, month, outboundPrices);
 
+        // One-way trip gets its own simpler picker
+        if (!isRoundtrip) {
+            picker = new easepick.create({
+                element    : depInput,
+                css        : ['/easepick/index.css'],
+                calendars  : 1,
+                readonly   : true,
+                zIndex     : 10_000,
+                plugins    : ['LockPlugin'],
+                LockPlugin : { minDate: today },
+
+                setup(pkr) {
+                    const preloadedMonths = new Set();
+
+                    pkr.on('view', async ({ detail: { view, date, target } }) => {
+                        if (view !== 'CalendarDay') return;
+
+                        const y = date.getFullYear();
+                        const m = date.getMonth() + 1;
+                        const d = date.getDate();
+                        const ymd = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+                        const dirFrom = fromSel.value;
+                        const dirTo   = toSel.value;
+                        const store   = outboundPrices;
+                        const key     = `${dirFrom}->${dirTo}:${y}-${String(m).padStart(2, '0')}`;
+
+                        if (!monthCache.has(key) && !preloadedMonths.has(key)) {
+                            preloadedMonths.add(key);
+                            await fetchMonthPrices(dirFrom, dirTo, y, m, store);
+                            pkr.hide(); pkr.show();
+                        }
+
+                        const price = store[ymd];
+                        if (typeof price !== 'number' || isNaN(price)) return;
+                        if (target.querySelector('.custom-tag')) return;
+
+                        const tag = document.createElement('span');
+                        tag.className = 'price-tag custom-tag';
+                        tag.textContent = `$${price}`;
+                        tag.style.cssText = `
+                            display: block;
+                            font-size: 0.75rem;
+                        `;
+                        target.append(tag);
+                    });
+
+                    pkr.on('select', ({ detail: { date } }) => {
+                        if (date) {
+                            depInput.value = date.format('YYYY-MM-DD');
+                            pkr.hide();
+                        }
+                    });
+                }
+            });
+
+            if (openImmediately) setTimeout(() => picker.show(), 0);
+            return;
+        }
+
         // Load inbound prices into inboundPrices
         await fetchMonthPrices(to, from, year, month, inboundPrices);
 
         // Use outbound prices by default
         currentPrices = outboundPrices;
 
-        clickCounter    = 0;
+        clickCounter = 0;
 
         picker = new easepick.create({
             element     : depInput, // anchor input
@@ -89,8 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
             calendars   : 1,
             readonly    : true,
             zIndex      : 10_000,
-            plugins     : isRoundtrip ? ['LockPlugin', 'RangePlugin']
-                                      : ['LockPlugin'],
+            plugins     : ['LockPlugin', 'RangePlugin'],
             LockPlugin  : { minDate: today },
             RangePlugin : { elementEnd: retInput },
 
@@ -119,7 +177,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         preloadedMonths.add(key);
                         await fetchMonthPrices(dirFrom, dirTo, y, m, store);
                         // trigger full redraw of calendar view
-                        picker.setStartDate(preservedStartDate, true);
+                        if (picker && typeof picker.setStartDate === 'function') {
+                            picker.setStartDate(preservedStartDate, true);
+                        } else {
+                            console.warn('setStartDate() not available – plugin likely missing or misloaded');
+                        }
 
                         // Also manually set the plugin state:
                         const range = pkr.plugin?.RangePlugin;
@@ -127,8 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (range && preservedStartDate) {
                             range.state = 1; // 0 = idle, 1 = waiting for end date
                         }
-
-                        return; // skip this cell until rerender
                     }
 
                     const price = store[ymd];
@@ -137,21 +197,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const tag = document.createElement('span');
                     tag.className = 'price-tag custom-tag';
-                    tag.textContent = `€${price}`;
+                    tag.textContent = `$${price}`;
                     tag.style.cssText = `
                         display: block;
                         font-size: 0.75rem;
                     `;
                     target.append(tag);
                 });
-
-                // ONE-WAY → simple select
-                if (!isRoundtrip) {
-                    pkr.on('select', ({ detail: { date } }) => {
-                        depInput.value = date.format('YYYY-MM-DD');
-                    });
-                    return; // done
-                }
 
                 // ROUND-TRIP click logic
                 pkr.on('click', (ev) => {
@@ -172,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         // second click = finalise range
                         if (clickCounter === 2) {
-                            clickCounter  = 0;
+                            clickCounter = 0;
                             setTimeout(() => {
                                 const start = pkr.getStartDate();
                                 const end   = pkr.getEndDate();
@@ -195,12 +247,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         });
-
-        if (preservedStartDate) {
-            picker.setStartDate(preservedStartDate, true);
-            const range = picker.plugin?.RangePlugin;
-            if (range) range.state = 1;
-        }
 
         // --- optionally open immediately
         if (openImmediately) setTimeout(() => picker.show(), 0);
