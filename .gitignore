@@ -26,3 +26,4 @@ coverage/
 data/flights.db
 planing/ERD.png
 data/sessions.db
+package-lock.json
