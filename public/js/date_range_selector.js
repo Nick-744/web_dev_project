@@ -13,20 +13,27 @@ document.addEventListener('DOMContentLoaded', () => {
         return d;
     })();
 
-    // Build REST endpoint URL
-    const pricesAPI = (from, to) =>
-        `/api/price-calendar?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+    // Keep track of loaded months and their price maps
+    const monthCache = new Map();
 
-    // Fetch prices and convert to { 'YYYY-MM-DD': price } map
-    async function fetchPrices(from, to) {
-        if (!from || !to) return {};
+    // Fetch only visible month
+    async function fetchMonthPrices(from, to, year, month, targetStore = null) {
+        const key = `${from}->${to}:${year}-${String(month).padStart(2, '0')}`;
+        if (monthCache.has(key)) {
+            if (targetStore) Object.assign(targetStore, monthCache.get(key));
+            return;
+        }
+
         try {
-            const res  = await fetch(pricesAPI(from, to));
+            const res = await fetch(`/api/price-calendar?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&year=${year}&month=${month}`);
             const json = await res.json();
-            return Object.fromEntries(json.map(({ date, price }) => [date, price]));
+
+            const entries = Object.fromEntries(json.map(({ date, price }) => [date, price]));
+
+            if (targetStore) Object.assign(targetStore, entries); // Write into outbound/inbound
+            monthCache.set(key, entries); // Cache for later
         } catch (err) {
-            console.error('Price fetch failed:', err);
-            return {};
+            console.error('Month price fetch failed:', err);
         }
     }
 
@@ -35,7 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let outboundPrices  = {};   // {date: price}
     let inboundPrices   = {};
     let currentPrices   = {};
+    monthCache.clear(); // Reset cache on each init
     let clickCounter    = 0;    // Track clicks inside round-trip workflow
+    let preservedStartDate = null;
 
     // Initialise / re-initialise picker
     async function initPicker(openImmediately = false) {
@@ -54,9 +63,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!from || !to || !tripType) return;
 
         // (re)load prices
-        outboundPrices  = await fetchPrices(from, to);
-        inboundPrices   = await fetchPrices(to, from);
-        currentPrices   = outboundPrices;
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+
+        outboundPrices = {};
+        inboundPrices = {};
+        monthCache.clear();
+
+        // Load outbound prices into outboundPrices
+        await fetchMonthPrices(from, to, year, month, outboundPrices);
+
+        // Load inbound prices into inboundPrices
+        await fetchMonthPrices(to, from, year, month, inboundPrices);
+
+        // Use outbound prices by default
+        currentPrices = outboundPrices;
+
         clickCounter    = 0;
 
         picker = new easepick.create({
@@ -72,21 +95,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Custom life-cycle hooks
             setup(pkr) {
-                // Render price tags on each calendar day
-                pkr.on('view', ({ detail: { view, date, target } }) => {
-                    if (view !== 'CalendarDay') return;
-                    const ymd   = date.format('YYYY-MM-DD');
-                    const price = currentPrices[ymd];
-                    if (!price) return;
+                const preloadedMonths = new Set(); // Track once-per-month prefetch
 
-                    let tag = target.querySelector('.price-tag');
-                    if (!tag) {
-                        tag = document.createElement('span');
-                        tag.className = 'price-tag';
-                        tag.style.cssText = 'display:block;font-size:0.75rem;';
-                        target.append(tag);
+                // Render price tags on each calendar day
+                pkr.on('view', async ({ detail: { view, date, target } }) => {
+                    if (view !== 'CalendarDay') return;
+
+                    const y = date.getFullYear();
+                    const m = date.getMonth() + 1;
+                    const d = date.getDate();
+                    const ymd = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+                    const isInbound = (clickCounter === 1 && tripSel.value === 'roundtrip');
+                    const dirFrom = isInbound ? toSel.value : fromSel.value;
+                    const dirTo   = isInbound ? fromSel.value : toSel.value;
+                    const store   = isInbound ? inboundPrices : outboundPrices;
+
+                    const key = `${dirFrom}->${dirTo}:${y}-${String(m).padStart(2, '0')}`;
+
+                    // ✅ Preload all dates for this month once
+                    if (!monthCache.has(key) && !preloadedMonths.has(key)) {
+                        preloadedMonths.add(key);
+                        await fetchMonthPrices(dirFrom, dirTo, y, m, store);
+                        // trigger full redraw of calendar view
+                        pkr.setStartDate(preservedStartDate, true);
+
+                        // Also manually set the plugin state:
+                        const range = pkr.plugin?.RangePlugin;
+
+                        if (range && preservedStartDate) {
+                            range.state = 1; // 0 = idle, 1 = waiting for end date
+                        }
+
+                        return; // skip this cell until rerender
                     }
+
+                    const price = store[ymd];
+                    if (typeof price !== 'number' || isNaN(price)) return;
+                    if (target.querySelector('.custom-tag')) return;
+
+                    const tag = document.createElement('span');
+                    tag.className = 'price-tag custom-tag';
                     tag.textContent = `€${price}`;
+                    tag.style.cssText = `
+                        display: block;
+                        font-size: 0.75rem;
+                    `;
+                    target.append(tag);
                 });
 
                 // ONE-WAY → simple select
@@ -110,6 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         // first click = switch to inbound prices
                         if (clickCounter === 1) {
                             currentPrices = inboundPrices;
+                            preservedStartDate = picker.getStartDate();
                             return;
                         }
 
@@ -138,6 +194,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         });
+
+        if (preservedStartDate) {
+            picker.setStartDate(preservedStartDate, true);
+            const range = picker.plugin?.RangePlugin;
+            if (range) range.state = 1;
+        }
 
         // --- optionally open immediately
         if (openImmediately) setTimeout(() => picker.show(), 0);

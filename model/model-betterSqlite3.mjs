@@ -18,18 +18,29 @@ function getCities() {
     return db.prepare(`SELECT DISTINCT city FROM airport ORDER BY city`).all().map(row => row.city);
 }
 
-function getCalendarPrices(from, to) {
-    const sql = `
+function getCalendarPrices(from, to, start = null, end = null) {
+    let sql = `
         SELECT DATE(f.time_departure) AS date, MIN(t.price) AS price
         FROM flight f
         JOIN airport a1 ON f.airport_depart_id = a1.id
         JOIN airport a2 ON f.airport_arrive_id = a2.id
         JOIN ticket t ON f.id = t.flight_id
         WHERE LOWER(a1.city) = LOWER(?) AND LOWER(a2.city) = LOWER(?)
-        GROUP BY DATE(f.time_departure)
-        ORDER BY date;
     `;
-    return db.prepare(sql).all(from.toLowerCase(), to.toLowerCase());
+
+    const params = [from.toLowerCase(), to.toLowerCase()];
+
+    if (start && end) {
+        sql += ` AND DATE(f.time_departure) BETWEEN ? AND ?`;
+        params.push(start, end);
+    }
+
+    sql += `
+        GROUP BY DATE(f.time_departure)
+        ORDER BY date
+    `;
+
+    return db.prepare(sql).all(...params);
 }
 
 function getUserById(username) {
