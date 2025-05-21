@@ -67,18 +67,37 @@ function apiGetFlights(req, res) {
 
 /* ---------- Prices in Calendar ----------- */
 async function apiGetPriceCalendar(req, res) {
-    const { from, to } = req.query;
+    const { from, to, year, month } = req.query;
 
     if (!from || !to) {
         return res.status(400).json([]);
     }
 
     try {
+        if (year && month) {
+            // Parse input safely
+            const y = parseInt(year, 10);
+            const m = parseInt(month, 10);
+
+            if (isNaN(y) || isNaN(m) || m < 1 || m > 12) {
+                return res.status(400).json([]);
+            }
+
+            const start = `${y}-${String(m).padStart(2, '0')}-01`;
+            const endDate = new Date(y, m, 0); // last day of the month
+            const end = endDate.toISOString().split('T')[0];
+
+            const result = await model.getCalendarPrices(from, to, start, end);
+            return res.json(result);
+        }
+
+        // Fallback: return all if no filtering
         const result = await model.getCalendarPrices(from, to);
-        res.json(result);
+        return res.json(result);
+
     } catch (err) {
         console.error(err);
-        res.status(500).json([]);
+        return res.status(500).json([]);
     }
 }
 
