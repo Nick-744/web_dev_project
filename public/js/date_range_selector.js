@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const json = await res.json();
 
             const entries = Object.fromEntries(json.map(({ date, price }) => [date, price]));
+            console.log("Prices loaded:", entries)
 
             if (targetStore) Object.assign(targetStore, entries); // Write into outbound/inbound
             monthCache.set(key, entries); // Cache for later
@@ -84,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         picker = new easepick.create({
             element     : depInput, // anchor input
-            css         : ['https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.1/dist/index.css'],
+            css         : ['/easepick/index.css'],
             calendars   : 1,
             readonly    : true,
             zIndex      : 10_000,
@@ -113,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const key = `${dirFrom}->${dirTo}:${y}-${String(m).padStart(2, '0')}`;
 
-                    // ✅ Preload all dates for this month once
+                    // Preload all dates for this month once
                     if (!monthCache.has(key) && !preloadedMonths.has(key)) {
                         preloadedMonths.add(key);
                         await fetchMonthPrices(dirFrom, dirTo, y, m, store);
