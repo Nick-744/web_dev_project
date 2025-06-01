@@ -33,4 +33,4 @@ SESSION_SECRET=your_random_session_key
 ```
 
 ## Deployment:
-deployed at(free tier)  :https://fly-express.onrender.com/
+deployed at(free tier): https://fly-express.onrender.com/
