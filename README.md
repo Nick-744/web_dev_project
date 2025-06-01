@@ -32,3 +32,5 @@ WEBSITE_EMAIL_PASSWORD=your_password
 SESSION_SECRET=your_random_session_key
 ```
 
+## Deployment:
+deployed at(free tier)  :https://fly-express.onrender.com/
