@@ -1,5 +1,5 @@
 # ✈️ FlyExpress – Web Dev Project (ECE GK_802)
-Εφαρμογή αναζήτησης αεροπορικών εισιτηρίων.
+Application for searching flight tickets / Εφαρμογή αναζήτησης αεροπορικών εισιτηρίων.
 
 A modern flight search platform for airline tickets. Built using Node.js, Express, SQLite, and Handlebars with dynamic 3D globe visualization and intelligent date-based price discovery.
 
